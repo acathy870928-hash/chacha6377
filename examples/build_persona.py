@@ -34,6 +34,7 @@ class Persona:
     pii_masking: bool
     output_guard: str | None
     banned_phrases: list[str]
+    required_disclosures: dict[str, list[dict]]
 
     @property
     def is_internal(self) -> bool:
@@ -64,6 +65,10 @@ def build(key: str) -> Persona:
     # 조립 순서: base → role. 런타임 컨텍스트는 messages 로 별도 주입.
     system_prompt = "\n\n---\n\n".join([base_text.strip(), role_text.strip()])
 
+    # 공통 금칙어 + 페르소나 전용 금칙어
+    banned = list(registry.get("banned_phrases", []))
+    banned += registry.get("persona_banned_phrases", {}).get(key, [])
+
     return Persona(
         key=key,
         name=spec["name"],
@@ -74,7 +79,8 @@ def build(key: str) -> Persona:
         max_tokens=spec["max_tokens"],
         pii_masking=spec.get("pii_masking", True),
         output_guard=spec.get("output_guard"),
-        banned_phrases=registry.get("banned_phrases", []),
+        banned_phrases=banned,
+        required_disclosures=registry.get("required_disclosures", {}).get(key, {}),
     )
 
 

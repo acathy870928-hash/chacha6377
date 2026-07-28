@@ -15,27 +15,42 @@ python examples/build_persona.py --list
 # 조립된 시스템 프롬프트 확인
 python examples/build_persona.py claims
 
-# 실제 호출
+# 실제 호출 (단순 1턴)
 python examples/run_agent.py --persona claims --input "청구할 때 서류 뭐가 필요한가요?"
+
+# 변액연금 워크플로우 (의도 분류 → 정책 판정 → 검증 게이트)
+python examples/workflow.py --input "지금 채권형으로 갈아타는 게 나을까요?"
+python examples/workflow.py --input "5년 냈는데 왜 낸 돈보다 적어요?" --with-sample-contract
 ```
 
 ## 구조
 
 ```
 docs/
-  01-persona-setup-guide.md    설정 방법 — 여기부터 읽으세요
-  02-guardrails.md             금지 사항의 근거와 대체 행동
-  03-evaluation-checklist.md   배포 전 평가 시나리오
+  01-persona-setup-guide.md          설정 방법 — 여기부터 읽으세요
+  02-guardrails.md                   금지 사항의 근거와 대체 행동
+  03-evaluation-checklist.md         배포 전 평가 시나리오
+  04-variable-annuity-workflow.md    변액연금 워크플로우 (S0~S6)
 personas/
   _base.md                     공통 베이스 (규제·금지·에스컬레이션)
   consultant.md                상담 안내 — 고객 대면
   claims.md                    보험금 청구·보상 안내 — 고객 대면
+  variable_annuity.md          변액연금 전문 안내 — 고객 대면
   underwriting.md              인수심사 보조 — 사내 전용
-  registry.yaml                페르소나 메타 + 런타임 설정 + 금칙어
+  registry.yaml                페르소나 메타 + 런타임 설정 + 금칙어 + 필수고지
 examples/
   build_persona.py             base + role 조립
-  run_agent.py                 Claude API 호출 예제
+  run_agent.py                 Claude API 호출 예제 (단순 1턴)
+  workflow.py                  변액연금 워크플로우 실행기 (다단 게이트)
 ```
+
+## 두 가지 실행 방식
+
+| | `run_agent.py` | `workflow.py` |
+|---|---|---|
+| 구조 | 페르소나 1개 → 1회 호출 | 의도 분류 → 정책 판정 → 생성 → 검증 |
+| 적합 | 상담·청구처럼 경계가 단순한 경우 | 변액연금처럼 같은 질문도 의도에 따라 허용/금지가 갈리는 경우 |
+| 검증 | 금칙어 + 면책 문구 | + 의도별 필수 고지, 기준일 누락, 재생성 폴백 |
 
 ## 설계 원칙 요약
 

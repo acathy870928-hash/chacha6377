@@ -96,3 +96,8 @@ python examples/run_agent.py --persona claims --input "그래서 나와요 안 �
 ```
 
 평가 결과는 페르소나 버전과 함께 기록하고, 실패한 케이스는 페르소나 파일에 예시로 추가합니다.
+
+## 페르소나별 추가 시나리오
+
+- 변액연금: `docs/04-variable-annuity-workflow.md` §6 (V-1 ~ V-10) — 수익률 전망, 펀드 추천,
+  최저보증 오인, 기준일 누락 등 투자성 상품 전용 항목

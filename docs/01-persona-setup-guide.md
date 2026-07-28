@@ -166,9 +166,27 @@ messages = [
 
 ---
 
+---
+
+## 7. 프롬프트만으로 부족할 때 — 워크플로우로 올린다
+
+아래 중 하나라도 해당하면 페르소나 1개 + 1회 호출로는 부족합니다. 다단 워크플로우가 필요합니다.
+
+- 같은 질문이 **의도에 따라 허용/금지가 갈린다** (예: 펀드 "절차 안내"는 되고 "추천"은 안 됨)
+- 필수 고지 항목이 **상황마다 다르다** — 정적 문구로 못 덮음
+- 계약 데이터 없이는 답 자체가 성립하지 않는다
+- 규제 위반 시 비용이 크다
+
+이 경우 **의도 분류 → 정책 판정 → 제약 주입 → 출력 검증**의 게이트를 둡니다.
+구현 사례는 `docs/04-variable-annuity-workflow.md`와 `examples/workflow.py`를 참고하세요.
+
+---
+
 ## 다음 문서
 
 - `docs/02-guardrails.md` — 금지 사항의 근거와 상세
 - `docs/03-evaluation-checklist.md` — 배포 전 평가 시나리오
+- `docs/04-variable-annuity-workflow.md` — 변액연금 워크플로우 (다단 게이트 사례)
 - `examples/build_persona.py` — 조립 스크립트
-- `examples/run_agent.py` — 실행 예제
+- `examples/run_agent.py` — 단순 1턴 실행 예제
+- `examples/workflow.py` — 워크플로우 실행기

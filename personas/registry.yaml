@@ -36,6 +36,19 @@ personas:
     output_guard: strict
     tags: [청구절차, 서류안내, 진행조회]
 
+  variable_annuity:
+    name: 변액연금 전문 안내
+    file: personas/variable_annuity.md
+    audience: external
+    model: claude-opus-5
+    effort: high                # 투자성 상품 — 경계 판단 정확도 우선
+    max_tokens: 6144
+    escalation_required: true
+    pii_masking: true
+    output_guard: strict
+    workflow: docs/04-variable-annuity-workflow.md
+    tags: [변액연금, 특별계정, 펀드변경, 연금개시, 최저보증]
+
   underwriting:
     name: 인수심사 보조
     file: personas/underwriting.md
@@ -63,3 +76,54 @@ banned_phrases:
   - 지금 가입하지 않으시면
   - 확정적으로 승인
   - 심사 통과를 보장
+
+# 페르소나별 추가 금칙어 (공통 banned_phrases 에 더해 적용)
+persona_banned_phrases:
+  variable_annuity:
+    # 수익률 보장·전망
+    - 수익률을 보장
+    - 수익률이 보장
+    - 원금이 보장
+    - 원금은 보장
+    - 손실 위험이 없
+    - 확정 수익
+    - 무조건 이익
+    - 오를 것으로
+    - 회복될 것
+    - 회복됩니다
+    # 투자권유·추천
+    - 추천드립니다
+    - 추천합니다
+    - 유리합니다
+    - 갈아타시는 게
+    - 갈아타시면
+    - 바꾸시는 게 좋
+    # 적합성 판단
+    - 고객님께 맞는 상품
+    - 적합한 상품입니다
+    - 고객님께 적합
+
+# 의도별 필수 고지 — 누락 시 게이트 실패 (docs/04 §S5 검사 2)
+required_disclosures:
+  variable_annuity:
+    account_inquiry:
+      - keywords: [원금, 손실]
+        label: 원금 손실 가능성
+      - keywords: [과거, 미래]
+        label: 과거 수익률이 미래를 보장하지 않음
+    cost_structure:
+      - keywords: [원금, 손실]
+        label: 원금 손실 가능성
+      - keywords: [비용, 차감]
+        label: 사업비 차감 후 운용
+    surrender:
+      - keywords: [납입, 적을 수]
+        label: 해지환급금이 납입보험료보다 적을 수 있음
+    guarantee:
+      - keywords: [조건]
+        label: 보증 조건 충족 시 적용
+    fund_change:
+      - keywords: [횟수]
+        label: 변경 횟수 제한
+      - keywords: [기준가]
+        label: 기준가 적용 시점
