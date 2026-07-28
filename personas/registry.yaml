@@ -1,0 +1,65 @@
+# 페르소나 레지스트리
+# build_persona.py 가 이 파일을 읽어 base + role 을 조립하고 런타임 설정을 결정합니다.
+
+version: 1
+
+base: personas/_base.md
+
+# 조립 규칙: base 를 먼저, 그 다음 role, 마지막에 runtime_context(런타임 주입)
+assembly_order:
+  - base
+  - role
+  - runtime_context
+
+personas:
+  consultant:
+    name: 보험 상담 안내
+    file: personas/consultant.md
+    audience: external          # 고객 대면
+    model: claude-opus-5
+    effort: medium              # low | medium | high | xhigh | max
+    max_tokens: 4096
+    escalation_required: true
+    pii_masking: true
+    tags: [상품설명, 보장조회, 용어안내]
+
+  claims:
+    name: 보험금 청구·보상 안내
+    file: personas/claims.md
+    audience: external
+    model: claude-opus-5
+    effort: medium
+    max_tokens: 4096
+    escalation_required: true
+    pii_masking: true
+    # 이 페르소나는 지급 확답 위험이 커서 출력 검증을 강제합니다.
+    output_guard: strict
+    tags: [청구절차, 서류안내, 진행조회]
+
+  underwriting:
+    name: 인수심사 보조
+    file: personas/underwriting.md
+    audience: internal          # 사내 전용 — 고객 채널 배포 금지
+    model: claude-opus-5
+    effort: high                # 지침 대조는 정확도 우선
+    max_tokens: 8192
+    escalation_required: false
+    pii_masking: false          # 내부 심사 목적상 원본 필요
+    output_guard: strict
+    tags: [고지대조, 지침검색, 심사보조]
+
+# 런타임에 주입할 컨텍스트 슬롯 (조립 시 마지막 블록으로 붙음)
+runtime_context_slots:
+  - customer_profile      # 시스템이 조회한 고객/계약 정보
+  - retrieved_documents   # 약관·지침 RAG 결과
+  - channel               # web | app | kakao | callcenter
+  - session_notes         # 이전 대화 요약
+
+# 출력 금칙어 — output_guard: strict 인 페르소나에서 후처리 검사
+banned_phrases:
+  - 반드시 지급됩니다
+  - 100% 보장
+  - 무조건 가입
+  - 지금 가입하지 않으시면
+  - 확정적으로 승인
+  - 심사 통과를 보장
