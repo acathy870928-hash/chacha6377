@@ -24,6 +24,7 @@ insurance planning while maximizing the value of insurance products and services
 | 04 | [Platform Architecture](docs/04-platform-architecture.md) | Insurance Vertical AI™ 및 6-Layer 플랫폼 아키텍처 |
 | 05 | [Roadmap](docs/05-roadmap.md) | Today → Tomorrow → Future |
 | 06 | [Business Model](docs/06-business-model.md) | 초기 수익원과 궁극적인 수익원 |
+| 07 | [User · Function · Data Matrix](docs/07-user-function-data-matrix.md) | 누가 사용 / 어떤 기능 / 누가 어떤 데이터를 사용 |
 
 ---
 
