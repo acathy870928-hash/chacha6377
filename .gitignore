@@ -1,0 +1,14 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# 검수 큐 — 담당자 작업 상태라 저장소에 올리지 않는다
+/data/articles.json
+
+# MD 산출물 — 매번 재생성되므로 저장소에 올리지 않는다.
+# 앞의 '/' 가 없으면 examples/output/ 까지 함께 무시되므로 주의.
+/output/
+
+logs/

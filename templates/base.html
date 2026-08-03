@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}보험 제도 뉴스 검수{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">보험 제도 뉴스 <span>검수 콘솔</span></a>
+  <form class="reviewer-form" method="post" action="{{ url_for('bulk') }}" onsubmit="return false;">
+    <label for="reviewer-global">담당자</label>
+    <input id="reviewer-global" type="text" value="{{ reviewer }}" placeholder="이름 입력"
+           oninput="document.querySelectorAll('input.reviewer-field').forEach(el => el.value = this.value)">
+  </form>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flashes">
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="foot">
+  수집 → 담당자 확인 → MD 변환 · 분류 규칙은 <code>{{ FILTER_CONFIG }}</code> 에서 조정합니다.
+</footer>
+<script>
+  // 담당자 이름을 모든 폼에 자동으로 채워 넣는다.
+  document.addEventListener('DOMContentLoaded', () => {
+    const name = document.getElementById('reviewer-global');
+    if (name && name.value) {
+      document.querySelectorAll('input.reviewer-field').forEach(el => el.value = name.value);
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+# 보험 제도 뉴스 수집 소스 정의
+#
+# type:
+#   rss  - feedparser 로 파싱 (권장)
+#   html - 목록 페이지를 BeautifulSoup 으로 파싱 (list_selector / link_selector 필요)
+#
+# enabled: false 로 두면 수집 대상에서 제외됩니다.
+# 언론사 RSS 주소는 사이트 개편으로 바뀔 수 있으니
+#   python -m src.cli doctor
+# 로 유효성을 먼저 확인하세요.
+
+defaults:
+  timeout: 15
+  user_agent: "insurance-news-pipeline/1.0 (+internal research bot)"
+  # 수집 대상 기간(일). 이보다 오래된 기사는 버립니다.
+  max_age_days: 30
+  # 소스별 최대 수집 건수
+  max_items_per_source: 40
+
+sources:
+  # ── 보험 전문지 ────────────────────────────────────────────────
+  - name: 보험신보
+    type: rss
+    url: https://www.insweek.co.kr/rss/allArticle.xml
+    weight: 1.2
+    enabled: true
+
+  - name: 보험매일
+    type: rss
+    url: https://www.fins.co.kr/rss/allArticle.xml
+    weight: 1.2
+    enabled: true
+
+  - name: 한국보험신문
+    type: rss
+    url: https://www.insnews.co.kr/rss/allArticle.xml
+    weight: 1.1
+    enabled: true
+
+  - name: 인슈어런스데이
+    type: rss
+    url: https://www.insuranceday.co.kr/rss/allArticle.xml
+    weight: 1.1
+    enabled: true
+
+  # ── 경제지 금융면 ──────────────────────────────────────────────
+  - name: 이데일리-금융
+    type: rss
+    url: https://rss.edaily.co.kr/edaily_news.xml
+    weight: 0.9
+    enabled: true
+
+  - name: 서울경제-금융
+    type: rss
+    url: https://www.sedaily.com/RSS/S1N1.xml
+    weight: 0.9
+    enabled: false
+
+  # ── 규제기관 보도자료 (제도 변경 1차 출처) ─────────────────────
+  - name: 금융위원회-보도자료
+    type: html
+    url: https://www.fsc.go.kr/no010101
+    base_url: https://www.fsc.go.kr
+    list_selector: "div.subject a, td.subject a, ul.board-list li a"
+    weight: 2.0
+    enabled: true
+    always_review: true # 규제기관 자료는 홍보 필터를 적용하지 않고 항상 검수 대기로
+
+  - name: 금융감독원-보도자료
+    type: html
+    url: https://www.fss.or.kr/fss/bbs/B0000188/list.do?menuNo=200218
+    base_url: https://www.fss.or.kr
+    list_selector: "td.subject a, .bd-list td a, ul.bbs-list li a"
+    weight: 2.0
+    enabled: true
+    always_review: true
+
+  - name: 생명보험협회-보도자료
+    type: html
+    url: https://www.klia.or.kr/consumer/notice/noticeList.do
+    base_url: https://www.klia.or.kr
+    list_selector: "td.subject a, .board_list td a"
+    weight: 1.5
+    enabled: false
+
+  - name: 손해보험협회-보도자료
+    type: html
+    url: https://www.knia.or.kr/press/pressList
+    base_url: https://www.knia.or.kr
+    list_selector: "td.subject a, .board_list td a"
+    weight: 1.5
+    enabled: false

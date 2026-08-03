@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% set current = request.full_path %}
+
+<div class="tabs">
+  {% for s in ALL_STATUSES %}
+    <a class="tab {% if status == s %}active{% endif %}"
+       href="{{ url_for('index', status=s, q=query, source=source) }}">
+      {{ STATUS_LABELS[s] }}<span class="n">{{ counts.get(s, 0) }}</span>
+    </a>
+  {% endfor %}
+  <a class="tab {% if status == 'all' %}active{% endif %}"
+     href="{{ url_for('index', status='all', q=query, source=source) }}">
+    전체<span class="n">{{ total }}</span>
+  </a>
+</div>
+
+<form class="toolbar" method="get" action="{{ url_for('index') }}">
+  <input type="hidden" name="status" value="{{ status }}">
+  <input type="text" name="q" value="{{ query }}" placeholder="제목·본문 검색" style="width:240px">
+  <select name="source">
+    <option value="">전체 매체</option>
+    {% for s in sources %}
+      <option value="{{ s }}" {% if source == s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">검색</button>
+  <div class="spacer"></div>
+  <span style="color:var(--muted)">{{ articles|length }}건 표시</span>
+</form>
+
+<form method="post" action="{{ url_for('bulk') }}">
+  <input type="hidden" name="back" value="{{ current }}">
+  <input type="hidden" class="reviewer-field" name="reviewer" value="{{ reviewer }}">
+
+  <div class="toolbar">
+    <label><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c => c.checked = this.checked)"> 전체 선택</label>
+    <button type="submit" name="action" value="approve" class="ok">선택 승인</button>
+    <button type="submit" name="action" value="reject" class="no">선택 반려</button>
+    <button type="submit" name="action" value="reset">검수 대기로</button>
+    <div class="spacer"></div>
+    <span style="color:var(--muted)">승인 {{ counts.get('approved', 0) }}건 대기 중</span>
+    <button type="submit" formaction="{{ url_for('do_export') }}" class="primary">MD 변환 실행</button>
+  </div>
+
+  {% if not articles %}
+    <div class="empty">
+      해당 조건에 맞는 기사가 없습니다.<br>
+      <code>python -m src.cli collect</code> 로 기사를 먼저 수집하세요.
+    </div>
+  {% endif %}
+
+  {% for a in articles %}
+    <div class="card">
+      <div class="pick"><input type="checkbox" name="ids" value="{{ a.id }}"></div>
+      <div class="body">
+        <h3><a href="{{ url_for('detail', article_id=a.id, back=current) }}">{{ a.display_title }}</a></h3>
+        <div class="meta">
+          <span class="pill {{ a.status }}">{{ STATUS_LABELS[a.status] }}</span>
+          <span class="pill cat">{{ a.category }}</span>
+          <span>{{ a.source }}</span>
+          {% if a.published_at %}<span>{{ a.published_at[:10] }}</span>{% endif %}
+          {% if a.effective_date %}<span>시행 {{ a.effective_date }}</span>{% endif %}
+          <span>제도 {{ a.policy_score }} / 홍보 {{ a.promo_score }}</span>
+          <a href="{{ a.url }}" target="_blank" rel="noopener">원문 ↗</a>
+        </div>
+        {% if a.display_summary %}<p class="excerpt">{{ a.display_summary }}</p>{% endif %}
+        {% if a.auto_reason %}<div class="reason">자동판정: <code>{{ a.auto_reason }}</code></div>{% endif %}
+        {% if a.reviewer_note %}<div class="reason">메모: {{ a.reviewer_note }}</div>{% endif %}
+      </div>
+      <div class="actions">
+        {% if a.status != 'approved' %}
+          <button type="submit" class="ok sm" formaction="{{ url_for('decide', article_id=a.id, decision='approve') }}">승인</button>
+        {% endif %}
+        {% if a.status != 'rejected' %}
+          <button type="submit" class="no sm" formaction="{{ url_for('decide', article_id=a.id, decision='reject') }}">반려</button>
+        {% endif %}
+        {% if a.status != 'pending' %}
+          <button type="submit" class="sm" formaction="{{ url_for('decide', article_id=a.id, decision='reset') }}">되돌리기</button>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</form>
+{% endblock %}

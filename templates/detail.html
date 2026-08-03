@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ a.display_title }} · 검수{% endblock %}
+{% block content %}
+
+<p><a href="{{ back }}">← 목록으로</a></p>
+
+<form method="post" action="{{ url_for('save', article_id=a.id) }}">
+  <input type="hidden" name="back" value="{{ back }}">
+  <input type="hidden" class="reviewer-field" name="reviewer" value="{{ reviewer }}">
+
+  <div class="detail">
+    <div class="panel">
+      <h2>{{ a.title }}</h2>
+      <div class="meta" style="margin-bottom:14px">
+        <span class="pill {{ a.status }}">{{ STATUS_LABELS[a.status] }}</span>
+        <span>{{ a.source }}</span>
+        {% if a.published_at %}<span>{{ a.published_at[:10] }}</span>{% endif %}
+        <a href="{{ a.url }}" target="_blank" rel="noopener">원문 ↗</a>
+      </div>
+
+      <div class="scores">
+        <div class="score"><b>{{ a.policy_score }}</b><span>제도 점수</span></div>
+        <div class="score"><b>{{ a.promo_score }}</b><span>홍보 점수</span></div>
+      </div>
+      {% if a.auto_reason %}<div class="reason">자동판정 근거: <code>{{ a.auto_reason }}</code></div>{% endif %}
+      {% if a.matched_policy %}<div class="reason">제도 키워드: {{ a.matched_policy|join(', ') }}</div>{% endif %}
+      {% if a.matched_promo %}<div class="reason">홍보 키워드: {{ a.matched_promo|join(', ') }}</div>{% endif %}
+
+      <h4>제목 수정 (비우면 원 제목 사용)</h4>
+      <input type="text" name="edited_title" value="{{ a.edited_title }}"
+             placeholder="{{ a.title }}" style="width:100%">
+
+      <h4>요약 — MD 파일의 '요약' 섹션이 됩니다</h4>
+      <textarea name="edited_summary" rows="4" placeholder="비우면 자동 요약을 사용합니다">{{ a.edited_summary or a.summary }}</textarea>
+
+      <h4>본문</h4>
+      <div class="article-body">{{ a.content or '본문을 가져오지 못했습니다. 원문 링크를 확인하세요.' }}</div>
+    </div>
+
+    <div class="panel">
+      <h2 style="font-size:15px">검수 결과</h2>
+
+      <div class="field">
+        <label>처리 상태</label>
+        <select name="status">
+          {% for s in ALL_STATUSES %}
+            <option value="{{ s }}" {% if a.status == s %}selected{% endif %}>{{ STATUS_LABELS[s] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label>분류 (MD front matter 의 category)</label>
+        <select name="category">
+          {% for c in CATEGORIES %}
+            <option value="{{ c }}" {% if a.category == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label>제도 시행일</label>
+        <input type="text" name="effective_date" value="{{ a.effective_date }}" placeholder="2026-07-01">
+      </div>
+
+      <div class="field">
+        <label>태그 (쉼표로 구분)</label>
+        <input type="text" name="tags" value="{{ a.tags|join(', ') }}" placeholder="실손, 금융위, 시행령">
+      </div>
+
+      <div class="field">
+        <label>담당자 메모 — MD 에 함께 기록됩니다</label>
+        <textarea name="reviewer_note" rows="5" placeholder="챗봇이 알아야 할 맥락, 주의사항 등">{{ a.reviewer_note }}</textarea>
+      </div>
+
+      <button type="submit" class="primary" style="width:100%">저장</button>
+
+      {% if a.reviewed_at %}
+        <p class="reason">최종 검수: {{ a.reviewer or '이름 미입력' }} · {{ a.reviewed_at[:16] }}</p>
+      {% endif %}
+      {% if a.exported_at %}
+        <p class="reason">MD 변환됨: <code>{{ a.exported_path }}</code></p>
+      {% endif %}
+    </div>
+  </div>
+</form>
+{% endblock %}
