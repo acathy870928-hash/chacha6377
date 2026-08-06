@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MD 변환기 · Markdown ↔ HTML</title>
+<meta name="description" content="브라우저에서 바로 동작하는 마크다운 ↔ HTML 변환기. 파일은 서버로 전송되지 않습니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">MD</span>
+    <div>
+      <h1>마크다운 변환기</h1>
+      <p class="sub">브라우저에서만 처리 — 파일이 서버로 올라가지 않습니다</p>
+    </div>
+  </div>
+
+  <div class="mode" role="tablist" aria-label="변환 방향">
+    <button type="button" class="mode-btn is-active" data-mode="md2html" role="tab" aria-selected="true">MD → HTML</button>
+    <button type="button" class="mode-btn" data-mode="html2md" role="tab" aria-selected="false">HTML → MD</button>
+  </div>
+
+  <button type="button" id="theme-toggle" class="icon-btn" title="테마 전환" aria-label="테마 전환">◐</button>
+</header>
+
+<main class="panes">
+  <section class="pane" id="input-pane">
+    <div class="pane-head">
+      <h2 id="input-title">마크다운 입력</h2>
+      <div class="pane-actions">
+        <label class="btn file-btn">
+          파일 열기
+          <input type="file" id="file-input" accept=".md,.markdown,.mdown,.mkd,.txt,.html,.htm" hidden>
+        </label>
+        <button type="button" class="btn" id="sample-btn">예제</button>
+        <button type="button" class="btn" id="clear-btn">지우기</button>
+      </div>
+    </div>
+    <textarea id="source" spellcheck="false" placeholder="여기에 마크다운을 붙여넣거나, 파일을 끌어다 놓으세요."></textarea>
+    <div class="pane-foot">
+      <span id="input-stats">0자 · 0줄</span>
+      <label class="opt"><input type="checkbox" id="opt-breaks"> 줄바꿈을 &lt;br&gt;로</label>
+      <label class="opt"><input type="checkbox" id="opt-raw-html"> 원본 HTML 허용</label>
+    </div>
+  </section>
+
+  <div class="divider" role="separator" aria-orientation="vertical"></div>
+
+  <section class="pane" id="output-pane">
+    <div class="pane-head">
+      <div class="tabs" role="tablist" aria-label="출력 보기">
+        <button type="button" class="tab is-active" data-view="preview" role="tab" aria-selected="true">미리보기</button>
+        <button type="button" class="tab" data-view="code" role="tab" aria-selected="false">코드</button>
+      </div>
+      <div class="pane-actions">
+        <button type="button" class="btn" id="copy-btn">복사</button>
+        <button type="button" class="btn primary" id="download-btn">다운로드</button>
+      </div>
+    </div>
+    <div class="output-wrap">
+      <article id="preview" class="markdown-body"></article>
+      <pre id="code-output" class="code-output" hidden><code></code></pre>
+    </div>
+    <div class="pane-foot">
+      <span id="output-stats">0자</span>
+      <span id="status" class="status" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+</main>
+
+<div id="drop-hint" class="drop-hint" hidden>파일을 놓으면 불러옵니다</div>
+
+<script src="assets/markdown.js"></script>
+<script src="assets/html-to-markdown.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

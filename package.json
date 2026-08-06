@@ -1,0 +1,15 @@
+{
+  "name": "chacha6377-md-converter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "브라우저에서 동작하는 마크다운 ↔ HTML 변환기",
+  "scripts": {
+    "test": "node tests/markdown.test.js && node tests/browser.test.js",
+    "test:unit": "node tests/markdown.test.js",
+    "test:browser": "node tests/browser.test.js",
+    "start": "node scripts/serve.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}
