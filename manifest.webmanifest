@@ -1,0 +1,18 @@
+{
+  "name": "법인카드 음성 입력",
+  "short_name": "법카입력",
+  "description": "녹음 버튼을 누르고 말하면 날짜·금액·사용처가 자동으로 입력되는 법인카드 사용내역 관리",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6fa",
+  "theme_color": "#1f6feb",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

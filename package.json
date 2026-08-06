@@ -1,0 +1,11 @@
+{
+  "name": "corporate-card-voice-input",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "말하면 자동으로 입력되는 법인카드 사용내역 관리",
+  "scripts": {
+    "start": "npx --yes http-server -p 8080 -o",
+    "test": "node --test tests/*.mjs"
+  }
+}

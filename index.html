@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1f6feb" />
+    <meta name="description" content="말하면 자동으로 입력되는 법인카드 사용내역 관리" />
+    <title>법인카드 음성 입력</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./assets/style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>법인카드 음성 입력</h1>
+      <p class="sub">녹음 버튼을 누르고 <strong>“어제 거래처 미팅 스타벅스에서 3만 2천원 3명”</strong> 처럼 말하면 자동으로 입력됩니다.</p>
+    </header>
+
+    <main>
+      <!-- 1. 음성 입력 -->
+      <section class="card recorder" aria-labelledby="recorder-title">
+        <h2 id="recorder-title" class="sr-only">음성 입력</h2>
+
+        <button id="recordBtn" class="mic" type="button" aria-pressed="false">
+          <span class="mic-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor">
+              <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z" />
+              <path d="M18 11a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.91V20H8a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2h-3v-3.09A6 6 0 0 0 18 11z" />
+            </svg>
+          </span>
+          <span class="mic-label" id="recordLabel">녹음 시작</span>
+        </button>
+
+        <p class="status" id="status" role="status" aria-live="polite">버튼을 누르고 말씀하세요.</p>
+
+        <div class="transcript-box">
+          <label for="transcript">인식된 내용 (직접 입력·수정도 가능합니다)</label>
+          <textarea
+            id="transcript"
+            rows="2"
+            placeholder="예) 오늘 점심 김밥천국에서 9천원 2명"
+            autocomplete="off"
+          ></textarea>
+          <div class="transcript-actions">
+            <button type="button" id="analyzeBtn" class="btn ghost">문장 분석</button>
+            <button type="button" id="clearTranscriptBtn" class="btn ghost">지우기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 자동 채워지는 입력 폼 -->
+      <section class="card" aria-labelledby="form-title">
+        <div class="card-head">
+          <h2 id="form-title">지출 내역</h2>
+          <span class="badge" id="editBadge" hidden>수정 중</span>
+        </div>
+
+        <form id="expenseForm" class="grid">
+          <div class="field">
+            <label for="date">사용일자 <span class="auto-tag">자동</span></label>
+            <input type="date" id="date" name="date" required />
+          </div>
+
+          <div class="field">
+            <label for="amount">금액 (원)</label>
+            <input type="text" id="amount" name="amount" inputmode="numeric" placeholder="32,000" required />
+          </div>
+
+          <div class="field">
+            <label for="merchant">사용처</label>
+            <input type="text" id="merchant" name="merchant" placeholder="스타벅스" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="category">계정과목</label>
+            <select id="category" name="category"></select>
+          </div>
+
+          <div class="field">
+            <label for="headcount">인원</label>
+            <input type="number" id="headcount" name="headcount" min="1" max="999" placeholder="3" />
+          </div>
+
+          <div class="field">
+            <label for="cardName">카드</label>
+            <input type="text" id="cardName" name="cardName" placeholder="법인카드" autocomplete="off" />
+          </div>
+
+          <div class="field span-2">
+            <label for="purpose">사용목적 (적요)</label>
+            <input type="text" id="purpose" name="purpose" placeholder="거래처 미팅" autocomplete="off" />
+          </div>
+
+          <div class="form-actions span-2">
+            <button type="submit" class="btn primary" id="submitBtn">저장</button>
+            <button type="button" class="btn ghost" id="resetBtn">새로 입력</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 3. 저장된 내역 -->
+      <section class="card" aria-labelledby="list-title">
+        <div class="card-head">
+          <h2 id="list-title">사용 내역</h2>
+          <select id="monthFilter" class="month-filter" aria-label="월 선택"></select>
+        </div>
+
+        <p class="summary">
+          <span id="countLabel">0건</span>
+          <strong id="totalLabel">0원</strong>
+        </p>
+
+        <div id="list" class="list"></div>
+
+        <div class="export-actions">
+          <button type="button" class="btn" id="csvBtn">CSV 내려받기</button>
+          <button type="button" class="btn" id="copyBtn">표로 복사</button>
+          <button type="button" class="btn danger-ghost" id="deleteMonthBtn">이 달 내역 삭제</button>
+        </div>
+      </section>
+
+      <!-- 4. 기본 설정 -->
+      <section class="card">
+        <details id="settingsBox">
+          <summary>기본 설정 (사용자 · 부서 · 자동 저장)</summary>
+          <div class="grid settings-grid">
+            <div class="field">
+              <label for="userName">사용자명</label>
+              <input type="text" id="userName" placeholder="홍길동" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="department">부서</label>
+              <input type="text" id="department" placeholder="영업1팀" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="defaultCard">기본 카드</label>
+              <input type="text" id="defaultCard" placeholder="법인카드 1234" autocomplete="off" />
+            </div>
+            <div class="field checkbox-field">
+              <label for="autoSave">
+                <input type="checkbox" id="autoSave" />
+                말하면 바로 저장 (확인 없이 자동 등록)
+              </label>
+            </div>
+          </div>
+          <p class="hint">
+            내역은 이 브라우저에만 저장됩니다. 다른 기기와 공유하려면 CSV 로 내려받아 전달하세요.
+          </p>
+        </details>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
