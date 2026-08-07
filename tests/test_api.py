@@ -89,6 +89,20 @@ def test_chat_asks_for_missing_premium_info(client):
     assert "나이" in text and "성별" in text
 
 
+def test_chat_pension_asks_for_missing_info(client):
+    events = chat(client, "연금 상담받고 싶어요")
+    text = reply_text(events)
+    assert "연금저축보험" in text and "나이" in text
+
+
+def test_chat_pension_simulation(client):
+    events = chat(client, "38세인데 연금저축 월 30만원 넣으면 얼마 받나요?")
+    text = reply_text(events)
+    assert "936,120원" in text
+    # 유리한 숫자만 제시하지 않고 중도해지 불이익을 함께 고지해야 한다.
+    assert "16.5%" in text
+
+
 def test_chat_returns_claim_guide(client):
     events = chat(client, "암 진단금 청구 서류 알려주세요")
     text = reply_text(events)

@@ -13,6 +13,12 @@ Claude(Opus 5) 기반 보험사 고객 상담 챗봇입니다. FastAPI 백엔드
 | 보유 계약 조회 | `lookup_contract` 툴 (데모용 목업 데이터) |
 | 상담원 연결 | `escalate_to_agent` 툴로 티켓 발급 |
 | 상품 목록 | `list_products` 툴 |
+| **연금 상담·가입** | `simulate_pension` → `check_suitability` → `start_application` 3단계. 적합성 진단 없이는 청약이 **코드 레벨에서** 거부됨 |
+
+연금 가입 대화 흐름과 분기(한도 초과·부적합·이탈·상담원 연결)는
+[`docs/scenario-pension-signup.md`](docs/scenario-pension-signup.md) 참고.
+지식베이스를 실제 자료로 교체할 때의 수집 대상은
+[`docs/crawl-targets.md`](docs/crawl-targets.md) 참고.
 
 ## 빠른 시작
 
@@ -31,7 +37,7 @@ python -m app.main            # 또는: uvicorn app.main:app --reload
 ## 테스트
 
 ```bash
-pytest          # 43 passed — API 키 없이 실행됩니다
+pytest          # 67 passed — API 키 없이 실행됩니다
 ```
 
 ## 구조
@@ -42,6 +48,7 @@ app/
   chat.py        Claude 대화 루프 (스트리밍 + 툴 수동 루프)
   fallback.py    API 키 없을 때 쓰는 규칙 기반 엔진
   tools.py       툴 스키마 + 실행 로직 (순수 함수, 단독 테스트 가능)
+  pension.py     연금 시뮬레이션·적합성 진단·청약 접수
   knowledge.py   약관·FAQ 검색 (키워드 + 문자 n-gram 스코어링)
   prompts.py     시스템 프롬프트 (캐싱을 위해 요청마다 불변)
   sessions.py    인메모리 세션 저장소 (TTL·용량 제한, 안전한 이력 절단)
@@ -105,3 +112,8 @@ SSE 이벤트 형태:
   정책에 맞춘 TTL·암호화가 필요합니다.
 - **감사 로그·컴플라이언스**: 상담 내용 보관, 불완전판매 방지 문구, 금융 규제 검토 필요.
 - **레이트 리밋 / 인증**: `/api/chat`에 인증과 호출 제한이 없습니다.
+- **보험 모집 규제**: 챗봇이 청약을 직접 접수하려면 보험업법상 CM(사이버마케팅) 채널
+  등록과 설명의무·적합성 원칙 이행 체계가 필요합니다. 검토 전에는 청약 직전에 등록
+  설계사로 넘기는 흐름으로 운영하세요.
+- **세법 상수**: `app/pension.py` 의 세액공제 한도·공제율은 2025년 기준 예시입니다.
+  매년 바뀌므로 설정/DB로 분리하고 연 1회 이상 검증해야 합니다.

@@ -19,6 +19,7 @@ from .knowledge import (
     load_products,
     search,
 )
+from .pension import check_suitability, simulate_pension, start_application
 
 # ---------------------------------------------------------------------------
 # 보험료 산출
@@ -50,6 +51,16 @@ def calculate_premium(
             "available_products": [
                 {"id": p["id"], "name": p["name"]} for p in load_products()
             ],
+        }
+
+    if product.get("premium_basis") == "payment":
+        # 연금은 가입금액이 아니라 납입액 기준이므로 계산 방식이 다르다.
+        return {
+            "error": "use_simulate_pension",
+            "message": (
+                f"{product['name']}은 납입액 기준 상품입니다. "
+                "보험료 계산 대신 simulate_pension 툴로 예상 연금액을 산출하세요."
+            ),
         }
 
     if gender not in _GENDER_FACTOR:
@@ -279,6 +290,116 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         },
     },
     {
+        "name": "simulate_pension",
+        "description": (
+            "연금 상품의 예상 적립금·월 연금액·세액공제액을 계산합니다. 고객이 노후 준비, "
+            "연금저축, 세액공제, '연금 얼마나 받나요' 등을 물어보면 사용하세요. "
+            "직접 계산하지 말고 반드시 이 툴을 쓰세요. 나이와 월 납입액이 확인되지 않았다면 "
+            "먼저 물어보세요. 연 소득을 모르면 annual_income_manwon 을 비워두면 소득 구간별 "
+            "환급액을 모두 돌려줍니다 — 임의로 소득을 가정하지 마세요."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "type": "string",
+                    "enum": ["pension-001", "pension-002"],
+                    "description": "pension-001=연금저축보험(세액공제형), pension-002=일반연금보험(비과세형)",
+                },
+                "monthly_payment_manwon": {
+                    "type": "integer",
+                    "description": "월 납입액 (만원 단위). 예: 30 은 30만원",
+                },
+                "current_age": {"type": "integer", "description": "현재 만 나이"},
+                "start_age": {
+                    "type": "integer",
+                    "description": "연금 개시 희망 연령 (기본 65세). 연금저축은 만 55세 이상만 가능",
+                },
+                "annual_income_manwon": {
+                    "type": "integer",
+                    "description": "연간 총급여 (만원). 세액공제율 판정용. 모르면 생략",
+                },
+                "payout_years": {
+                    "type": "integer",
+                    "description": "연금 수령 기간 (년, 기본 20년)",
+                },
+            },
+            "required": ["product_id", "monthly_payment_manwon", "current_age"],
+        },
+    },
+    {
+        "name": "check_suitability",
+        "description": (
+            "연금 가입 권유 전 적합성을 진단합니다. 금융소비자보호법상 필수 절차이며, "
+            "이 진단 없이는 청약(start_application)이 거부됩니다. "
+            "고객이 가입 의사를 밝히면 나이·연소득·희망 납입액·가입목적을 확인한 뒤 호출하세요. "
+            "결과가 '부적합'이면 절대 가입을 권유하지 말고 조건 조정을 안내하세요. "
+            "'주의'이면 warnings 내용을 고객에게 그대로 설명한 뒤 진행 의사를 다시 확인하세요."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "age": {"type": "integer", "description": "만 나이"},
+                "annual_income_manwon": {
+                    "type": "integer",
+                    "description": "연간 총급여 (만원)",
+                },
+                "monthly_payment_manwon": {
+                    "type": "integer",
+                    "description": "희망 월 납입액 (만원)",
+                },
+                "purpose": {
+                    "type": "string",
+                    "enum": ["노후자금", "세액공제", "목돈마련", "상속증여", "기타"],
+                    "description": "가입 목적",
+                },
+                "start_age": {
+                    "type": "integer",
+                    "description": "연금 개시 희망 연령 (기본 65세)",
+                },
+            },
+            "required": [
+                "age",
+                "annual_income_manwon",
+                "monthly_payment_manwon",
+                "purpose",
+            ],
+        },
+    },
+    {
+        "name": "start_application",
+        "description": (
+            "연금 상품 청약을 접수합니다. 반드시 다음을 모두 마친 뒤에만 호출하세요: "
+            "(1) simulate_pension 으로 예상 수령액 제시, (2) check_suitability 통과, "
+            "(3) 중도해지 불이익과 원금 손실 가능성 설명, (4) 고객의 명시적 가입 동의. "
+            "고객이 '가입할게요'라고 확정하지 않았다면 호출하지 마세요."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "type": "string",
+                    "enum": ["pension-001", "pension-002"],
+                },
+                "monthly_payment_manwon": {
+                    "type": "integer",
+                    "description": "월 납입액 (만원). 적합성 진단 시 금액과 일치해야 합니다.",
+                },
+                "applicant_name": {"type": "string", "description": "청약자 성함"},
+                "suitability_id": {
+                    "type": "string",
+                    "description": "check_suitability 가 반환한 진단 ID",
+                },
+            },
+            "required": [
+                "product_id",
+                "monthly_payment_manwon",
+                "applicant_name",
+                "suitability_id",
+            ],
+        },
+    },
+    {
         "name": "get_claim_guide",
         "description": "보험금 청구 유형별 필요 서류와 절차, 예상 처리 기간을 반환합니다. 고객이 청구 방법이나 필요 서류를 물어볼 때 사용하세요.",
         "input_schema": {
@@ -342,6 +463,9 @@ TOOL_HANDLERS: dict[str, Callable[..., dict[str, Any]]] = {
     "search_policy": search_policy,
     "list_products": list_products,
     "calculate_premium": calculate_premium,
+    "simulate_pension": simulate_pension,
+    "check_suitability": check_suitability,
+    "start_application": start_application,
     "get_claim_guide": get_claim_guide,
     "lookup_contract": lookup_contract,
     "escalate_to_agent": escalate_to_agent,

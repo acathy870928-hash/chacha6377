@@ -11,9 +11,11 @@ import re
 from typing import Any, AsyncIterator
 
 from .knowledge import search
+from .pension import simulate_pension
 from .tools import calculate_premium, get_claim_guide, list_products
 
 _GREETING = re.compile(r"안녕|하이|반가|hello|hi\b", re.IGNORECASE)
+_PENSION = re.compile(r"연금|노후|은퇴|세액공제|연말정산")
 _PREMIUM = re.compile(r"보험료|얼마|견적|가격|비용")
 _CLAIM = re.compile(r"청구|서류|보험금\s*받|접수")
 _CONTRACT = re.compile(r"내\s*보험|가입한|계약\s*조회|보유\s*계약")
@@ -22,6 +24,7 @@ _PRODUCT_LIST = re.compile(r"상품\s*(목록|종류|뭐|어떤)|어떤\s*보험
 
 _AGE = re.compile(r"(\d{1,3})\s*(?:살|세)")
 _AMOUNT = re.compile(r"(\d{1,6})\s*만\s*원")
+_MONTHLY_AMOUNT = re.compile(r"(?:월|매달|매월)\s*(\d{1,4})\s*만\s*원?")
 _FEMALE = re.compile(r"여자|여성|female")
 _MALE = re.compile(r"남자|남성|male")
 
@@ -97,6 +100,10 @@ def build_fallback_reply(text: str) -> str:
             "예: 홍길동 / 1985-03-12"
         )
 
+    # 연금은 납입액 기준이라 일반 보험료 계산과 분기가 다르므로 먼저 확인한다.
+    if _PENSION.search(text):
+        return _pension_reply(text)
+
     if _PREMIUM.search(text):
         return _premium_reply(text)
 
@@ -128,6 +135,64 @@ def build_fallback_reply(text: str) -> str:
         "상품 안내, 보험료 견적, 보험금 청구 방법 중 어떤 것이 궁금하신지 알려주시거나, "
         "상담원 연결을 요청해 주세요."
     )
+
+
+def _pension_reply(text: str) -> str:
+    age_match = _AGE.search(text)
+    # "월 30만원" 처럼 납입액이 있으면 시뮬레이션까지 진행한다.
+    payment_match = _MONTHLY_AMOUNT.search(text) or _AMOUNT.search(text)
+
+    if age_match is None or payment_match is None:
+        missing = []
+        if age_match is None:
+            missing.append("현재 나이 (예: 38세)")
+        if payment_match is None:
+            missing.append("월 납입 희망액 (예: 월 30만원)")
+        return (
+            "연금 상담을 도와드리겠습니다. 저희는 두 가지 연금상품을 취급합니다.\n"
+            "- 연금저축보험: 연 600만원까지 세액공제 (총급여 5,500만원 이하 16.5%)\n"
+            "- 일반연금보험: 세액공제는 없지만 10년 이상 유지 시 이자소득 비과세\n\n"
+            "예상 수령액을 계산하려면 다음 정보가 필요합니다.\n"
+            + "\n".join(f"- {item}" for item in missing)
+        )
+
+    product_id = "pension-002" if "비과세" in text else "pension-001"
+    result = simulate_pension(
+        product_id=product_id,
+        monthly_payment_manwon=int(payment_match.group(1)),
+        current_age=int(age_match.group(1)),
+    )
+    if result.get("error"):
+        return result["message"]
+
+    lines = [
+        f"{result['product_name']} 예상 시뮬레이션입니다.",
+        f"- 납입: 월 {_won(result['monthly_payment_krw'])} × {result['payment_years']}년",
+        f"- 총 납입원금: {_won(result['total_principal_krw'])}",
+        f"- 만 {result['start_age']}세 예상 적립금: {_won(result['estimated_accumulated_krw'])}",
+        f"- 예상 월 연금액: {_won(result['estimated_monthly_pension_krw'])} "
+        f"({result['payout_years']}년 확정 수령 기준)",
+    ]
+
+    credit = result.get("tax_credit")
+    if credit:
+        estimates = credit.get("estimate_by_income", {})
+        if estimates:
+            lines.append("- 연간 세액공제 환급 예상:")
+            lines.extend(f"    · {label}: {_won(value)}" for label, value in estimates.items())
+        if credit["over_limit"]:
+            lines.append(
+                f"  ※ 연 납입액이 세액공제 한도({credit['limit_manwon']:,}만원)를 초과합니다. "
+                "초과분은 공제 대상이 아닙니다."
+            )
+
+    lines.append("")
+    lines.append(result["disclaimer"])
+    lines.append(
+        "중도해지 시 세액공제받은 금액에 기타소득세 16.5%가 부과되고 "
+        "초기 해지환급금이 납입원금보다 적을 수 있습니다."
+    )
+    return "\n".join(lines)
 
 
 def _premium_reply(text: str) -> str:
