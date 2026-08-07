@@ -1,0 +1,235 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "last_updated": "2026-08-07",
+    "owner": "준법감시부",
+    "compliance_approved": false,
+    "legal_basis": [
+      "금융소비자보호에 관한 법률 제19조 (설명의무)",
+      "금융소비자보호에 관한 법률 제22조 (광고 시 필수 포함사항)",
+      "보험업법 제95조 (보험안내자료 기재사항)"
+    ],
+    "usage": "출력 필터 6단계에서, 대화 상태가 트리거 조건에 해당하면 해당 고지문이 답변에 포함되었는지 검증한다. 누락 시 자동 삽입 또는 재생성."
+  },
+
+  "disclosures": [
+    {
+      "id": "DISC-001",
+      "name": "AI 챗봇 고지",
+      "trigger": "session_start",
+      "timing": "대화 시작 첫 메시지",
+      "frequency": "세션당 1회 (필수)",
+      "severity": "MUST",
+      "text": "저는 OO생명의 AI 상담 도우미입니다. 정확한 계약 상담은 전문 상담사가 도와드립니다.",
+      "short_text": "AI 상담 도우미입니다",
+      "note": "고객이 '사람이냐'고 물으면 즉시 재고지 (FB-013 연계)"
+    },
+    {
+      "id": "DISC-002",
+      "name": "안내 목적 고지",
+      "trigger": "stage_5_entry",
+      "timing": "상품 권유 단계 진입 시",
+      "frequency": "세션당 1회 (필수)",
+      "severity": "MUST",
+      "text": "본 대화는 상품 안내 및 설명을 위한 것으로, 계약 체결을 확정하지 않습니다."
+    },
+    {
+      "id": "DISC-003",
+      "name": "원금 손실 가능성",
+      "trigger": ["product_recommendation", "premium_simulation"],
+      "timing": "상품 제안 또는 보험료 시뮬레이션 제시 시",
+      "frequency": "제안 시마다",
+      "severity": "MUST",
+      "text": "상품 유형에 따라 원금 손실이 발생할 수 있습니다.",
+      "conditional": {
+        "variable_annuity": "변액연금은 투자 실적에 따라 원금 손실이 발생할 수 있으며, 최저보증 조건은 상품별로 다릅니다.",
+        "guaranteed_rate": "최저보증이율이 적용되나, 사업비 차감으로 인해 해지 시점에 따라 납입 원금에 미달할 수 있습니다."
+      }
+    },
+    {
+      "id": "DISC-004",
+      "name": "사업비 차감",
+      "trigger": ["product_recommendation", "accumulation_simulation"],
+      "timing": "적립액 시뮬레이션 제시 시",
+      "frequency": "제안 시마다",
+      "severity": "MUST",
+      "text": "납입하신 보험료에서 사업비가 차감되므로, 보험료 전액이 적립되지는 않습니다.",
+      "note": "⭐ 적립액 시뮬레이션을 보여줄 때 가장 자주 누락되는 고지. 반드시 검증할 것."
+    },
+    {
+      "id": "DISC-005",
+      "name": "해지환급금 손실",
+      "trigger": ["product_recommendation", "objection_liquidity"],
+      "timing": "상품 제안 시 / 유동성 관련 질문 응답 시",
+      "frequency": "제안 시마다",
+      "severity": "MUST",
+      "text": "중도 해지 시 해지환급금이 이미 납입하신 보험료보다 적을 수 있습니다. 특히 가입 초기에는 환급금이 매우 적거나 없을 수 있습니다."
+    },
+    {
+      "id": "DISC-006",
+      "name": "시뮬레이션 가정 명시",
+      "trigger": "any_numeric_simulation",
+      "timing": "모든 계산 결과 출력 시",
+      "frequency": "출력 시마다 (예외 없음)",
+      "severity": "MUST",
+      "text": "(연 {rate}% 복리 가정, 세전 단순 예시이며 실제 수익률을 보장하지 않습니다)",
+      "template_vars": ["rate"],
+      "note": "⭐⭐ 가장 중요. 숫자가 나가는 모든 응답에 예외 없이 병기. 자동 삽입 로직 필수."
+    },
+    {
+      "id": "DISC-007",
+      "name": "세제적격 중도해지 페널티",
+      "trigger": ["product_recommendation:tax_qualified", "tax_credit_explained"],
+      "timing": "세액공제 혜택을 안내한 직후 (같은 응답 또는 바로 다음 응답)",
+      "frequency": "세액공제 언급 시마다",
+      "severity": "MUST",
+      "text": "다만 중도 해지하거나 연금 외의 형태로 수령하시면, 세액공제를 받은 납입액과 운용수익에 대해 기타소득세 16.5%가 부과됩니다.",
+      "note": "⭐ '단점 먼저 말하기' 원칙의 핵심. 혜택만 말하고 이 고지를 빠뜨리면 설명의무 위반."
+    },
+    {
+      "id": "DISC-008",
+      "name": "세액공제 한도·공제율 변동",
+      "trigger": "tax_credit_explained",
+      "timing": "세액공제 안내 시",
+      "frequency": "안내 시마다",
+      "severity": "MUST",
+      "text": "세액공제율과 한도는 소득 구간 및 세법 개정에 따라 달라질 수 있으며, 실제 환급액은 개인의 결정세액 범위 내에서 결정됩니다."
+    },
+    {
+      "id": "DISC-009",
+      "name": "비과세 요건 미충족 시 과세",
+      "trigger": "product_recommendation:tax_free_insurance",
+      "timing": "비과세 혜택 안내 시",
+      "frequency": "안내 시마다",
+      "severity": "MUST",
+      "text": "비과세는 납입기간·유지기간·납입한도 요건을 모두 충족한 경우에 한하며, 요건을 충족하지 못하면 보험차익에 대해 이자소득세가 부과될 수 있습니다."
+    },
+    {
+      "id": "DISC-010",
+      "name": "약관·상품설명서 확인 안내",
+      "trigger": "stage_5_entry",
+      "timing": "권유 단계 / 청약 의향 표명 시",
+      "frequency": "세션당 1회 이상",
+      "severity": "MUST",
+      "text": "자세한 보장 내용과 조건은 반드시 상품설명서 및 약관을 통해 직접 확인해 주세요."
+    },
+    {
+      "id": "DISC-011",
+      "name": "개인정보 수집·이용 동의",
+      "trigger": "before_profile_collection",
+      "timing": "나이·소득 등 프로필 수집 직전",
+      "frequency": "세션당 1회 (필수, 동의 획득)",
+      "severity": "MUST",
+      "requires_consent": true,
+      "text": "입력하신 나이와 소득 구간은 연금액 계산에만 사용되며, 별도 저장 없이 대화 종료 시 파기됩니다.",
+      "note": "연락처 수집·마케팅 발송은 반드시 별도 동의 항목으로 분리할 것 (일괄 동의 금지)"
+    },
+    {
+      "id": "DISC-012",
+      "name": "마케팅 수신 동의 (분리)",
+      "trigger": "before_contact_collection",
+      "timing": "연락처 수집 시",
+      "frequency": "1회 (동의 획득 필수)",
+      "severity": "MUST",
+      "requires_consent": true,
+      "separate_consent": true,
+      "text": "상담 예약을 위한 연락처 수집에 동의하십니까? (마케팅 정보 수신 동의는 별도로 선택하실 수 있습니다.)",
+      "note": "⚠️ 상담 동의와 마케팅 동의를 하나로 묶으면 개인정보 보호법 위반"
+    },
+    {
+      "id": "DISC-013",
+      "name": "통계 출처 병기",
+      "trigger": "statistic_cited",
+      "timing": "통계 수치 인용 시",
+      "frequency": "인용 시마다",
+      "severity": "MUST",
+      "text": "({source_org} 「{source_name}」, {base_year}년 기준)",
+      "template_vars": ["source_org", "source_name", "base_year"],
+      "note": "statistics.yaml의 `citation` 필드를 그대로 사용"
+    },
+    {
+      "id": "DISC-014",
+      "name": "적합성 확인 안내",
+      "trigger": "product_recommendation",
+      "timing": "상품 제안 시",
+      "frequency": "제안 시마다",
+      "severity": "SHOULD",
+      "text": "제안드린 내용은 말씀해 주신 정보를 바탕으로 한 참고 안내이며, 실제 가입 적합 여부는 소득·재산 상황 확인 후 판단됩니다."
+    },
+    {
+      "id": "DISC-015",
+      "name": "국민연금 예상액 추정 고지",
+      "trigger": "national_pension_estimated",
+      "timing": "국민연금 예상 수령액 제시 시",
+      "frequency": "제시 시마다",
+      "severity": "MUST",
+      "text": "본 금액은 통계 기반 추정치이며, 실제 수령액은 국민연금공단 '내 연금 알아보기'에서 정확히 확인하실 수 있습니다.",
+      "note": "⭐ 챗봇이 계산한 국민연금액을 확정 수치처럼 제시하면 허위 안내 리스크"
+    }
+  ],
+
+  "trigger_definitions": {
+    "session_start": "대화 세션 최초 응답",
+    "before_profile_collection": "나이/소득/보유연금 질문 직전",
+    "before_contact_collection": "전화번호/이메일 요청 직전",
+    "stage_5_entry": "대화 플로우 5단계(제안·클로징) 진입",
+    "product_recommendation": "특정 상품명 또는 상품 유형을 제안하는 응답",
+    "product_recommendation:tax_qualified": "세제적격(연금저축) 상품 제안",
+    "product_recommendation:tax_free_insurance": "세제비적격(연금보험) 상품 제안",
+    "premium_simulation": "보험료 산출 결과 제시",
+    "accumulation_simulation": "적립액 시뮬레이션 결과 제시",
+    "any_numeric_simulation": "계산 도구 결과가 포함된 모든 응답",
+    "tax_credit_explained": "세액공제 혜택 설명",
+    "statistic_cited": "statistics.yaml 조회 결과 인용",
+    "national_pension_estimated": "국민연금 예상 수령액 계산 결과 제시",
+    "objection_liquidity": "유동성/자금 묶임 관련 반론 응답"
+  },
+
+  "presentation_rules": {
+    "note": "고지를 어떻게 보여줄 것인가 — 형식적으로 흘려보내면 실질적 설명의무 이행으로 보기 어렵다.",
+    "rules": [
+      "고지 문구는 본문과 시각적으로 구분한다 (별도 블록 또는 ⚠️ 아이콘).",
+      "한 응답에 3개를 초과하는 고지가 몰리면 '확인이 필요한 사항' 카드로 묶어 제시한다.",
+      "DISC-006(시뮬레이션 가정)은 계산 결과 표 바로 아래에 붙인다. 응답 맨 끝으로 밀지 않는다.",
+      "DISC-007(중도해지 페널티)은 세액공제 혜택 설명과 같은 응답에 배치한다. 다음 턴으로 미루지 않는다.",
+      "고지 문구를 축약·의역하지 않는다. 이 파일의 `text`를 그대로 출력한다.",
+      "동의가 필요한 고지(requires_consent)는 반드시 명시적 버튼 응답으로 수신한다. 침묵을 동의로 처리하지 않는다."
+    ]
+  },
+
+  "validation": {
+    "note": "출력 필터가 수행할 검증 로직",
+    "checks": [
+      {
+        "id": "VAL-001",
+        "rule": "응답에 숫자 계산 결과가 포함되면 DISC-006 문구 존재를 확인한다.",
+        "on_fail": "auto_append"
+      },
+      {
+        "id": "VAL-002",
+        "rule": "응답에 '세액공제' 키워드가 포함되면 DISC-007, DISC-008 존재를 확인한다.",
+        "on_fail": "regenerate"
+      },
+      {
+        "id": "VAL-003",
+        "rule": "응답이 상품명을 포함하면 DISC-003, DISC-004, DISC-005 중 최소 2개 이상 존재를 확인한다.",
+        "on_fail": "regenerate"
+      },
+      {
+        "id": "VAL-004",
+        "rule": "통계 수치가 포함되면 대응하는 citation 문구 존재를 확인한다.",
+        "on_fail": "auto_append"
+      },
+      {
+        "id": "VAL-005",
+        "rule": "세션 전체에서 DISC-001이 최소 1회 출력되었는지 확인한다.",
+        "on_fail": "prepend_to_first_message"
+      },
+      {
+        "id": "VAL-006",
+        "rule": "requires_consent 고지에 대해 명시적 동의 이벤트가 기록되었는지 확인한다.",
+        "on_fail": "block_next_stage"
+      }
+    ]
+  }
+}

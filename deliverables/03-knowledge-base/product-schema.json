@@ -1,0 +1,273 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "연금 상품 지식베이스 스키마",
+  "description": "RAG 적재용 상품 정보 구조. 모든 상품은 이 스키마를 준수해야 하며, compliance_approved=false인 항목은 챗봇 응답에서 제외한다.",
+
+  "definitions": {
+    "product": {
+      "type": "object",
+      "required": [
+        "product_id",
+        "product_name",
+        "category",
+        "entry_age",
+        "risks",
+        "source_doc",
+        "last_verified",
+        "compliance_approved"
+      ],
+      "properties": {
+        "product_id": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}-[A-Z]{3}-\\d{3}$",
+          "description": "예: PEN-SAV-001"
+        },
+        "product_name": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": [
+            "세제적격_연금저축보험",
+            "세제비적격_연금보험",
+            "변액연금보험",
+            "즉시연금",
+            "IRP"
+          ]
+        },
+        "sales_status": {
+          "type": "string",
+          "enum": ["판매중", "판매중지", "예정"],
+          "description": "판매중이 아닌 상품은 챗봇 응답에서 제외"
+        },
+        "entry_age": {
+          "type": "object",
+          "properties": {
+            "min": { "type": "integer" },
+            "max": { "type": "integer" }
+          }
+        },
+        "payment_period": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "min_premium_monthly": { "type": "integer" },
+        "max_premium_monthly": { "type": ["integer", "null"] },
+        "annuity_start_age": {
+          "type": "object",
+          "properties": {
+            "min": { "type": "integer" },
+            "options": { "type": "array", "items": { "type": "integer" } }
+          }
+        },
+        "payout_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["종신형", "확정기간형", "상속형", "조기집중형"]
+          }
+        },
+        "guaranteed_min_rate": {
+          "type": ["number", "null"],
+          "description": "최저보증이율(%). ⚠️ 수익률로 표현하지 말 것. null이면 최저보증 없음"
+        },
+        "tax_benefit": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "enum": ["세액공제", "비과세", "없음"] },
+            "annual_limit": { "type": ["integer", "null"] },
+            "combined_limit_with_irp": { "type": ["integer", "null"] },
+            "conditions": { "type": "array", "items": { "type": "string" } },
+            "rate_note": {
+              "type": "string",
+              "description": "공제율은 하드코딩하지 않고 tax-rules.yaml 참조"
+            }
+          }
+        },
+        "risks": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "type": "string" },
+          "description": "⚠️ 최소 3개 필수. 원금손실·사업비·해지환급금 항목을 반드시 포함"
+        },
+        "suitable_for": { "type": "array", "items": { "type": "string" } },
+        "not_suitable_for": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "⭐ 적합성 원칙 준수용. 이 목록에 해당하는 고객에게는 권유 차단"
+        },
+        "source_doc": {
+          "type": "string",
+          "description": "근거 문서명 + 버전. 답변 근거 추적용"
+        },
+        "last_verified": { "type": "string", "format": "date" },
+        "expires_at": { "type": "string", "format": "date" },
+        "compliance_approved": { "type": "boolean" },
+        "approval_no": {
+          "type": ["string", "null"],
+          "description": "광고심의 승인번호"
+        }
+      }
+    }
+  },
+
+  "type": "object",
+  "properties": {
+    "meta": {
+      "version": "1.0.0",
+      "last_updated": "2026-08-07",
+      "owner": "상품기획팀"
+    },
+    "products": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/product" }
+    }
+  },
+
+  "examples": {
+    "note": "⚠️ 아래는 스키마 사용법을 보여주는 예시 데이터입니다. 실제 상품이 아니며, 배포 전 상품기획팀의 실제 데이터로 교체해야 합니다. compliance_approved가 모두 false인 이유입니다.",
+    "products": [
+      {
+        "product_id": "PEN-SAV-001",
+        "product_name": "(예시)연금저축보험",
+        "category": "세제적격_연금저축보험",
+        "sales_status": "판매중",
+        "entry_age": { "min": 15, "max": 65 },
+        "payment_period": ["5년", "10년", "20년", "전기납"],
+        "min_premium_monthly": 100000,
+        "max_premium_monthly": null,
+        "annuity_start_age": { "min": 55, "options": [55, 60, 65, 70] },
+        "payout_types": ["종신형", "확정기간형"],
+        "guaranteed_min_rate": null,
+        "tax_benefit": {
+          "type": "세액공제",
+          "annual_limit": 6000000,
+          "combined_limit_with_irp": 9000000,
+          "conditions": [
+            "만 55세 이후 연금 수령",
+            "가입기간 5년 이상",
+            "연금수령한도 내 수령"
+          ],
+          "rate_note": "공제율은 tax-rules.yaml TAX-RATE-001/002 참조 (소득 구간별 13.2~16.5%)"
+        },
+        "risks": [
+          "중도 해지 또는 연금 외 수령 시 기타소득세 16.5% 부과",
+          "해지환급금이 납입 보험료보다 적을 수 있으며, 가입 초기에는 특히 적음",
+          "사업비가 차감되어 납입 보험료 전액이 적립되지 않음",
+          "연금 수령 시 연금소득세 3.3~5.5% 과세"
+        ],
+        "suitable_for": [
+          "근로소득이 꾸준한 직장인",
+          "연말정산 환급이 필요한 고객",
+          "만 55세 이후까지 유지 가능한 여유 자금 보유 고객"
+        ],
+        "not_suitable_for": [
+          "소득이 없어 결정세액이 없는 고객 (세액공제 효과 없음)",
+          "5년 이내 사용 예정 자금",
+          "만 60세 이상 (수령 개시까지 기간 부족)",
+          "비상금이 확보되지 않은 고객"
+        ],
+        "source_doc": "상품설명서_예시_v0.1",
+        "last_verified": "2026-08-07",
+        "expires_at": "2027-08-07",
+        "compliance_approved": false,
+        "approval_no": null
+      },
+      {
+        "product_id": "PEN-INS-001",
+        "product_name": "(예시)연금보험",
+        "category": "세제비적격_연금보험",
+        "sales_status": "판매중",
+        "entry_age": { "min": 0, "max": 75 },
+        "payment_period": ["5년", "10년", "20년", "일시납"],
+        "min_premium_monthly": 100000,
+        "max_premium_monthly": 1500000,
+        "annuity_start_age": { "min": 45, "options": [45, 50, 55, 60, 65] },
+        "payout_types": ["종신형", "확정기간형", "상속형"],
+        "guaranteed_min_rate": null,
+        "tax_benefit": {
+          "type": "비과세",
+          "annual_limit": null,
+          "combined_limit_with_irp": null,
+          "conditions": [
+            "월적립식: 5년 이상 납입 + 10년 이상 유지 + 월 보험료 150만 원 이하",
+            "일시납: 10년 이상 유지 + 납입금액 1억 원 이하"
+          ],
+          "rate_note": "세액공제 없음. 비과세 요건은 tax-rules.yaml TAX-TF-001/002 참조"
+        },
+        "risks": [
+          "10년 이내 해지 시 보험차익에 이자소득세 15.4% 부과",
+          "해지환급금이 납입 보험료보다 적을 수 있음",
+          "사업비가 차감되어 납입 보험료 전액이 적립되지 않음",
+          "여러 건의 일시납 합계가 1억 원을 초과하면 전체 계약이 과세 대상이 될 수 있음"
+        ],
+        "suitable_for": [
+          "소득이 없어 세액공제 효과가 없는 고객",
+          "종신 수령으로 장수 리스크에 대비하려는 고객",
+          "10년 이상 유지 가능한 여유 자금 보유 고객"
+        ],
+        "not_suitable_for": [
+          "단기 자금 운용 목적 고객",
+          "연말정산 환급이 주된 목적인 고객 (세액공제 없음)",
+          "10년 이내 자금 사용 계획이 있는 고객"
+        ],
+        "source_doc": "상품설명서_예시_v0.1",
+        "last_verified": "2026-08-07",
+        "expires_at": "2027-08-07",
+        "compliance_approved": false,
+        "approval_no": null
+      },
+      {
+        "product_id": "PEN-IMM-001",
+        "product_name": "(예시)즉시연금",
+        "category": "즉시연금",
+        "sales_status": "판매중",
+        "entry_age": { "min": 45, "max": 80 },
+        "payment_period": ["일시납"],
+        "min_premium_monthly": null,
+        "max_premium_monthly": null,
+        "annuity_start_age": { "min": 45, "options": [] },
+        "payout_types": ["종신형", "확정기간형", "상속형"],
+        "guaranteed_min_rate": null,
+        "tax_benefit": {
+          "type": "비과세",
+          "annual_limit": null,
+          "combined_limit_with_irp": null,
+          "conditions": ["10년 이상 유지 + 납입금액 1억 원 이하 (종신형은 별도 요건)"],
+          "rate_note": "tax-rules.yaml TAX-TF-002 참조"
+        },
+        "risks": [
+          "가입 후 조기 사망 시 수령 총액이 납입액에 미달할 수 있음 (종신형)",
+          "중도 해지 시 해지환급금이 납입 보험료보다 적을 수 있음",
+          "사업비가 차감됨",
+          "물가상승에 따라 실질 구매력이 하락할 수 있음"
+        ],
+        "suitable_for": [
+          "퇴직금 등 목돈을 보유한 만 55세 이상 고객",
+          "즉시 월 소득이 필요한 은퇴 임박 고객"
+        ],
+        "not_suitable_for": [
+          "적립 기간이 충분한 젊은 고객",
+          "목돈 전액을 투입하려는 고객 (유동성 확보 필요)",
+          "단기 자금 사용 계획이 있는 고객"
+        ],
+        "source_doc": "상품설명서_예시_v0.1",
+        "last_verified": "2026-08-07",
+        "expires_at": "2027-08-07",
+        "compliance_approved": false,
+        "approval_no": null
+      }
+    ]
+  },
+
+  "ingestion_rules": {
+    "note": "RAG 적재 시 강제할 규칙",
+    "rules": [
+      "compliance_approved=false인 상품은 인덱스에서 제외한다.",
+      "sales_status != '판매중'인 상품은 인덱스에서 제외한다.",
+      "expires_at이 경과한 상품은 인덱스에서 제외하고 갱신 알림을 발송한다.",
+      "risks 배열이 3개 미만이면 적재를 거부한다.",
+      "not_suitable_for에 해당하는 세그먼트로 판정된 고객에게는 해당 상품을 검색 결과에서 필터링한다.",
+      "검색 결과를 답변에 사용할 때는 source_doc을 함께 반환해 근거 추적이 가능하게 한다.",
+      "guaranteed_min_rate는 '최저보증이율'로만 표기하고 '수익률'로 번역하지 않는다."
+    ]
+  }
+}

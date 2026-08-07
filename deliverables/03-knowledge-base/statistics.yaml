@@ -1,0 +1,461 @@
+# ============================================================
+# 연금 챗봇 통계 지식베이스
+# ============================================================
+# ⚠️ 운영 원칙
+#   1. 챗봇 프롬프트에 수치를 하드코딩하지 말 것.
+#      반드시 이 파일을 조회하는 도구(get_statistic)를 통해 참조한다.
+#   2. `expires_at` 경과 시 해당 수치는 답변에서 자동 제외한다.
+#   3. 답변에 수치를 인용할 때는 `citation` 문구를 반드시 함께 출력한다.
+#   4. `verified_at`은 자료 원문을 직접 확인한 날짜다.
+#
+# 최종 갱신: 2026-08-07
+# ============================================================
+
+meta:
+  version: "1.0.0"
+  last_updated: "2026-08-07"
+  review_cycle_months: 12
+  owner: "연금상품기획팀"
+
+# ------------------------------------------------------------
+# 1. 노후 생활비
+# ------------------------------------------------------------
+retirement_living_cost:
+
+  - id: STAT-LC-001
+    metric: 개인_노후_적정생활비_월
+    value: 1976000
+    unit: KRW
+    description: "50대 이상이 생각하는 개인(1인) 기준 노후 적정 생활비"
+    source_org: 국민연금공단 국민연금연구원
+    source_name: 국민노후보장패널조사(제10차)
+    base_year: 2024
+    citation: "(국민연금연구원 국민노후보장패널조사, 2024년 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "1인 가구 고객의 목표 생활비 기본값"
+
+  - id: STAT-LC-002
+    metric: 개인_노후_최소생활비_월
+    value: 1392000
+    unit: KRW
+    description: "개인(1인) 기준 특별한 질병 없는 최소한의 생활 유지 비용"
+    source_org: 국민연금공단 국민연금연구원
+    source_name: 국민노후보장패널조사(제10차)
+    base_year: 2024
+    citation: "(국민연금연구원 국민노후보장패널조사, 2024년 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "하한선 제시 — 공포 조장 없이 '최소한 이 정도'를 보여줄 때"
+
+  - id: STAT-LC-003
+    metric: 부부_노후_적정생활비_월
+    value: 2981000
+    unit: KRW
+    description: "부부(2인) 기준 노후 적정 생활비"
+    source_org: 국민연금공단 국민연금연구원
+    source_name: 국민노후보장패널조사(제10차)
+    base_year: 2024
+    citation: "(국민연금연구원 국민노후보장패널조사, 2024년 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "기혼 고객의 목표 생활비 기본값 (기본 시나리오)"
+
+  - id: STAT-LC-004
+    metric: 부부_노후_최소생활비_월
+    value: 2166000
+    unit: KRW
+    description: "부부(2인) 기준 최소 생활비"
+    source_org: 국민연금공단 국민연금연구원
+    source_name: 국민노후보장패널조사(제10차)
+    base_year: 2024
+    citation: "(국민연금연구원 국민노후보장패널조사, 2024년 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+
+  - id: STAT-LC-005
+    metric: 노후_주요지출항목_순위
+    value: ["식료품·비주류음료", "사회보험료", "보건의료비", "주택·수도·전기·가스"]
+    unit: list
+    description: "노후 지출에서 비중이 큰 항목 순서"
+    source_org: 국민연금공단 국민연금연구원
+    source_name: 국민노후보장패널조사
+    base_year: 2024
+    citation: "(국민연금연구원, 2024년 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "'노후엔 돈 안 든다'는 반론 대응 — 보건의료비가 상위권임을 제시"
+
+# ------------------------------------------------------------
+# 2. 국민연금 수령액
+# ------------------------------------------------------------
+national_pension_benefit:
+
+  - id: STAT-NP-001
+    metric: 노령연금_전체_월평균_수령액
+    value: 679924
+    unit: KRW
+    description: "노령연금 수급자 전체의 월평균 수령액"
+    source_org: 국민연금공단
+    source_name: 국민연금 공표통계
+    base_year: 2025
+    citation: "(국민연금공단 공표통계)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-06-30"
+    usage: "⚠️ '국민연금만으로 충분하다'는 인식 교정용 핵심 수치"
+
+  - id: STAT-NP-002
+    metric: 노령연금_20년이상가입_월평균_수령액
+    value: 1120539
+    unit: KRW
+    description: "가입기간 20년 이상 완전노령연금 수급자 월평균"
+    source_org: 국민연금공단
+    source_name: 국민연금 공표통계
+    base_year: 2025
+    citation: "(국민연금공단 공표통계)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-06-30"
+    usage: "장기 가입 직장인 고객의 현실적 기대치 제시"
+
+  - id: STAT-NP-003
+    metric: 노령연금_20년이상_장기가입자_월평균_최신
+    value: 1166697
+    unit: KRW
+    description: "20년 이상 장기가입자(약 136.9만 명) 평균 수령액"
+    source_org: 국민연금공단
+    source_name: 국민연금 공표통계
+    base_year: 2026
+    base_month: 1
+    citation: "(국민연금공단, 2026년 1월 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-06-30"
+
+  - id: STAT-NP-004
+    metric: 노령연금_10에서19년가입_월평균_수령액
+    value: 442177
+    unit: KRW
+    description: "가입기간 10~19년 수급자 월평균"
+    source_org: 국민연금공단
+    source_name: 국민연금 공표통계
+    base_year: 2025
+    citation: "(국민연금공단 공표통계)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-06-30"
+    usage: "경력 단절·자영업 전환 고객에게 가입기간 부족 리스크 설명"
+
+  - id: STAT-NP-005
+    metric: 노령연금_최고_월수령액
+    value: 3180000
+    unit: KRW
+    description: "국민연금 월 최고 수령액 (장기가입 + 연기연금 활용 사례)"
+    source_org: 국민연금공단
+    base_year: 2026
+    citation: "(국민연금공단, 2026년 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-06-30"
+    usage: "⚠️ 주의 — '나도 이만큼 받을 수 있다'는 오해 방지 문구와 함께만 사용"
+    caution: "예외적 최고값이므로 반드시 '극히 일부 사례'임을 병기할 것"
+
+  - id: STAT-NP-006
+    metric: 65세이상_월평균_연금수급액_전체연금합산
+    value: 695000
+    unit: KRW
+    description: "기초·국민·직역연금 등 1개 이상 수급자의 월평균 총 연금액"
+    source_org: 통계청
+    source_name: 2023년 연금통계 결과
+    base_year: 2023
+    published_at: "2025-08-25"
+    citation: "(통계청 「2023년 연금통계」)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+
+  - id: STAT-NP-007
+    metric: 65세이상_월연금수급액_중위값
+    value: 463000
+    unit: KRW
+    description: "65세 이상 연금 수급액 중위금액 (평균보다 낮음 = 분포 편중)"
+    source_org: 통계청
+    source_name: 2023년 연금통계 결과
+    base_year: 2023
+    citation: "(통계청 「2023년 연금통계」)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "평균값의 착시 교정 — 절반은 46만 원 미만"
+
+  - id: STAT-NP-008
+    metric: 65세이상_연금수급률
+    value: 90.9
+    unit: percent
+    description: "65세 이상 인구 중 1개 이상 연금 수급 비율"
+    source_org: 통계청
+    source_name: 2023년 연금통계 결과
+    base_year: 2023
+    citation: "(통계청 「2023년 연금통계」)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+
+  - id: STAT-NP-009
+    metric: 65세이상_연금수급액_구간별_분포
+    value:
+      "25만원 미만": 4.0
+      "25만~50만원": 50.9
+      "50만~100만원": 31.1
+      "100만~200만원": 8.2
+      "200만원 이상": 5.95
+    unit: percent
+    source_org: 통계청
+    source_name: 2023년 연금통계 결과
+    base_year: 2023
+    citation: "(통계청 「2023년 연금통계」)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "⭐ 가장 설득력 높은 데이터 — 수급자의 약 55%가 월 50만 원 미만"
+
+# ------------------------------------------------------------
+# 3. 국민연금 제도 (2025년 개혁 반영)
+# ------------------------------------------------------------
+national_pension_scheme:
+
+  - id: STAT-PS-001
+    metric: 국민연금_보험료율_2026
+    value: 9.5
+    unit: percent
+    description: "2026년 적용 보험료율 (직장가입자 본인부담 4.75%)"
+    detail: "2026년부터 매년 0.5%p 인상, 2033년 13% 도달 예정"
+    source_org: 보건복지부
+    source_name: 국민연금법 개정(2025.3 국회 통과)
+    base_year: 2026
+    citation: "(보건복지부, 2025년 연금개혁법 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2026-12-31"
+    caution: "매년 변경되므로 연 1회 필수 갱신"
+
+  - id: STAT-PS-002
+    metric: 국민연금_명목소득대체율
+    value: 43
+    unit: percent
+    description: "2026년부터 적용되는 명목소득대체율 (40년 가입 기준)"
+    source_org: 보건복지부
+    source_name: 국민연금법 개정(2025.3 국회 통과)
+    base_year: 2026
+    citation: "(보건복지부, 2025년 연금개혁법 기준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "⭐ 핵심 — 40년 꽉 채워야 소득의 43%. 실제 평균 가입기간은 그보다 짧음"
+    caution: "'명목' 소득대체율임을 반드시 명시. 실질 대체율은 가입기간에 따라 더 낮음"
+
+  - id: STAT-PS-003
+    metric: 국민연금_수급개시연령
+    value:
+      "1953~1956년생": 61
+      "1957~1960년생": 62
+      "1961~1964년생": 63
+      "1965~1968년생": 64
+      "1969년생 이후": 65
+    unit: age
+    source_org: 국민연금공단
+    citation: "(국민연금공단)"
+    verified_at: "2026-08-07"
+    expires_at: "2028-12-31"
+    usage: "⭐ 연금 크레바스 계산의 기준값"
+
+  - id: STAT-PS-004
+    metric: 국민연금_기금소진_전망시점
+    value: 2071
+    unit: year
+    description: "개혁 후 전망 (개혁 전 2056년 → 기금수익률 1%p 제고 병행 시 2071년)"
+    source_org: 보건복지부
+    base_year: 2025
+    citation: "(보건복지부, 2025년 연금개혁 재정추계)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "⚠️ '국민연금 못 받는다' 불안 대응 — 고갈 공포를 부추기는 게 아니라 진정시키는 용도"
+    caution: "절대 '국민연금이 고갈되어 못 받는다'는 식으로 사용 금지 (금지표현 FB-005)"
+
+# ------------------------------------------------------------
+# 4. 은퇴·수명·빈곤 (연금 크레바스 근거)
+# ------------------------------------------------------------
+retirement_and_longevity:
+
+  - id: STAT-RL-001
+    metric: 55에서64세_주된일자리_퇴직_평균연령
+    value: 49.4
+    unit: age
+    description: "55~64세 취업 경험자가 가장 오래 근무한 일자리를 그만둔 당시 평균 연령"
+    source_org: 통계청
+    source_name: 경제활동인구조사 고령층 부가조사
+    base_year: 2024
+    citation: "(통계청 「경제활동인구조사 고령층 부가조사」, 2024년)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-06-30"
+    usage: "⭐⭐ 연금 크레바스의 핵심 근거 — 49.4세 퇴직 vs 65세 수급 = 약 15년 공백"
+
+  - id: STAT-RL-002
+    metric: 고령층_주된일자리_퇴직_평균연령
+    value: 53.0
+    unit: age
+    description: "고령층(55~79세) 전체 기준, 가장 오래 근무한 일자리를 그만둔 당시 평균 연령"
+    source_org: 통계청
+    source_name: 경제활동인구조사 고령층 부가조사
+    base_year: 2026
+    base_month: 5
+    citation: "(통계청 「경제활동인구조사 고령층 부가조사」, 2026년 5월)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-06-30"
+    usage: "보수적 시나리오 기준값 (53세 퇴직 → 65세 수급 = 12년 공백)"
+
+  - id: STAT-RL-003
+    metric: 고령층_주된일자리_평균근속기간_년
+    value: 17.6
+    unit: year
+    detail: "남성 21년 8.6개월 / 여성 13년 7.1개월"
+    source_org: 통계청
+    source_name: 경제활동인구조사 고령층 부가조사
+    base_year: 2026
+    citation: "(통계청, 2026년 5월)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-06-30"
+
+  - id: STAT-RL-004
+    metric: 65세_기대여명_남자
+    value: 19.5
+    unit: year
+    description: "65세 시점에서 앞으로 더 살 것으로 기대되는 연수"
+    source_org: 통계청
+    source_name: 2024년 생명표
+    base_year: 2024
+    citation: "(통계청 「2024년 생명표」)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "연금 수령 기간 산정 — 65세 수급 시작 시 약 20년 수령"
+
+  - id: STAT-RL-005
+    metric: 65세_기대여명_여자
+    value: 23.7
+    unit: year
+    source_org: 통계청
+    source_name: 2024년 생명표
+    base_year: 2024
+    citation: "(통계청 「2024년 생명표」)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "⭐ 여성 고객 대상 종신형 연금 소구 근거 — 65세부터 평균 23.7년"
+
+  - id: STAT-RL-006
+    metric: 66세이상_상대적빈곤율
+    value: 39.8
+    unit: percent
+    description: "은퇴연령층(66세 이상) 중위소득 50% 이하 비율. OECD 최고 수준"
+    source_org: 통계청
+    source_name: 가계금융복지조사 / OECD 비교
+    base_year: 2023
+    citation: "(통계청, 2023년 기준 / OECD 회원국 중 최고 수준)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "⚠️ 신중 사용 — 사실 전달만. 공포 조장형 표현과 결합 금지"
+    caution: "'당신도 빈곤층이 된다' 식 사용 절대 금지 (금지표현 FB-003)"
+
+# ------------------------------------------------------------
+# 5. 사적연금 가입 현황 (사회적 증거)
+# ------------------------------------------------------------
+private_pension_adoption:
+
+  - id: STAT-PP-001
+    metric: 18에서59세_연금가입률_전체
+    value: 81.0
+    unit: percent
+    description: "국민·직역·퇴직·개인연금 중 1개 이상 가입 비율"
+    detail: "월평균 보험료 34만 4천 원"
+    source_org: 통계청
+    source_name: 2023년 연금통계 결과
+    base_year: 2023
+    citation: "(통계청 「2023년 연금통계」)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+
+  - id: STAT-PP-002
+    metric: 세대별_개인연금_가입률
+    value:
+      "베이비붐 이전 세대": 16.4
+      "베이비붐 세대": 26.9
+      "베이비붐 이후 세대": 36.1
+    unit: percent
+    source_org: 보건복지부
+    source_name: 사적연금 가입률 및 노후준비 인식 실태조사
+    citation: "(보건복지부 실태조사)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "⭐ 사회적 증거 — 젊은 세대일수록 개인연금 준비율이 높음"
+
+  - id: STAT-PP-003
+    metric: 노후준비_수단별_비율
+    value:
+      "공적연금": 66.6
+      "예금·적금·저축성보험": 16.9
+      "사적연금": 5.0
+      "퇴직급여": 4.1
+    unit: percent
+    source_org: 통계청
+    citation: "(통계청 사회조사)"
+    verified_at: "2026-08-07"
+    expires_at: "2027-12-31"
+    usage: "노후 준비의 공적연금 편중 구조 설명"
+
+# ------------------------------------------------------------
+# 6. 계산 가정값 (통계 아님 — 시뮬레이션 파라미터)
+# ------------------------------------------------------------
+calculation_assumptions:
+
+  - id: ASSUM-001
+    metric: 시뮬레이션_기본_적립이율
+    value: 3.0
+    unit: percent_per_year
+    description: "적립액 시뮬레이션 기본 가정 이율"
+    type: assumption          # ← 통계가 아님. 반드시 '가정'으로 표기
+    citation: "(연 3% 복리 가정, 단순 예시)"
+    caution: "⚠️ 확정 수익률이 아님. 출력 시 반드시 '가정' 문구 병기 (필수고지 DISC-006)"
+
+  - id: ASSUM-002
+    metric: 시뮬레이션_보수적_적립이율
+    value: 2.0
+    unit: percent_per_year
+    type: assumption
+    citation: "(연 2% 복리 가정, 보수적 시나리오)"
+
+  - id: ASSUM-003
+    metric: 퇴직연금_연금화_분할기간
+    value: 20
+    unit: year
+    description: "퇴직급여 일시금을 월 연금으로 환산할 때의 기본 분할 기간"
+    type: assumption
+    citation: "(20년 균등 분할 가정)"
+
+  - id: ASSUM-004
+    metric: 물가상승_반영여부
+    value: false
+    type: assumption
+    description: "기본 시뮬레이션은 명목 기준. 실질 가치 하락은 별도 안내"
+    caution: "고객이 물가를 물으면 '명목 기준이며 실제 구매력은 낮아질 수 있다'고 고지"
+
+# ------------------------------------------------------------
+# 7. 출처 원문 링크
+# ------------------------------------------------------------
+sources:
+  - org: 국민연금공단
+    url: "https://www.nps.or.kr/pnsinfo/statistics/getOHAF0115M0.do"
+    desc: "급여지급 현황 통계"
+  - org: 국민연금공단
+    url: "https://www.nps.or.kr/pnsinfo/statistics/getOHAF0111M0.do"
+    desc: "가입자 현황 통계"
+  - org: 보건복지부
+    url: "https://www.mohw.go.kr/menu.es?mid=a10714060000"
+    desc: "연금개혁 Q&A"
+  - org: 통계청
+    url: "https://kostat.go.kr/board.es?act=view&bid=11816&list_no=432335&mid=a10301010000"
+    desc: "연금통계 결과"
+  - org: 통계청
+    url: "https://www.kostat.go.kr/board.es?mid=a10301010000&bid=210"
+    desc: "경제활동인구조사 고령층 부가조사"
+  - org: 통계청
+    url: "https://www.korea.kr/briefing/policyBriefingView.do?newsId=156732935"
+    desc: "2024년 생명표"
