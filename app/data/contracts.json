@@ -1,0 +1,44 @@
+[
+  {
+    "customer_name": "홍길동",
+    "birth_date": "1985-03-12",
+    "contracts": [
+      {
+        "contract_no": "P-2021-004512",
+        "product_id": "health-001",
+        "product_name": "실손의료비보험 (4세대)",
+        "status": "정상",
+        "start_date": "2021-05-01",
+        "monthly_premium": 24800,
+        "coverage_amount_manwon": 5000,
+        "payment_day": 25
+      },
+      {
+        "contract_no": "P-2023-118902",
+        "product_id": "cancer-001",
+        "product_name": "암보장보험 (무배당)",
+        "status": "정상",
+        "start_date": "2023-02-14",
+        "monthly_premium": 41200,
+        "coverage_amount_manwon": 3000,
+        "payment_day": 25
+      }
+    ]
+  },
+  {
+    "customer_name": "김영희",
+    "birth_date": "1992-11-02",
+    "contracts": [
+      {
+        "contract_no": "P-2024-220114",
+        "product_id": "driver-001",
+        "product_name": "운전자보험",
+        "status": "정상",
+        "start_date": "2024-01-08",
+        "monthly_premium": 12500,
+        "coverage_amount_manwon": 2000,
+        "payment_day": 10
+      }
+    ]
+  }
+]

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>한화롭게보험 · 상담 챗봇</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%A1%EF%B8%8F%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">🛡️</span>
+          <div>
+            <h1>한화롭게보험 상담 챗봇</h1>
+            <p class="sub" id="mode-badge">연결 중…</p>
+          </div>
+        </div>
+        <button class="reset" id="reset-btn" type="button">대화 초기화</button>
+      </header>
+
+      <main class="messages" id="messages" aria-live="polite">
+        <div class="msg bot">
+          <div class="bubble">
+            안녕하세요, 한화롭게보험 상담 챗봇입니다.<br />
+            상품 안내, 보험료 견적, 보험금 청구 절차를 도와드릴 수 있습니다.
+          </div>
+        </div>
+      </main>
+
+      <div class="suggestions" id="suggestions">
+        <button type="button">암보험 면책기간이 어떻게 되나요?</button>
+        <button type="button">40세 남성, 암보험 3000만원 보험료 얼마인가요?</button>
+        <button type="button">실손보험 청구 서류 알려주세요</button>
+        <button type="button">실손보험 중복으로 가입해도 되나요?</button>
+      </div>
+
+      <form class="composer" id="composer">
+        <textarea
+          id="input"
+          rows="1"
+          placeholder="궁금한 내용을 입력하세요. (Shift+Enter 줄바꿈)"
+          autocomplete="off"
+        ></textarea>
+        <button type="submit" id="send-btn" aria-label="보내기">보내기</button>
+      </form>
+
+      <p class="disclaimer">
+        본 챗봇의 안내는 참고용이며, 실제 보장 여부와 보험료는 약관 및 인수심사 결과에 따릅니다.
+      </p>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
