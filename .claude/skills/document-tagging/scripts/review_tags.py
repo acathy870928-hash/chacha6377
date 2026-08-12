@@ -50,7 +50,7 @@ def load_records(path: str):
             for r in rows]
 
 
-def build_report(records, dictionary_tags=None, umbrella=()):
+def build_report(records, dictionary_tags=None, umbrella=(), intentional=()):
     targets = [r for r in records if r.get("태깅여부") == "대상"]
     excluded = [r for r in records if r.get("태깅여부") == "제외"]
 
@@ -66,10 +66,11 @@ def build_report(records, dictionary_tags=None, umbrella=()):
 
     # 사실상 같은 말인지 의심되는 조합: 함께 붙는 비율이 높거나, 태그명이 서로 포함 관계
     # 단, 상위(우산) 태그와 세부 태그가 함께 붙는 것은 설계 의도이므로 중복으로 보지 않는다.
+    intentional = {tuple(sorted(p)) for p in intentional}
     dup, by_design = [], []
     for (a, b), n in pairs.items():
         ratio = n / min(counts[a], counts[b])
-        if ratio < DUP_RATIO:
+        if ratio < DUP_RATIO or tuple(sorted((a, b))) in intentional:
             continue
         smaller, bigger = (a, b) if counts[a] <= counts[b] else (b, a)
         if bigger in umbrella:
@@ -78,7 +79,8 @@ def build_report(records, dictionary_tags=None, umbrella=()):
             dup.append((a, b, n, ratio, "동시 사용 %.0f%%" % (ratio * 100)))
     for a in counts:
         for b in counts:
-            if a != b and a in b and not any(d[0] == a and d[1] == b for d in dup):
+            if (a != b and a in b and tuple(sorted((a, b))) not in intentional
+                    and not any(d[0] == a and d[1] == b for d in dup)):
                 dup.append((a, b, pairs.get(tuple(sorted((a, b))), 0),
                             0.0, "태그명 포함 관계"))
     dup.sort(key=lambda d: -d[3])
@@ -184,14 +186,15 @@ def main():
     ap.add_argument("--rules", default=os.path.join(here, "tag_rules.json"))
     args = ap.parse_args()
 
-    dictionary_tags, umbrella = None, ()
+    dictionary_tags, umbrella, intentional = None, (), ()
     if os.path.exists(args.rules):
         with open(args.rules, encoding="utf-8") as fh:
             rules = json.load(fh)
         dictionary_tags = [r["tag"] for r in rules["tags"]]
         umbrella = tuple(rules.get("umbrella_tags", ()))
+        intentional = tuple(rules.get("intentional_pairs", ()))
 
-    report = build_report(load_records(args.input), dictionary_tags, umbrella)
+    report = build_report(load_records(args.input), dictionary_tags, umbrella, intentional)
     with open(args.output, "w", encoding="utf-8") as fh:
         fh.write(report)
     print("리포트 저장: %s" % args.output)
