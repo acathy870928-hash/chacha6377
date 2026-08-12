@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>경영진 HR Index 대시보드</title>
+<style>
+  :root{
+    color-scheme: light;
+    --navy:#12305e; --navy-2:#1c4381; --navy-3:#0d2445; --gold:#c8952c;
+    --surface:#ffffff; --plane:#f2f4f8;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e6e6e0; --axis:#c3c2b7; --border:rgba(11,11,11,0.10);
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+    --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --good-text:#006300;
+    --font: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--plane); color:var(--ink); font-family:var(--font);
+    font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1480px;margin:0 auto;padding:0 20px 64px}
+
+  /* ---------- header ---------- */
+  header{background:var(--navy);color:#fff;border-bottom:3px solid var(--gold)}
+  .head-inner{max-width:1480px;margin:0 auto;padding:16px 20px 0;
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .logo{background:var(--gold);color:var(--navy-3);font-weight:800;font-size:12px;
+    padding:4px 8px;border-radius:4px;letter-spacing:-.02em}
+  h1{font-size:20px;font-weight:800;margin:0;letter-spacing:-.02em}
+  .h-sub{font-size:11px;letter-spacing:.14em;color:#9fb6d8;font-weight:600;text-transform:uppercase}
+  .h-right{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px;color:#9fb6d8}
+  .chip-live{background:rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;font-weight:600;color:#e7eefa}
+  .tabs{max-width:1480px;margin:0 auto;padding:12px 20px 0;display:flex;gap:6px;flex-wrap:wrap}
+  .tab{background:transparent;border:0;color:#a8bcd9;font-family:inherit;font-size:13px;font-weight:600;
+    padding:8px 14px;border-radius:6px 6px 0 0;cursor:pointer}
+  .tab:hover{background:rgba(255,255,255,.08);color:#fff}
+  .tab[aria-selected="true"]{background:var(--plane);color:var(--navy)}
+
+  /* ---------- control bar ---------- */
+  .controls{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:16px 18px;margin:18px 0;display:grid;gap:16px;
+    grid-template-columns:minmax(320px,1.6fr) minmax(240px,1fr) minmax(240px,1fr)}
+  .ctl-label{font-size:11px;font-weight:700;color:var(--ink-2);letter-spacing:.06em;
+    text-transform:uppercase;margin-bottom:8px;display:flex;align-items:baseline;gap:8px}
+  .ctl-label em{font-style:normal;color:var(--muted);font-weight:500;letter-spacing:0;text-transform:none;font-size:11px}
+  .seg{display:flex;gap:4px;flex-wrap:wrap}
+  .seg button{font-family:inherit;font-size:13px;font-weight:600;padding:7px 13px;border-radius:6px;
+    border:1px solid var(--border);background:#fff;color:var(--ink-2);cursor:pointer}
+  .seg button:hover{border-color:var(--navy-2);color:var(--navy)}
+  .seg button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+  .time-row{display:flex;align-items:center;gap:14px}
+  .time-now{font-size:22px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;min-width:132px}
+  .time-now span{font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;vertical-align:3px;margin-left:6px}
+  .badge-act{background:#e8eef7;color:var(--navy)}
+  .badge-fc{background:#fdf1dd;color:#7a5a12}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:#dfe4ec}
+  input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:#dfe4ec}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--navy);border:3px solid #fff;box-shadow:0 0 0 1px var(--border);margin-top:-6px}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--navy);
+    border:3px solid #fff;box-shadow:0 0 0 1px var(--border)}
+  .tick-row{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);
+    font-variant-numeric:tabular-nums;margin-top:2px}
+
+  /* ---------- kpi ---------- */
+  .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 15px 12px;
+    display:flex;flex-direction:column;gap:6px;min-width:0}
+  .kpi-l{font-size:12px;color:var(--ink-2);font-weight:600}
+  .kpi-v{font-size:27px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+  .kpi-v u{font-size:13px;font-weight:600;color:var(--ink-2);text-decoration:none;margin-left:3px}
+  .kpi-d{font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;color:var(--ink-2)}
+  .kpi-d b{font-weight:700}
+  .up{color:var(--good-text)} .down{color:var(--critical)} .flat{color:var(--muted)}
+  .kpi-spark{margin-top:2px}
+
+  /* ---------- cards ---------- */
+  .grid{display:grid;gap:14px}
+  .g-2{grid-template-columns:1.35fr 1fr}
+  .g-2b{grid-template-columns:1fr 1fr}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:0}
+  .card-h{display:flex;align-items:baseline;gap:10px;padding:14px 18px 0;flex-wrap:wrap}
+  .card-h h2{font-size:15px;font-weight:700;margin:0;letter-spacing:-.02em}
+  .card-h .eyebrow{margin-left:auto;font-size:10px;letter-spacing:.12em;color:var(--muted);font-weight:700}
+  .card-sub{padding:3px 18px 0;font-size:12px;color:var(--ink-2)}
+  .card-b{padding:8px 12px 14px;position:relative}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:6px 18px 0}
+  .lg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);font-weight:600}
+  .lg i{width:12px;height:12px;border-radius:3px;display:block;flex:none}
+  .lg.line i{height:3px;border-radius:2px;width:16px}
+  .note{padding:0 18px 12px;font-size:11px;color:var(--muted)}
+  svg{display:block;width:100%;overflow:visible}
+  .tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;background:#fff;
+    border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 22px rgba(11,11,11,.14);
+    padding:9px 11px;font-size:12px;min-width:150px;z-index:20}
+  .tip h4{margin:0 0 6px;font-size:12px;font-weight:700}
+  .tip .r{display:flex;align-items:center;gap:7px;justify-content:space-between;margin-top:3px}
+  .tip .r span{display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+  .tip .r i{width:9px;height:9px;border-radius:2px;display:block}
+  .tip .r b{font-weight:700;font-variant-numeric:tabular-nums}
+
+  /* ---------- simulation ---------- */
+  .sim{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 22px;padding:14px 18px 6px}
+  .sim-i label{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;
+    font-weight:600;color:var(--ink-2);margin-bottom:2px}
+  .sim-i label b{font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .sim-i p{margin:2px 0 0;font-size:11px;color:var(--muted)}
+  .preset{display:flex;gap:6px;flex-wrap:wrap;padding:0 18px 12px}
+  .preset button{font-family:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;
+    border:1px solid var(--border);background:#fff;color:var(--ink-2);cursor:pointer}
+  .preset button:hover{border-color:var(--navy-2);color:var(--navy)}
+  .preset button[aria-pressed="true"]{background:#e8eef7;border-color:var(--navy-2);color:var(--navy)}
+  .sim-out{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:4px 18px 16px}
+  .so{background:#f7f8fb;border:1px solid var(--border);border-radius:8px;padding:11px 12px}
+  .so-l{font-size:11px;color:var(--ink-2);font-weight:600}
+  .so-v{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+  .so-d{font-size:11px;font-weight:600;margin-top:1px;color:var(--muted)}
+
+  /* ---------- insights ---------- */
+  .ins{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px 18px 18px}
+  .in{display:flex;gap:11px;border:1px solid var(--border);border-radius:8px;padding:12px 13px;background:#fff}
+  .in-ic{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;
+    color:#fff;font-size:13px;font-weight:800;margin-top:1px}
+  .in h3{margin:0 0 3px;font-size:13px;font-weight:700;letter-spacing:-.01em}
+  .in p{margin:0;font-size:12.5px;color:var(--ink-2)}
+  .in b{color:var(--ink);font-weight:700}
+  .in-tag{font-size:10px;font-weight:800;letter-spacing:.06em;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:1px}
+
+  /* ---------- table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--grid);
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  th{font-size:11px;color:var(--ink-2);font-weight:700;background:#f7f8fb;position:sticky;top:0}
+  th:first-child,td:first-child{text-align:left;font-variant-numeric:normal}
+  td:first-child{font-weight:600}
+  tr.tot td{font-weight:700;background:#f7f8fb;border-top:2px solid var(--axis)}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:7px;vertical-align:-1px}
+  .tbl-scroll{max-height:420px;overflow:auto;border-top:1px solid var(--border)}
+  .hidden{display:none !important}
+  footer{margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)}
+  footer b{color:var(--ink-2)}
+  @media (max-width:1180px){
+    .kpi-row{grid-template-columns:repeat(3,1fr)}
+    .g-2,.g-2b{grid-template-columns:1fr}
+    .controls{grid-template-columns:1fr}
+    .sim,.sim-out{grid-template-columns:repeat(2,1fr)}
+    .ins{grid-template-columns:1fr}
+  }
+  @media (max-width:640px){
+    .kpi-row{grid-template-columns:repeat(2,1fr)}
+    .sim,.sim-out{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <span class="logo">HR</span>
+    <h1>경영진 HR Index 대시보드</h1>
+    <span class="h-sub">Executive Workforce &amp; Cost Analytics</span>
+    <div class="h-right">
+      <span class="chip-live" id="scenarioChip">기준 시나리오</span>
+      <span id="stamp">샘플 데이터 v1.0</span>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-view="dash">경영 대시보드</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="table">데이터 테이블</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="guide">데이터 안내</button>
+  </nav>
+</header>
+
+<div class="wrap">
+
+<!-- ============ VIEW: DASHBOARD ============ -->
+<div id="view-dash">
+
+  <!-- controls -->
+  <section class="controls">
+    <div>
+      <div class="ctl-label">기준 시점 <em>슬라이더를 움직여 시점별 변화를 확인하세요</em></div>
+      <div class="time-row">
+        <div class="time-now" id="timeNow">2026년 2분기<span class="badge-act">실적</span></div>
+        <div style="flex:1">
+          <input type="range" id="qSlider" min="0" max="23" step="1" value="17" aria-label="기준 시점 분기 선택">
+          <div class="tick-row"><span>2022 Q1</span><span>2024 Q1</span><span>2026 Q3 이후 예측</span><span>2027 Q4</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="ctl-label">묶음 기준</div>
+      <div class="seg" id="dimSeg">
+        <button data-dim="org" aria-pressed="true">조직</button>
+        <button data-dim="grade" aria-pressed="false">직급</button>
+        <button data-dim="job" aria-pressed="false">직군</button>
+        <button data-dim="age" aria-pressed="false">연령대</button>
+      </div>
+    </div>
+    <div>
+      <div class="ctl-label">비교 지표</div>
+      <div class="seg" id="measSeg">
+        <button data-meas="hc" aria-pressed="true">인원</button>
+        <button data-meas="cost" aria-pressed="false">인건비</button>
+        <button data-meas="cpp" aria-pressed="false">인당 인건비</button>
+        <button data-meas="ppp" aria-pressed="false">인당 생산성</button>
+        <button data-meas="ratio" aria-pressed="false">인건비 비율</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- kpi -->
+  <section class="kpi-row" id="kpiRow"></section>
+
+  <!-- trend + composition -->
+  <div class="grid g-2" style="margin-bottom:14px">
+    <section class="card">
+      <div class="card-h">
+        <h2>인건비 · 생산성 · 인원 지수 추이</h2>
+        <span class="eyebrow">TREND · 2022 Q1 = 100</span>
+      </div>
+      <div class="card-sub">세 지표를 공통 기준(2022 Q1 = 100)으로 지수화해 한 축에서 비교합니다. 점선 구간은 시뮬레이션 조건에 따른 예측치입니다.</div>
+      <div class="legend" id="trendLegend"></div>
+      <div class="card-b"><div id="trendChart"></div><div class="tip" id="trendTip"></div></div>
+      <div class="note">생산성 = 1인당 매출 기여액 · 인건비 = 총 인건비 연환산</div>
+    </section>
+    <section class="card">
+      <div class="card-h">
+        <h2>인력 구성 추이</h2>
+        <span class="eyebrow">COMPOSITION</span>
+      </div>
+      <div class="card-sub" id="compSub">조직별 인원 구성</div>
+      <div class="legend" id="compLegend"></div>
+      <div class="card-b"><div id="compChart"></div><div class="tip" id="compTip"></div></div>
+      <div class="note" id="compNote">빗금 구간은 예측치입니다.</div>
+    </section>
+  </div>
+
+  <!-- simulation -->
+  <section class="card" style="margin-bottom:14px">
+    <div class="card-h">
+      <h2>인력 운영 시뮬레이션</h2>
+      <span class="eyebrow">SIMULATION · 2026 Q3 ~ 2027 Q4</span>
+    </div>
+    <div class="card-sub">인력 구성이 바뀌면 인건비와 생산성이 어떻게 움직이는지 예측합니다. 값을 바꾸면 위 차트와 인사이트가 즉시 갱신됩니다.</div>
+    <div class="preset" id="presetRow" style="padding-top:12px">
+      <button data-preset="base" aria-pressed="true">기준</button>
+      <button data-preset="growth" aria-pressed="false">성장 (공격적 채용)</button>
+      <button data-preset="eff" aria-pressed="false">효율 (자동화 중심)</button>
+      <button data-preset="tight" aria-pressed="false">긴축 (채용 동결)</button>
+    </div>
+    <div class="sim">
+      <div class="sim-i">
+        <label for="sHire">연간 채용 규모 <b id="vHire">120명</b></label>
+        <input type="range" id="sHire" min="0" max="300" step="10" value="120">
+        <p>신규 인력은 초기 생산성 55% 수준으로 반영</p>
+      </div>
+      <div class="sim-i">
+        <label for="sAttr">연간 퇴직률 <b id="vAttr">7.0%</b></label>
+        <input type="range" id="sAttr" min="0" max="15" step="0.5" value="7">
+        <p>자연 감소 · 정년 · 자발적 이직 합계</p>
+      </div>
+      <div class="sim-i">
+        <label for="sWage">임금 인상률 <b id="vWage">4.5%</b></label>
+        <input type="range" id="sWage" min="0" max="10" step="0.5" value="4.5">
+        <p>기존 인력 기준 연간 인상률</p>
+      </div>
+      <div class="sim-i">
+        <label for="sAuto">자동화 · AI 투자 <b id="vAuto">30</b></label>
+        <input type="range" id="sAuto" min="0" max="100" step="5" value="30">
+        <p>투자 지수 100 = 연 200억 투입 가정</p>
+      </div>
+    </div>
+    <div class="sim-out" id="simOut"></div>
+  </section>
+
+  <!-- group compare + positioning -->
+  <div class="grid g-2b" style="margin-bottom:14px">
+    <section class="card">
+      <div class="card-h"><h2 id="grpTitle">조직별 인원</h2><span class="eyebrow">GROUP VIEW</span></div>
+      <div class="card-sub" id="grpSub">2026년 2분기 기준</div>
+      <div class="card-b"><div id="grpChart"></div><div class="tip" id="grpTip"></div></div>
+      <div class="note">막대 끝 숫자는 선택 시점의 실제 값입니다.</div>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>인건비 대비 생산성 포지셔닝</h2><span class="eyebrow">EFFICIENCY MAP</span></div>
+      <div class="card-sub">가로축 인당 인건비 · 세로축 인당 생산성 · 원 크기는 인원. 회색 대각선은 인건비 비율 30% 기준선으로, 아래쪽에 위치할수록 비용 효율이 낮습니다.</div>
+      <div class="card-b"><div id="scatChart"></div><div class="tip" id="scatTip"></div></div>
+      <div class="note">단위: 백만원 / 인 · 연환산</div>
+    </section>
+  </div>
+
+  <!-- insights -->
+  <section class="card">
+    <div class="card-h"><h2>자동 생성 인사이트</h2><span class="eyebrow">INSIGHT FOR C-LEVEL</span></div>
+    <div class="card-sub">선택된 시점과 시뮬레이션 조건에 따라 자동으로 다시 작성됩니다.</div>
+    <div class="ins" id="insBox"></div>
+  </section>
+</div>
+
+<!-- ============ VIEW: TABLE ============ -->
+<div id="view-table" class="hidden">
+  <section class="card" style="margin-top:18px">
+    <div class="card-h"><h2 id="tblTitle">데이터 테이블</h2><span class="eyebrow">TABLE VIEW</span></div>
+    <div class="card-sub" id="tblSub">차트에 표시된 모든 값을 숫자로 확인할 수 있습니다.</div>
+    <div class="tbl-scroll" style="margin-top:12px"><table id="tblGroup"></table></div>
+  </section>
+  <section class="card" style="margin-top:14px">
+    <div class="card-h"><h2>전사 분기별 시계열</h2><span class="eyebrow">TIME SERIES</span></div>
+    <div class="card-sub">2026 Q3 이후는 현재 시뮬레이션 조건 기준 예측치입니다.</div>
+    <div class="tbl-scroll" style="margin-top:12px"><table id="tblTime"></table></div>
+  </section>
+</div>
+
+<!-- ============ VIEW: GUIDE ============ -->
+<div id="view-guide" class="hidden">
+  <section class="card" style="margin-top:18px">
+    <div class="card-h"><h2>데이터 안내 및 산출 로직</h2><span class="eyebrow">METHODOLOGY</span></div>
+    <div style="padding:14px 18px 22px;max-width:900px;font-size:13.5px;color:var(--ink-2);line-height:1.75">
+      <p style="margin-top:0"><b style="color:var(--ink)">1. 데이터 출처</b><br>
+      현재 화면의 수치는 실제 인사·경영지표 데이터가 연동되기 전 단계의 <b style="color:var(--ink)">샘플 데이터</b>입니다.
+      실 데이터 연동 시 <code>data.js</code> 형태의 원천(인사마스터, 급여, 손익)만 교체하면 화면 로직은 그대로 동작합니다.</p>
+
+      <p><b style="color:var(--ink)">2. 필요한 원천 데이터</b><br>
+      ① 인사마스터: 사번 · 조직 · 직급 · 직군 · 생년월일 · 입사일 · 퇴사일<br>
+      ② 급여: 사번별 연간 인건비(고정급 + 변동급 + 법정 부담금)<br>
+      ③ 경영지표: 조직별 매출 또는 매출 기여액, 영업이익 (월/분기)<br>
+      ③번이 확보되기 전까지 생산성은 <b style="color:var(--ink)">1인당 매출 기여액</b> 추정치로 계산합니다.</p>
+
+      <p><b style="color:var(--ink)">3. 지표 정의</b><br>
+      · 인건비 = 인원 × 인당 인건비 (연환산, 억원)<br>
+      · 생산성 = 매출 기여액 ÷ 인원 (연환산, 백만원/인)<br>
+      · 인건비 비율 = 인건비 ÷ 매출<br>
+      · 지수 = 해당 분기 값 ÷ 2022 Q1 값 × 100</p>
+
+      <p><b style="color:var(--ink)">4. 예측 로직 (2026 Q3 이후)</b><br>
+      · 인원(t) = 인원(t-1) × (1 − 퇴직률/4) + 채용/4<br>
+      · 평균임금(t) = (잔류 인력 임금 × (1+인상률)^0.25 + 신규 인력 임금) ÷ 인원(t) — 신규 인력은 기존 평균의 72% 수준으로 반영되어 평균임금 희석 효과가 발생합니다.<br>
+      · 인당 생산성(t) = (잔류 인력 생산성 × (1+생산성 증가율/4) + 신규 인력 생산성 × 0.55) ÷ 인원(t)<br>
+      · 생산성 증가율 = 기본 0.8% + 자동화 투자 지수 × 0.09%/년</p>
+
+      <p><b style="color:var(--ink)">5. 접근성 · 색상</b><br>
+      계열 색상은 색각 이상(protan/deutan/tritan) 시뮬레이션 기준 분리도 검증을 통과했으며, 모든 차트는 범례와 직접 라벨을 함께 제공합니다. 색으로만 구분되는 정보는 없으며 전체 값은 데이터 테이블 탭에서 숫자로 확인할 수 있습니다.</p>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <b>경영진 HR Index 대시보드</b> · 본 화면의 수치는 도구 검증을 위한 샘플 데이터이며 실제 인사·재무 실적과 무관합니다. · 실 데이터 연동 시 동일 로직으로 재계산됩니다.
+</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. 상수 · 색상
+   ============================================================ */
+var C = {
+  s:['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4'],
+  surface:'#ffffff', ink:'#0b0b0b', ink2:'#52514e', muted:'#898781',
+  grid:'#e6e6e0', axis:'#c3c2b7',
+  good:'#0ca30c', warning:'#fab219', serious:'#ec835a', critical:'#d03b3b'
+};
+var NQ = 24, LAST_ACT = 17;           // 0 = 2022Q1 ... 17 = 2026Q2 (실적), 18~23 예측
+var QS = [];
+for (var y=2022; y<=2027; y++) for (var q=1; q<=4; q++)
+  QS.push({ short:String(y).slice(2)+"'Q"+q, full:y+"년 "+q+"분기", y:y, q:q });
+
+/* ============================================================
+   2. 그룹 정의 (share 합 = 1, mix 합 = 1, drift 합 = 0)
+   ============================================================ */
+var DIMS = {
+  org: { label:'조직', groups:[
+    {n:'영업본부',  share:.28, wage:.98,  out:1.24, mix:.16, drift:-.030},
+    {n:'생산본부',  share:.31, wage:.86,  out:.92,  mix:.14, drift:-.050},
+    {n:'R&D센터',   share:.17, wage:1.18, out:.96,  mix:.30, drift:+.040},
+    {n:'IT/DX',     share:.11, wage:1.15, out:.88,  mix:.28, drift:+.030},
+    {n:'경영지원',  share:.13, wage:1.02, out:.72,  mix:.12, drift:+.010}
+  ]},
+  grade: { label:'직급', groups:[
+    {n:'임원',  share:.02, wage:3.20, out:2.40, mix:.01, drift:+.002},
+    {n:'책임',  share:.22, wage:1.45, out:1.26, mix:.16, drift:+.038},
+    {n:'선임',  share:.30, wage:1.10, out:1.06, mix:.28, drift:+.020},
+    {n:'전임',  share:.28, wage:.85,  out:.86,  mix:.30, drift:-.025},
+    {n:'사원',  share:.18, wage:.62,  out:.72,  mix:.25, drift:-.035}
+  ]},
+  job: { label:'직군', groups:[
+    {n:'영업/마케팅', share:.24, wage:1.02, out:1.30, mix:.15, drift:-.020},
+    {n:'생산/품질',   share:.29, wage:.84,  out:.90,  mix:.13, drift:-.055},
+    {n:'연구개발',    share:.19, wage:1.20, out:.98,  mix:.30, drift:+.035},
+    {n:'IT/데이터',   share:.13, wage:1.16, out:.90,  mix:.30, drift:+.032},
+    {n:'경영관리',    share:.15, wage:1.00, out:.74,  mix:.12, drift:+.008}
+  ]},
+  age: { label:'연령대', groups:[
+    {n:'20대',     share:.18, wage:.64, out:.74, mix:.42, drift:-.030},
+    {n:'30대',     share:.34, wage:.93, out:1.04, mix:.38, drift:+.010},
+    {n:'40대',     share:.31, wage:1.20, out:1.16, mix:.17, drift:+.005},
+    {n:'50대 이상',share:.17, wage:1.34, out:1.02, mix:.03, drift:+.015}
+  ]}
+};
+
+/* ============================================================
+   3. 상태
+   ============================================================ */
+var S = { qi:17, dim:'org', meas:'hc', view:'dash',
+          hire:120, attr:7, wage:4.5, auto:30, preset:'base' };
+var PRESETS = {
+  base:   {hire:120, attr:7,   wage:4.5, auto:30},
+  growth: {hire:260, attr:6,   wage:6,   auto:20},
+  eff:    {hire:60,  attr:7.5, wage:5,   auto:85},
+  tight:  {hire:0,   attr:9,   wage:2,   auto:35}
+};
+
+/* ============================================================
+   4. 전사 시계열 모델
+   ============================================================ */
+function company(p){
+  var hc=[], w=[], oph=[], i;
+  for (i=0; i<=LAST_ACT; i++){                       // 실적 구간 (고정)
+    hc.push(Math.round(1000*Math.pow(1.0085,i) + 13*Math.sin(i*0.9)));
+    w.push(76*Math.pow(1.0105,i) + 0.6*Math.sin(i*1.3));
+    oph.push(320*Math.pow(1.0062,i) + 3.2*Math.sin(i*0.7));
+  }
+  var gAnn = 0.008 + p.auto*0.0009;                  // 연간 기본 생산성 증가율
+  for (i=LAST_ACT+1; i<NQ; i++){
+    var prev = hc[i-1], keep = prev*(1 - p.attr/400), nh = p.hire/4;
+    var tot = keep + nh;
+    hc.push(tot);
+    w.push((keep * w[i-1]*Math.pow(1+p.wage/100,0.25) + nh * w[i-1]*0.72) / tot);
+    oph.push((keep * oph[i-1]*(1+gAnn/4) + nh * oph[i-1]*0.55) / tot);
+  }
+  var out = [];
+  for (i=0;i<NQ;i++){
+    var cost = hc[i]*w[i]/100;                       // 억원 (연환산)
+    var rev  = hc[i]*oph[i]/100;                     // 억원 (연환산)
+    out.push({ hc:hc[i], wage:w[i], oph:oph[i], cost:cost, rev:rev, ratio:cost/rev });
+  }
+  return out;
+}
+
+/* 그룹별 인원 시계열 (합계는 항상 전사 총원과 일치) */
+function groupSeries(dimKey, comp, p){
+  var gs = DIMS[dimKey].groups, n = gs.length, i, g;
+  var hc = [];                                        // hc[i][g]
+  for (i=0;i<=LAST_ACT;i++){
+    var row=[], sum=0, sh=[];
+    for (g=0; g<n; g++){ var s = gs[g].share + gs[g].drift*(i/LAST_ACT); sh.push(s); sum+=s; }
+    for (g=0; g<n; g++) row.push(comp[i].hc * sh[g]/sum);
+    hc.push(row);
+  }
+  for (i=LAST_ACT+1;i<NQ;i++){
+    var prow=hc[i-1], r=[], mixSum=0;
+    for (g=0;g<n;g++) mixSum += gs[g].mix;
+    for (g=0;g<n;g++) r.push(prow[g]*(1-p.attr/400) + (p.hire/4)*(gs[g].mix/mixSum));
+    var t=0; for (g=0;g<n;g++) t+=r[g];
+    var k = comp[i].hc / t;                           // 수치 오차 보정
+    for (g=0;g<n;g++) r[g]*=k;
+    hc.push(r);
+  }
+  return hc;
+}
+
+/* 선택 시점의 그룹별 지표 (합계는 전사와 일치하도록 정규화) */
+function groupMetrics(dimKey, comp, hcSeries, i){
+  var gs = DIMS[dimKey].groups, n=gs.length, g;
+  var tot = comp[i].hc, kw=0, ko=0;
+  for (g=0;g<n;g++){ var sh = hcSeries[i][g]/tot; kw += sh*gs[g].wage; ko += sh*gs[g].out; }
+  var res=[];
+  for (g=0;g<n;g++){
+    var head = hcSeries[i][g];
+    var cpp  = comp[i].wage * gs[g].wage / kw;        // 인당 인건비 (백만원)
+    var ppp  = comp[i].oph  * gs[g].out  / ko;        // 인당 생산성 (백만원)
+    res.push({ n:gs[g].n, ci:g, hc:head, cpp:cpp, ppp:ppp,
+               cost:head*cpp/100, rev:head*ppp/100, ratio:cpp/ppp });
+  }
+  return res;
+}
+
+/* ============================================================
+   5. 포맷
+   ============================================================ */
+function nf(v,d){ return v.toLocaleString('ko-KR',{minimumFractionDigits:d||0,maximumFractionDigits:d||0}); }
+function pct(v,d){ return (v*100).toFixed(d===undefined?1:d)+'%'; }
+function sign(v,d,suf){ return (v>0?'+':'')+nf(v,d)+(suf||''); }
+var MEAS = {
+  hc:   {t:'인원',        unit:'명',    f:function(v){return nf(v,0)+'명';},   v:function(r){return r.hc;},    dec:0},
+  cost: {t:'인건비',      unit:'억원',  f:function(v){return nf(v,0)+'억원';}, v:function(r){return r.cost;},  dec:0},
+  cpp:  {t:'인당 인건비', unit:'백만원',f:function(v){return nf(v,1)+'백만원';},v:function(r){return r.cpp;},  dec:1},
+  ppp:  {t:'인당 생산성', unit:'백만원',f:function(v){return nf(v,1)+'백만원';},v:function(r){return r.ppp;},  dec:1},
+  ratio:{t:'인건비 비율', unit:'%',     f:function(v){return pct(v,1);},       v:function(r){return r.ratio;}, dec:1}
+};
+
+/* ============================================================
+   6. SVG 헬퍼
+   ============================================================ */
+var NS='http://www.w3.org/2000/svg';
+function el(t,a){ var e=document.createElementNS(NS,t); for(var k in a) if(a[k]!==null&&a[k]!==undefined) e.setAttribute(k,a[k]); return e; }
+function txt(x,y,s,a){ var t=el('text',a||{}); t.setAttribute('x',x); t.setAttribute('y',y); t.textContent=s; return t; }
+function svgRoot(host,w,h){
+  host.innerHTML='';
+  var s=el('svg',{viewBox:'0 0 '+w+' '+h,width:'100%',height:h,role:'img'});
+  host.appendChild(s); return s;
+}
+function topRound(x,y,w,h,r){
+  r=Math.max(0,Math.min(r,w/2,h));
+  return 'M'+x+','+(y+h)+'L'+x+','+(y+r)+'Q'+x+','+y+' '+(x+r)+','+y+
+         'L'+(x+w-r)+','+y+'Q'+(x+w)+','+y+' '+(x+w)+','+(y+r)+'L'+(x+w)+','+(y+h)+'Z';
+}
+function rightRound(x,y,w,h,r){
+  r=Math.max(0,Math.min(r,w,h/2));
+  return 'M'+x+','+y+'L'+(x+w-r)+','+y+'Q'+(x+w)+','+y+' '+(x+w)+','+(y+r)+
+         'L'+(x+w)+','+(y+h-r)+'Q'+(x+w)+','+(y+h)+' '+(x+w-r)+','+(y+h)+'L'+x+','+(y+h)+'Z';
+}
+function niceMax(v){
+  if(v<=0) return 1;
+  var e=Math.pow(10,Math.floor(Math.log10(v))), m=v/e;
+  var s = m<=1?1: m<=1.2?1.2: m<=1.5?1.5: m<=2?2: m<=2.5?2.5: m<=3?3: m<=4?4: m<=5?5: m<=6?6: m<=8?8:10;
+  return s*e;
+}
+function hatchDefs(svg,id){
+  var d=el('defs',{}), p=el('pattern',{id:id,width:7,height:7,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'});
+  p.appendChild(el('line',{x1:0,y1:0,x2:0,y2:7,stroke:'#ffffff','stroke-width':2.6,opacity:.62}));
+  d.appendChild(p); svg.appendChild(d);
+}
+function showTip(tipEl,host,x,y,html){
+  tipEl.innerHTML=html; tipEl.style.opacity=1;
+  var hw=host.clientWidth, tw=tipEl.offsetWidth||170;
+  var left=x+14; if(left+tw>hw-6) left=x-tw-14; if(left<4) left=4;
+  tipEl.style.left=left+'px'; tipEl.style.top=Math.max(4,y-12)+'px';
+}
+
+/* ============================================================
+   7. 차트: 스파크라인
+   ============================================================ */
+function sparkline(host, vals, color){
+  var w=200,h=34,p=3;
+  var svg=svgRoot(host,w,h); svg.setAttribute('height',h);
+  svg.setAttribute('preserveAspectRatio','none'); svg.setAttribute('aria-hidden','true');
+  var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals), rg=(mx-mn)||1;
+  var X=function(i){return p+i*(w-2*p)/(vals.length-1);};
+  var Y=function(v){return h-p-((v-mn)/rg)*(h-2*p);};
+  var d='',i;
+  for(i=0;i<vals.length;i++) d+=(i?'L':'M')+X(i).toFixed(1)+','+Y(vals[i]).toFixed(1);
+  svg.appendChild(el('path',{d:d,fill:'none',stroke:color,'stroke-width':2,
+    'stroke-linecap':'round','stroke-linejoin':'round',opacity:.9}));
+  svg.appendChild(el('circle',{cx:X(vals.length-1),cy:Y(vals[vals.length-1]),r:3.2,
+    fill:color,stroke:C.surface,'stroke-width':2}));
+}
+
+/* ============================================================
+   8. 차트: 지수 추이 라인
+   ============================================================ */
+function drawTrend(comp){
+  var host=document.getElementById('trendChart'), tip=document.getElementById('trendTip');
+  var w=Math.max(520,host.clientWidth), h=310;
+  var m={t:16,r:52,b:34,l:44};
+  var svg=svgRoot(host,w,h);
+  var series=[
+    {k:'cost', name:'인건비',      c:C.s[0], base:comp[0].cost},
+    {k:'oph',  name:'인당 생산성', c:C.s[2], base:comp[0].oph},
+    {k:'hc',   name:'인원',        c:C.s[1], base:comp[0].hc}
+  ];
+  var i,si,vals=[];
+  for(si=0;si<series.length;si++){
+    var a=[]; for(i=0;i<NQ;i++) a.push(comp[i][series[si].k]/series[si].base*100);
+    series[si].v=a; vals=vals.concat(a);
+  }
+  var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+  var lo=Math.floor((mn-4)/10)*10, hi=Math.ceil((mx+4)/10)*10;
+  var X=function(i){return m.l+i*(w-m.l-m.r)/(NQ-1);};
+  var Y=function(v){return h-m.b-((v-lo)/(hi-lo))*(h-m.t-m.b);};
+
+  for(var g=lo; g<=hi; g+=10){
+    svg.appendChild(el('line',{x1:m.l,y1:Y(g),x2:w-m.r,y2:Y(g),stroke:C.grid,'stroke-width':1}));
+    svg.appendChild(txt(m.l-8,Y(g)+4,g,{fill:C.muted,'font-size':10,'text-anchor':'end','font-family':'inherit','font-variant-numeric':'tabular-nums'}));
+  }
+  // 예측 구간
+  var fx=X(LAST_ACT);
+  svg.appendChild(el('rect',{x:fx,y:m.t,width:(w-m.r)-fx,height:h-m.t-m.b,fill:'#f7f8fb'}));
+  svg.appendChild(el('line',{x1:fx,y1:m.t,x2:fx,y2:h-m.b,stroke:C.axis,'stroke-width':1}));
+  svg.appendChild(txt(fx+6,m.t+11,'예측',{fill:C.muted,'font-size':10,'font-weight':700,'font-family':'inherit'}));
+  svg.appendChild(el('line',{x1:m.l,y1:h-m.b,x2:w-m.r,y2:h-m.b,stroke:C.axis,'stroke-width':1}));
+
+  for(i=0;i<NQ;i+=2)
+    svg.appendChild(txt(X(i),h-m.b+16,QS[i].short,{fill:C.muted,'font-size':10,'text-anchor':'middle','font-family':'inherit'}));
+
+  for(si=0;si<series.length;si++){
+    var s=series[si], da='', db='';
+    for(i=0;i<=LAST_ACT;i++) da+=(i?'L':'M')+X(i).toFixed(1)+','+Y(s.v[i]).toFixed(1);
+    for(i=LAST_ACT;i<NQ;i++) db+=(i===LAST_ACT?'M':'L')+X(i).toFixed(1)+','+Y(s.v[i]).toFixed(1);
+    svg.appendChild(el('path',{d:da,fill:'none',stroke:s.c,'stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'}));
+    svg.appendChild(el('path',{d:db,fill:'none',stroke:s.c,'stroke-width':2,'stroke-dasharray':'5 4','stroke-linecap':'round','stroke-linejoin':'round'}));
+    svg.appendChild(el('circle',{cx:X(NQ-1),cy:Y(s.v[NQ-1]),r:4,fill:s.c,stroke:C.surface,'stroke-width':2}));
+    svg.appendChild(txt(X(NQ-1)+9,Y(s.v[NQ-1])+4,Math.round(s.v[NQ-1]),
+      {fill:C.ink2,'font-size':11,'font-weight':700,'font-family':'inherit','font-variant-numeric':'tabular-nums'}));
+  }
+  // 선택 시점 마커
+  var mk=el('line',{x1:X(S.qi),y1:m.t,x2:X(S.qi),y2:h-m.b,stroke:'#12305e','stroke-width':1.5,opacity:.35});
+  svg.appendChild(mk);
+
+  // hover
+  var cross=el('line',{x1:0,y1:m.t,x2:0,y2:h-m.b,stroke:C.axis,'stroke-width':1,opacity:0});
+  svg.appendChild(cross);
+  var dots=[];
+  for(si=0;si<series.length;si++){
+    var c=el('circle',{cx:0,cy:0,r:4.5,fill:series[si].c,stroke:C.surface,'stroke-width':2,opacity:0});
+    svg.appendChild(c); dots.push(c);
+  }
+  var hit=el('rect',{x:m.l,y:m.t,width:w-m.l-m.r,height:h-m.t-m.b,fill:'transparent'});
+  svg.appendChild(hit);
+  hit.addEventListener('mousemove',function(e){
+    var r=host.getBoundingClientRect(), sc=w/host.clientWidth;
+    var px=(e.clientX-r.left)*sc;
+    var idx=Math.max(0,Math.min(NQ-1,Math.round((px-m.l)/((w-m.l-m.r)/(NQ-1)))));
+    cross.setAttribute('x1',X(idx)); cross.setAttribute('x2',X(idx)); cross.setAttribute('opacity',1);
+    var html='<h4>'+QS[idx].full+(idx>LAST_ACT?' · 예측':'')+'</h4>';
+    for(var k=0;k<series.length;k++){
+      dots[k].setAttribute('cx',X(idx)); dots[k].setAttribute('cy',Y(series[k].v[idx])); dots[k].setAttribute('opacity',1);
+      html+='<div class="r"><span><i style="background:'+series[k].c+'"></i>'+series[k].name+
+            '</span><b>'+series[k].v[idx].toFixed(1)+'</b></div>';
+    }
+    showTip(tip,host,X(idx)/sc,(e.clientY-r.top),html);
+  });
+  hit.addEventListener('mouseleave',function(){
+    tip.style.opacity=0; cross.setAttribute('opacity',0);
+    for(var k=0;k<dots.length;k++) dots[k].setAttribute('opacity',0);
+  });
+
+  var lg=document.getElementById('trendLegend'); lg.innerHTML='';
+  for(si=0;si<series.length;si++)
+    lg.insertAdjacentHTML('beforeend','<span class="lg line"><i style="background:'+series[si].c+'"></i>'+series[si].name+'</span>');
+  lg.insertAdjacentHTML('beforeend','<span class="lg" style="color:'+C.muted+'"><i style="background:'+C.muted+';height:3px;width:16px;border-radius:2px;opacity:.55"></i>점선 = 예측</span>');
+}
+
+/* ============================================================
+   9. 차트: 인력 구성 스택 컬럼
+   ============================================================ */
+function drawComp(comp, hcS, dimKey){
+  var host=document.getElementById('compChart'), tip=document.getElementById('compTip');
+  var gs=DIMS[dimKey].groups, n=gs.length;
+  var additive = (S.meas==='cost') ? 'cost' : 'hc';
+  var w=Math.max(400,host.clientWidth), h=310, m={t:16,r:12,b:34,l:52};
+  var svg=svgRoot(host,w,h); hatchDefs(svg,'fchatch');
+
+  var data=[], i,g;
+  for(i=0;i<NQ;i++){
+    var mm=groupMetrics(dimKey,comp,hcS,i), row=[], sum=0;
+    for(g=0;g<n;g++){ var v = additive==='cost'?mm[g].cost:mm[g].hc; row.push(v); sum+=v; }
+    data.push({v:row,sum:sum});
+  }
+  var mx=0; for(i=0;i<NQ;i++) mx=Math.max(mx,data[i].sum);
+  var top=niceMax(mx);
+  var Y=function(v){return h-m.b-(v/top)*(h-m.t-m.b);};
+  var band=(w-m.l-m.r)/NQ, bw=Math.min(24,band-4);
+
+  for(var t=0;t<=4;t++){
+    var gv=top*t/4;
+    svg.appendChild(el('line',{x1:m.l,y1:Y(gv),x2:w-m.r,y2:Y(gv),stroke:C.grid,'stroke-width':1}));
+    svg.appendChild(txt(m.l-8,Y(gv)+4,nf(gv,0),{fill:C.muted,'font-size':10,'text-anchor':'end','font-family':'inherit','font-variant-numeric':'tabular-nums'}));
+  }
+  svg.appendChild(txt(m.l-8,m.t-4,additive==='cost'?'억원':'명',{fill:C.muted,'font-size':10,'text-anchor':'end','font-family':'inherit'}));
+  var fx=m.l+(LAST_ACT+0.5)*band;
+  svg.appendChild(el('line',{x1:fx,y1:m.t,x2:fx,y2:h-m.b,stroke:C.axis,'stroke-width':1}));
+  svg.appendChild(txt(fx+5,m.t+11,'예측',{fill:C.muted,'font-size':10,'font-weight':700,'font-family':'inherit'}));
+  svg.appendChild(el('line',{x1:m.l,y1:h-m.b,x2:w-m.r,y2:h-m.b,stroke:C.axis,'stroke-width':1}));
+
+  for(i=0;i<NQ;i++){
+    var cx=m.l+i*band+band/2, x=cx-bw/2, acc=0, isFc=i>LAST_ACT;
+    var grp=el('g',{});
+    for(g=n-1;g>=0;g--){
+      var val=data[i].v[g], y0=Y(acc+val), y1=Y(acc), hh=Math.max(0,y1-y0-2);
+      acc+=val;
+      var isTop=(g===n-1);
+      var d=isTop?topRound(x,y0,bw,hh+2,4):('M'+x+','+y0+'h'+bw+'v'+hh+'h'+(-bw)+'Z');
+      grp.appendChild(el('path',{d:d,fill:C.s[g],opacity:isFc?.9:1}));
+      if(isFc) grp.appendChild(el('path',{d:d,fill:'url(#fchatch)'}));
+    }
+    if(i===S.qi){
+      var hx=Math.max(m.l+1, cx-band/2+1), hx2=Math.min(w-m.r-1, cx+band/2-1);
+      grp.appendChild(el('rect',{x:hx,y:m.t-4,width:Math.max(4,hx2-hx),height:h-m.t-m.b+8,
+        fill:'none',stroke:'#12305e','stroke-width':1.5,opacity:.45,rx:4}));
+    }
+    (function(idx){
+      var hitr=el('rect',{x:cx-band/2,y:m.t,width:band,height:h-m.t-m.b,fill:'transparent',style:'cursor:pointer'});
+      hitr.addEventListener('mousemove',function(e){
+        var r=host.getBoundingClientRect(), sc=w/host.clientWidth;
+        var html='<h4>'+QS[idx].full+(idx>LAST_ACT?' · 예측':'')+'</h4>';
+        for(var k=0;k<n;k++)
+          html+='<div class="r"><span><i style="background:'+C.s[k]+'"></i>'+gs[k].n+'</span><b>'+
+                (additive==='cost'?nf(data[idx].v[k],0)+'억':nf(data[idx].v[k],0)+'명')+'</b></div>';
+        html+='<div class="r" style="border-top:1px solid #e6e6e0;margin-top:6px;padding-top:5px"><span>합계</span><b>'+
+              (additive==='cost'?nf(data[idx].sum,0)+'억':nf(data[idx].sum,0)+'명')+'</b></div>';
+        showTip(tip,host,(m.l+idx*band+band/2)/sc,(e.clientY-r.top),html);
+      });
+      hitr.addEventListener('mouseleave',function(){tip.style.opacity=0;});
+      hitr.addEventListener('click',function(){ S.qi=idx; document.getElementById('qSlider').value=idx; render(); });
+      grp.appendChild(hitr);
+    })(i);
+    svg.appendChild(grp);
+  }
+  for(i=0;i<NQ;i+=3)
+    svg.appendChild(txt(m.l+i*band+band/2,h-m.b+16,QS[i].short,{fill:C.muted,'font-size':10,'text-anchor':'middle','font-family':'inherit'}));
+
+  var lg=document.getElementById('compLegend'); lg.innerHTML='';
+  for(g=0;g<n;g++)
+    lg.insertAdjacentHTML('beforeend','<span class="lg"><i style="background:'+C.s[g]+'"></i>'+gs[g].n+'</span>');
+
+  document.getElementById('compSub').textContent =
+    DIMS[dimKey].label+'별 '+(additive==='cost'?'인건비':'인원')+' 구성';
+  document.getElementById('compNote').textContent =
+    (S.meas==='hc'||S.meas==='cost')
+      ? '빗금 구간은 예측치입니다 · 막대를 클릭하면 해당 시점으로 이동합니다.'
+      : '구성 추이는 합산 가능한 지표만 표시합니다 (현재: 인원). 빗금 구간은 예측치입니다.';
+}
+
+/* ============================================================
+   10. 차트: 그룹 비교 가로 막대
+   ============================================================ */
+function drawGroup(rows){
+  var host=document.getElementById('grpChart'), tip=document.getElementById('grpTip');
+  var M=MEAS[S.meas];
+  var sorted=rows.slice().sort(function(a,b){return M.v(b)-M.v(a);});
+  var n=sorted.length;
+  var w=Math.max(360,host.clientWidth), rowH=42, h=n*rowH+34, m={t:8,r:96,b:22,l:96};
+  var svg=svgRoot(host,w,h);
+  var mx=0,i; for(i=0;i<n;i++) mx=Math.max(mx,M.v(sorted[i]));
+  var top=niceMax(mx*1.02);
+  var X=function(v){return m.l+(v/top)*(w-m.l-m.r);};
+
+  for(var t=0;t<=4;t++){
+    var gv=top*t/4;
+    svg.appendChild(el('line',{x1:X(gv),y1:m.t,x2:X(gv),y2:h-m.b,stroke:C.grid,'stroke-width':1}));
+    svg.appendChild(txt(X(gv),h-m.b+15,S.meas==='ratio'?pct(gv,0):nf(gv,M.dec===1&&top<20?1:0),
+      {fill:C.muted,'font-size':10,'text-anchor':'middle','font-family':'inherit','font-variant-numeric':'tabular-nums'}));
+  }
+  svg.appendChild(el('line',{x1:m.l,y1:m.t,x2:m.l,y2:h-m.b,stroke:C.axis,'stroke-width':1}));
+
+  for(i=0;i<n;i++){
+    var r=sorted[i], v=M.v(r), y=m.t+i*rowH+(rowH-22)/2, bw=Math.max(2,X(v)-m.l);
+    svg.appendChild(txt(m.l-10,y+15,r.n,{fill:C.ink2,'font-size':12,'font-weight':600,'text-anchor':'end','font-family':'inherit'}));
+    var p=el('path',{d:rightRound(m.l,y,bw,22,4),fill:C.s[r.ci],style:'cursor:default'});
+    svg.appendChild(p);
+    svg.appendChild(txt(m.l+bw+9,y+15,M.f(v),
+      {fill:C.ink,'font-size':12,'font-weight':700,'font-family':'inherit','font-variant-numeric':'tabular-nums'}));
+    (function(rr,yy){
+      var hit=el('rect',{x:m.l,y:yy-6,width:w-m.l-m.r+80,height:34,fill:'transparent'});
+      hit.addEventListener('mousemove',function(e){
+        var b=host.getBoundingClientRect();
+        showTip(tip,host,(e.clientX-b.left),(e.clientY-b.top),
+          '<h4>'+rr.n+'</h4>'+
+          '<div class="r"><span>인원</span><b>'+nf(rr.hc,0)+'명</b></div>'+
+          '<div class="r"><span>인건비</span><b>'+nf(rr.cost,0)+'억원</b></div>'+
+          '<div class="r"><span>인당 인건비</span><b>'+nf(rr.cpp,1)+'백만</b></div>'+
+          '<div class="r"><span>인당 생산성</span><b>'+nf(rr.ppp,1)+'백만</b></div>'+
+          '<div class="r"><span>인건비 비율</span><b>'+pct(rr.ratio,1)+'</b></div>');
+      });
+      hit.addEventListener('mouseleave',function(){tip.style.opacity=0;});
+      svg.appendChild(hit);
+    })(r,y);
+  }
+  document.getElementById('grpTitle').textContent=DIMS[S.dim].label+'별 '+M.t;
+  document.getElementById('grpSub').textContent=QS[S.qi].full+' 기준'+(S.qi>LAST_ACT?' · 예측치':'');
+}
+
+/* ============================================================
+   11. 차트: 효율 포지셔닝 (단일 색상 + 직접 라벨)
+   ============================================================ */
+function drawScatter(rows){
+  var host=document.getElementById('scatChart'), tip=document.getElementById('scatTip');
+  var w=Math.max(360,host.clientWidth), h=330, m={t:18,r:22,b:44,l:52};
+  var svg=svgRoot(host,w,h);
+  var i, xs=[], ys=[];
+  for(i=0;i<rows.length;i++){ xs.push(rows[i].cpp); ys.push(rows[i].ppp); }
+  var xmax=niceMax(Math.max.apply(null,xs)*1.15), ymax=niceMax(Math.max.apply(null,ys)*1.15);
+  var X=function(v){return m.l+(v/xmax)*(w-m.l-m.r);};
+  var Y=function(v){return h-m.b-(v/ymax)*(h-m.t-m.b);};
+
+  for(var t=1;t<=4;t++){
+    svg.appendChild(el('line',{x1:m.l,y1:Y(ymax*t/4),x2:w-m.r,y2:Y(ymax*t/4),stroke:C.grid,'stroke-width':1}));
+    svg.appendChild(txt(m.l-8,Y(ymax*t/4)+4,nf(ymax*t/4,0),{fill:C.muted,'font-size':10,'text-anchor':'end','font-family':'inherit','font-variant-numeric':'tabular-nums'}));
+    svg.appendChild(el('line',{x1:X(xmax*t/4),y1:m.t,x2:X(xmax*t/4),y2:h-m.b,stroke:C.grid,'stroke-width':1}));
+    svg.appendChild(txt(X(xmax*t/4),h-m.b+15,nf(xmax*t/4,0),{fill:C.muted,'font-size':10,'text-anchor':'middle','font-family':'inherit','font-variant-numeric':'tabular-nums'}));
+  }
+  svg.appendChild(el('line',{x1:m.l,y1:h-m.b,x2:w-m.r,y2:h-m.b,stroke:C.axis,'stroke-width':1}));
+  svg.appendChild(el('line',{x1:m.l,y1:m.t,x2:m.l,y2:h-m.b,stroke:C.axis,'stroke-width':1}));
+  svg.appendChild(txt(w-m.r,h-m.b+32,'인당 인건비 (백만원) →',{fill:C.muted,'font-size':10,'text-anchor':'end','font-family':'inherit'}));
+  svg.appendChild(txt(2,m.t-6,'↑ 인당 생산성 (백만원)',{fill:C.muted,'font-size':10,'text-anchor':'start','font-family':'inherit'}));
+
+  // 인건비 비율 30% 기준선 : ppp = cpp / 0.30
+  var refX=Math.min(xmax, ymax*0.30), refY=refX/0.30;
+  svg.appendChild(el('line',{x1:X(0),y1:Y(0),x2:X(refX),y2:Y(refY),stroke:C.axis,'stroke-width':1.5}));
+  svg.appendChild(txt(X(refX)-4,Math.max(m.t+11,Y(refY)-8),'인건비 비율 30%',
+    {fill:C.muted,'font-size':10,'font-weight':700,'text-anchor':'end','font-family':'inherit'}));
+
+  var hcmax=0; for(i=0;i<rows.length;i++) hcmax=Math.max(hcmax,rows[i].hc);
+  // 라벨 겹침 방지: 후보 위치(위/아래/오른쪽/왼쪽) 중 충돌하지 않는 첫 자리에 배치
+  var placed=[];
+  function labelW(s){ var n=0; for(var i2=0;i2<s.length;i2++) n += s.charCodeAt(i2)>0x2000?10.5:6.2; return n; }
+  function hits(b){
+    for(var i2=0;i2<placed.length;i2++){ var o=placed[i2];
+      if(b.x1<o.x2+3 && b.x2>o.x1-3 && b.y1<o.y2+3 && b.y2>o.y1-3) return true; }
+    return false;
+  }
+  for(i=0;i<rows.length;i++){
+    var r=rows[i], rad=9+Math.sqrt(r.hc/hcmax)*17, px=X(r.cpp), py=Y(r.ppp);
+    svg.appendChild(el('circle',{cx:px,cy:py,r:rad,fill:C.s[0],opacity:.16}));
+    var dot=el('circle',{cx:px,cy:py,r:6,fill:C.s[0],stroke:C.surface,'stroke-width':2,style:'cursor:pointer'});
+    svg.appendChild(dot);
+
+    var lw=labelW(r.n), cands=[
+      {x:px, y:py-rad-8,  a:'middle'},
+      {x:px, y:py+rad+16, a:'middle'},
+      {x:px+rad+8, y:py+4, a:'start'},
+      {x:px-rad-8, y:py+4, a:'end'},
+      {x:px, y:py-rad-22, a:'middle'},
+      {x:px, y:py+rad+30, a:'middle'}
+    ], pick=null, ci;
+    for(ci=0; ci<cands.length; ci++){
+      var c0=cands[ci];
+      var x1 = c0.a==='start'?c0.x : (c0.a==='end'? c0.x-lw : c0.x-lw/2);
+      var box={x1:x1, x2:x1+lw, y1:c0.y-11, y2:c0.y+3};
+      if(box.x1<m.l-40 || box.x2>w-m.r+4 || box.y1<m.t-12 || box.y2>h-m.b) continue;
+      if(hits(box)) continue;
+      pick=c0; placed.push(box); break;
+    }
+    if(!pick){ pick=cands[0]; var fx1=pick.x-lw/2; placed.push({x1:fx1,x2:fx1+lw,y1:pick.y-11,y2:pick.y+3}); }
+    svg.appendChild(txt(pick.x,pick.y,r.n,{fill:C.ink2,'font-size':11,'font-weight':700,'text-anchor':pick.a,'font-family':'inherit'}));
+    (function(rr,dd){
+      dd.addEventListener('mousemove',function(e){
+        var b=host.getBoundingClientRect();
+        showTip(tip,host,(e.clientX-b.left),(e.clientY-b.top),
+          '<h4>'+rr.n+'</h4>'+
+          '<div class="r"><span>인원</span><b>'+nf(rr.hc,0)+'명</b></div>'+
+          '<div class="r"><span>인당 인건비</span><b>'+nf(rr.cpp,1)+'백만</b></div>'+
+          '<div class="r"><span>인당 생산성</span><b>'+nf(rr.ppp,1)+'백만</b></div>'+
+          '<div class="r"><span>인건비 비율</span><b>'+pct(rr.ratio,1)+'</b></div>');
+      });
+      dd.addEventListener('mouseleave',function(){tip.style.opacity=0;});
+    })(r,dot);
+  }
+}
+
+/* ============================================================
+   12. KPI
+   ============================================================ */
+function drawKPI(comp){
+  var i=S.qi, cur=comp[i], prev=comp[Math.max(0,i-4)];
+  var box=document.getElementById('kpiRow'); box.innerHTML='';
+  function ser(k){ var a=[],j; for(j=Math.max(0,i-11);j<=i;j++) a.push(comp[j][k]); return a; }
+  var items=[
+    {l:'총 인원',        v:nf(cur.hc,0),      u:'명',    d:(cur.hc/prev.hc-1),      up:true,  k:'hc',   c:C.s[1]},
+    {l:'연간 인건비',    v:nf(cur.cost,0),    u:'억원',  d:(cur.cost/prev.cost-1),  up:false, k:'cost', c:C.s[0]},
+    {l:'1인당 생산성',   v:nf(cur.oph,1),     u:'백만원',d:(cur.oph/prev.oph-1),    up:true,  k:'oph',  c:C.s[2]},
+    {l:'1인당 인건비',   v:nf(cur.wage,1),    u:'백만원',d:(cur.wage/prev.wage-1),  up:false, k:'wage', c:C.s[0]},
+    {l:'인건비 비율',    v:pct(cur.ratio,1),  u:'',      d:(cur.ratio-prev.ratio),  up:false, k:'ratio',c:C.s[4], abs:true}
+  ];
+  for(var n=0;n<items.length;n++){
+    var it=items[n];
+    var good = it.up ? it.d>0.0005 : it.d<-0.0005;
+    var bad  = it.up ? it.d<-0.0005 : it.d>0.0005;
+    var cls = good?'up':(bad?'down':'flat');
+    var arrow = it.d>0.0005?'▲':(it.d<-0.0005?'▼':'―');
+    var dTxt = it.abs ? sign(it.d*100,1,'%p') : sign(it.d*100,1,'%');
+    var div=document.createElement('div'); div.className='kpi';
+    div.innerHTML='<div class="kpi-l">'+it.l+'</div>'+
+      '<div class="kpi-v">'+it.v+(it.u?'<u>'+it.u+'</u>':'')+'</div>'+
+      '<div class="kpi-d '+cls+'">'+arrow+' <b>'+dTxt+'</b> <span style="color:var(--muted);font-weight:500">전년 동기</span></div>'+
+      '<div class="kpi-spark"></div>';
+    box.appendChild(div);
+    sparkline(div.querySelector('.kpi-spark'), ser(it.k), it.c);
+  }
+}
+
+/* ============================================================
+   13. 시뮬레이션 결과 요약
+   ============================================================ */
+function drawSimOut(comp, base){
+  var e=NQ-1, a=comp[e], b=base[e], s=comp[LAST_ACT];
+  var box=document.getElementById('simOut'); box.innerHTML='';
+  var items=[
+    {l:'2027 Q4 총 인원',    v:nf(a.hc,0)+'명',      d:a.hc-b.hc,    dec:0, suf:'명',   inv:false},
+    {l:'2027 Q4 연간 인건비',v:nf(a.cost,0)+'억원',  d:a.cost-b.cost,dec:0, suf:'억원', inv:true},
+    {l:'2027 Q4 인당 생산성',v:nf(a.oph,1)+'백만원', d:a.oph-b.oph,  dec:1, suf:'백만', inv:false},
+    {l:'2027 Q4 인건비 비율',v:pct(a.ratio,1),       d:(a.ratio-b.ratio)*100, dec:1, suf:'%p', inv:true}
+  ];
+  for(var i=0;i<items.length;i++){
+    var it=items[i], flat=Math.abs(it.d)<(it.dec?0.05:0.5);
+    var good = flat?null:(it.inv ? it.d<0 : it.d>0);
+    var col = flat?'var(--muted)':(good?'var(--good-text)':'var(--critical)');
+    box.insertAdjacentHTML('beforeend',
+      '<div class="so"><div class="so-l">'+it.l+'</div><div class="so-v">'+it.v+'</div>'+
+      '<div class="so-d" style="color:'+col+'">기준 시나리오 대비 '+(flat?'동일':sign(it.d,it.dec,it.suf))+'</div></div>');
+  }
+}
+
+/* ============================================================
+   14. 인사이트
+   ============================================================ */
+function drawInsights(comp, base, rows, hcS){
+  var box=document.getElementById('insBox'); box.innerHTML='';
+  var s=comp[LAST_ACT], e=comp[NQ-1], out=[];
+  var costG=e.cost/s.cost-1, prodG=e.oph/s.oph-1, hcG=e.hc/s.hc-1, gap=costG-prodG;
+
+  // 1) 인건비 vs 생산성
+  out.push({
+    st: gap>0.06?'critical':(gap>0.02?'warning':'good'),
+    t: '인건비 증가율 vs 생산성 증가율',
+    h: gap>0.02?'주의':'양호',
+    p: '2026 Q2 → 2027 Q4 기간 중 인건비는 <b>'+sign(costG*100,1,'%')+'</b>, 1인당 생산성은 <b>'+sign(prodG*100,1,'%')+'</b> 변동합니다. '+
+       (gap>0.02
+         ? '인건비가 생산성을 <b>'+nf(gap*100,1)+'%p</b> 앞질러 단위 인건비 효율이 악화됩니다. 채용 규모를 낮추거나 자동화 투자를 높여 격차를 좁혀야 합니다.'
+         : '생산성 증가가 인건비 증가를 상쇄해 단위 인건비 효율이 유지됩니다.')
+  });
+
+  // 2) 인건비 비율
+  out.push({
+    st: e.ratio>0.32?'critical':(e.ratio>0.28?'warning':'good'),
+    t: '매출 대비 인건비 비율',
+    h: e.ratio>0.28?'임계 근접':'안정',
+    p: '2027 Q4 인건비 비율은 <b>'+pct(e.ratio,1)+'</b>로, 현재('+pct(s.ratio,1)+') 대비 <b>'+
+       sign((e.ratio-s.ratio)*100,1,'%p')+'</b>입니다. '+
+       (e.ratio>0.28?'관리 임계선 30%에 근접하므로 임금 인상률과 채용 속도의 동시 조정이 필요합니다.'
+                    :'관리 임계선 30% 이내에서 운영 가능한 수준입니다.')
+  });
+
+  // 3) 채용 손익분기
+  var need = (e.cost/s.cost) - 1;
+  out.push({
+    st:'good', t:'손익분기 생산성 요구 수준', h:'참고',
+    p:'현재 조건에서 인건비 비율을 <b>'+pct(s.ratio,1)+'</b> 수준으로 유지하려면 1인당 생산성이 <b>'+
+      nf(s.oph*(1+need)/(e.hc/s.hc),1)+'백만원</b> 이상이어야 합니다. 예측치는 <b>'+nf(e.oph,1)+'백만원</b>으로 '+
+      (e.oph >= s.oph*(1+need)/(e.hc/s.hc) ? '요구 수준을 <b>충족</b>합니다.' : '요구 수준에 <b>'+nf(s.oph*(1+need)/(e.hc/s.hc)-e.oph,1)+'백만원 미달</b>합니다.')
+  });
+
+  // 4) 구성 변화
+  var m0=groupMetrics(S.dim,comp,hcS,LAST_ACT), m1=groupMetrics(S.dim,comp,hcS,NQ-1);
+  var bestI=0,bestD=-9;
+  for(var i=0;i<m0.length;i++){
+    var d=(m1[i].hc/comp[NQ-1].hc)-(m0[i].hc/comp[LAST_ACT].hc);
+    if(d>bestD){bestD=d;bestI=i;}
+  }
+  out.push({
+    st:'good', t:DIMS[S.dim].label+' 구성 변화', h:'구성',
+    p:'예측 기간 중 <b>'+m1[bestI].n+'</b> 비중이 '+pct(m0[bestI].hc/comp[LAST_ACT].hc,1)+' → <b>'+
+      pct(m1[bestI].hc/comp[NQ-1].hc,1)+'</b>로 가장 크게 증가합니다(<b>'+sign(bestD*100,1,'%p')+'</b>). '+
+      '해당 그룹의 인당 인건비는 '+nf(m1[bestI].cpp,1)+'백만원, 인당 생산성은 '+nf(m1[bestI].ppp,1)+'백만원 수준입니다.'
+  });
+
+  // 5) 효율 최하위 그룹
+  var worst=rows[0]; for(var j=1;j<rows.length;j++) if(rows[j].ratio>worst.ratio) worst=rows[j];
+  out.push({
+    st: worst.ratio>0.35?'serious':'warning',
+    t:'비용 효율 점검 대상', h:'점검',
+    p:'<b>'+worst.n+'</b>의 인건비 비율이 <b>'+pct(worst.ratio,1)+'</b>로 '+DIMS[S.dim].label+' 중 가장 높습니다. '+
+      '인원 '+nf(worst.hc,0)+'명 · 인건비 '+nf(worst.cost,0)+'억원 규모로, 직무 재배치 또는 자동화 우선 적용 검토 대상입니다.'
+  });
+
+  // 6) 시나리오 비교
+  var bE=base[NQ-1], dCost=comp[NQ-1].cost-bE.cost, dProd=comp[NQ-1].oph-bE.oph;
+  out.push({
+    st: (dCost<=0 && dProd>=0)?'good':((dCost>0&&dProd<=0)?'critical':'warning'),
+    t:'기준 시나리오 대비', h:'시나리오',
+    p: (Math.abs(dCost)<0.5 && Math.abs(dProd)<0.05)
+        ? '현재 설정은 기준 시나리오와 동일합니다. 슬라이더를 조정해 채용·임금·자동화 조합의 효과를 비교해 보세요.'
+        : '현재 설정은 기준 대비 인건비 <b>'+sign(dCost,0,'억원')+'</b>, 1인당 생산성 <b>'+sign(dProd,1,'백만원')+'</b> 차이를 만듭니다. '+
+          (dCost>0&&dProd>0 ? '비용을 더 쓰는 만큼 생산성도 함께 오르는 조합입니다.' :
+           dCost<0&&dProd<0 ? '비용은 줄지만 생산성도 함께 낮아지는 조합입니다.' :
+           dCost<0&&dProd>0 ? '비용은 줄고 생산성은 오르는 가장 유리한 조합입니다.' :
+                              '비용은 늘고 생산성은 낮아지는 불리한 조합입니다.')
+  });
+
+  var STC={good:C.good,warning:C.warning,serious:C.serious,critical:C.critical};
+  var STI={good:'✓',warning:'!',serious:'!',critical:'✕'};
+  var STB={good:'#e8f6e8',warning:'#fdf3dd',serious:'#fceee7',critical:'#fae7e7'};
+  var STT={good:'#0a6b0a',warning:'#7a5a12',serious:'#8a4526',critical:'#8c2727'};
+  for(var k=0;k<out.length;k++){
+    var o=out[k];
+    box.insertAdjacentHTML('beforeend',
+      '<div class="in"><div class="in-ic" style="background:'+STC[o.st]+'">'+STI[o.st]+'</div><div>'+
+      '<h3>'+o.t+'<span class="in-tag" style="background:'+STB[o.st]+';color:'+STT[o.st]+'">'+o.h+'</span></h3>'+
+      '<p>'+o.p+'</p></div></div>');
+  }
+}
+
+/* ============================================================
+   15. 테이블
+   ============================================================ */
+function drawTables(comp, rows){
+  var t1=document.getElementById('tblGroup');
+  var head='<thead><tr><th>'+DIMS[S.dim].label+'</th><th>인원 (명)</th><th>구성비</th><th>인건비 (억원)</th>'+
+           '<th>인당 인건비 (백만원)</th><th>인당 생산성 (백만원)</th><th>인건비 비율</th></tr></thead><tbody>';
+  var tot={hc:0,cost:0,rev:0}, i;
+  for(i=0;i<rows.length;i++){ tot.hc+=rows[i].hc; tot.cost+=rows[i].cost; tot.rev+=rows[i].rev; }
+  var body='';
+  for(i=0;i<rows.length;i++){
+    var r=rows[i];
+    body+='<tr><td><span class="sw" style="background:'+C.s[r.ci]+'"></span>'+r.n+'</td>'+
+      '<td>'+nf(r.hc,0)+'</td><td>'+pct(r.hc/tot.hc,1)+'</td><td>'+nf(r.cost,0)+'</td>'+
+      '<td>'+nf(r.cpp,1)+'</td><td>'+nf(r.ppp,1)+'</td><td>'+pct(r.ratio,1)+'</td></tr>';
+  }
+  body+='<tr class="tot"><td>합계</td><td>'+nf(tot.hc,0)+'</td><td>100.0%</td><td>'+nf(tot.cost,0)+'</td>'+
+        '<td>'+nf(tot.cost*100/tot.hc,1)+'</td><td>'+nf(tot.rev*100/tot.hc,1)+'</td><td>'+pct(tot.cost/tot.rev,1)+'</td></tr>';
+  t1.innerHTML=head+body+'</tbody>';
+  document.getElementById('tblTitle').textContent=DIMS[S.dim].label+'별 상세 · '+QS[S.qi].full;
+  document.getElementById('tblSub').textContent =
+    (S.qi>LAST_ACT?'예측치 기준 · ':'실적 기준 · ')+'차트에 표시된 모든 값을 숫자로 확인할 수 있습니다.';
+
+  var t2=document.getElementById('tblTime');
+  var h2='<thead><tr><th>분기</th><th>구분</th><th>인원 (명)</th><th>인건비 (억원)</th><th>매출 (억원)</th>'+
+         '<th>인당 인건비</th><th>인당 생산성</th><th>인건비 비율</th></tr></thead><tbody>';
+  var b2='';
+  for(i=0;i<NQ;i++){
+    var c=comp[i];
+    b2+='<tr'+(i===S.qi?' style="background:#eef3fa"':'')+'><td>'+QS[i].full+'</td><td>'+(i>LAST_ACT?'예측':'실적')+'</td>'+
+      '<td>'+nf(c.hc,0)+'</td><td>'+nf(c.cost,0)+'</td><td>'+nf(c.rev,0)+'</td>'+
+      '<td>'+nf(c.wage,1)+'</td><td>'+nf(c.oph,1)+'</td><td>'+pct(c.ratio,1)+'</td></tr>';
+  }
+  t2.innerHTML=h2+b2+'</tbody>';
+}
+
+/* ============================================================
+   16. 렌더
+   ============================================================ */
+function render(){
+  var p={hire:S.hire,attr:S.attr,wage:S.wage,auto:S.auto};
+  var comp=company(p), base=company(PRESETS.base);
+  var hcS=groupSeries(S.dim,comp,p);
+  var rows=groupMetrics(S.dim,comp,hcS,S.qi);
+
+  document.getElementById('timeNow').innerHTML =
+    QS[S.qi].full + '<span class="'+(S.qi>LAST_ACT?'badge-fc':'badge-act')+'">'+(S.qi>LAST_ACT?'예측':'실적')+'</span>';
+
+  drawKPI(comp);
+  drawTrend(comp);
+  drawComp(comp,hcS,S.dim);
+  drawGroup(rows);
+  drawScatter(rows);
+  drawSimOut(comp,base);
+  drawInsights(comp,base,rows,hcS);
+  drawTables(comp,rows);
+
+  var same=(S.hire===PRESETS.base.hire&&S.attr===PRESETS.base.attr&&S.wage===PRESETS.base.wage&&S.auto===PRESETS.base.auto);
+  var names={base:'기준 시나리오',growth:'성장 시나리오',eff:'효율 시나리오',tight:'긴축 시나리오'};
+  document.getElementById('scenarioChip').textContent = same?'기준 시나리오':(S.preset&&S.preset!=='base'?names[S.preset]:'사용자 시나리오');
+}
+
+/* ============================================================
+   17. 이벤트
+   ============================================================ */
+function segBind(id,key,cb){
+  document.getElementById(id).addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    var btns=this.querySelectorAll('button');
+    for(var i=0;i<btns.length;i++) btns[i].setAttribute('aria-pressed', btns[i]===b ? 'true':'false');
+    S[key]=b.getAttribute('data-'+(key==='dim'?'dim':'meas'));
+    if(cb) cb();
+    render();
+  });
+}
+segBind('dimSeg','dim'); segBind('measSeg','meas');
+
+document.getElementById('qSlider').addEventListener('input',function(){ S.qi=+this.value; render(); });
+
+function bindSim(id,key,valId,fmt){
+  var inp=document.getElementById(id);
+  inp.addEventListener('input',function(){
+    S[key]=+this.value; S.preset=null;
+    document.getElementById(valId).textContent=fmt(+this.value);
+    var pb=document.querySelectorAll('#presetRow button');
+    for(var i=0;i<pb.length;i++) pb[i].setAttribute('aria-pressed','false');
+    render();
+  });
+}
+bindSim('sHire','hire','vHire',function(v){return nf(v,0)+'명';});
+bindSim('sAttr','attr','vAttr',function(v){return v.toFixed(1)+'%';});
+bindSim('sWage','wage','vWage',function(v){return v.toFixed(1)+'%';});
+bindSim('sAuto','auto','vAuto',function(v){return String(v);});
+
+document.getElementById('presetRow').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  var k=b.getAttribute('data-preset'), p=PRESETS[k];
+  S.hire=p.hire; S.attr=p.attr; S.wage=p.wage; S.auto=p.auto; S.preset=k;
+  document.getElementById('sHire').value=p.hire; document.getElementById('vHire').textContent=nf(p.hire,0)+'명';
+  document.getElementById('sAttr').value=p.attr; document.getElementById('vAttr').textContent=p.attr.toFixed(1)+'%';
+  document.getElementById('sWage').value=p.wage; document.getElementById('vWage').textContent=p.wage.toFixed(1)+'%';
+  document.getElementById('sAuto').value=p.auto; document.getElementById('vAuto').textContent=String(p.auto);
+  var btns=this.querySelectorAll('button');
+  for(var i=0;i<btns.length;i++) btns[i].setAttribute('aria-pressed', btns[i]===b?'true':'false');
+  render();
+});
+
+document.querySelector('.tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b) return;
+  var v=b.getAttribute('data-view'), tabs=this.querySelectorAll('.tab');
+  for(var i=0;i<tabs.length;i++) tabs[i].setAttribute('aria-selected', tabs[i]===b?'true':'false');
+  ['dash','table','guide'].forEach(function(k){
+    document.getElementById('view-'+k).classList.toggle('hidden', k!==v);
+  });
+  S.view=v; if(v==='dash') render();
+});
+
+var rt;
+window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){ if(S.view==='dash') render(); },140); });
+
+render();
+})();
+</script>
+</body>
+</html>
