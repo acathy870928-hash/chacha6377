@@ -183,6 +183,7 @@ def main():
     ap.add_argument("--rules", default=os.path.join(here, "tag_rules.json"))
     ap.add_argument("--name-column", help="제목으로 사용할 컬럼명 (미지정 시 자동 탐색)")
     ap.add_argument("--json-out", help="검토 스크립트용 태깅 결과 JSON 경로")
+    ap.add_argument("--text-out", help="문서별 출력 형식(문서명/태깅여부/태그1~3/판단근거) 텍스트 경로")
     args = ap.parse_args()
 
     rules = load_rules(args.rules)
@@ -212,6 +213,17 @@ def main():
         })
 
     write_rows(args.output, out_header, out_rows)
+
+    if args.text_out:
+        with open(args.text_out, "w", encoding="utf-8") as fh:
+            for rec in records:
+                tags = rec["태그"] + [""] * (MAX_TAGS - len(rec["태그"]))
+                fh.write("문서명: %s\n\n" % (rec["원본파일명"] or rec["제목"]))
+                fh.write("태깅여부: %s\n\n" % rec["태깅여부"])
+                for i, t in enumerate(tags, start=1):
+                    fh.write("태그%d: %s\n" % (i, t))
+                fh.write("\n간단한 판단근거: %s\n\n%s\n\n" % (rec["판단근거"], "-" * 60))
+
     if args.json_out:
         with open(args.json_out, "w", encoding="utf-8") as fh:
             json.dump(records, fh, ensure_ascii=False)
