@@ -175,6 +175,16 @@ class TurnPlan:
     terms_request: TermsRequest | None = None
     """등록되지 않은 약관에 대한 요청. 누적해서 다음 등록 배치의 우선순위로 쓴다."""
 
+    offer_customer_link: bool = False
+    """답변 뒤에 「이 건은 어느 고객 건인가요?」를 물어 장부에 남길지.
+
+    보상 답변에서 약관 판까지 특정됐을 때만 제안한다. 특정되지 않은 답변을
+    고객에 묶으면 잘못된 연결이 쌓인다.
+
+    쌓인 연결은 다음 상담에서 그 고객의 약관 후보가 되어 되묻기를 줄인다.
+    (`links.TermsLedger`)
+    """
+
     matches: tuple[BenefitMatch, ...] = ()
     """보장분석에서 걸린 가입 담보. 어느 계약에 얼마씩 있는지 답변에 그대로 싣는다.
 
@@ -328,6 +338,10 @@ def plan_turn(
             product=product,
             edition=resolution.edition,
             context=context.with_edition(resolution.edition.edition_id),
+            # 상품과 판이 모두 특정된 보상 답변이다. 고객에 묶어 둘 수 있다.
+            offer_customer_link=(
+                decision.classification.question_type is QuestionType.COVERAGE
+            ),
         )
 
     if resolution.status in (EditionStatus.NO_EDITIONS, EditionStatus.BEFORE_COVERAGE):
