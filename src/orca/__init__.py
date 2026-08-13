@@ -60,6 +60,7 @@ from .types import (
     Source,
     VersionSensitivity,
 )
+from .vendor_query import TermsQuery, build_queries, strip_pii
 from .versioning import (
     ApproxDate,
     EditionResolution,
@@ -97,10 +98,12 @@ __all__ = [
     "RoutingDecision",
     "Source",
     "TermsPricing",
+    "TermsQuery",
     "TermsRequest",
     "TurnPlan",
     "VersionSensitivity",
     "build_classification_prompt",
+    "build_queries",
     "classify",
     "estimate_by_contract",
     "estimate_by_product",
@@ -114,4 +117,5 @@ __all__ = [
     "route",
     "scope_for",
     "select_within_budget",
+    "strip_pii",
 ]
