@@ -42,12 +42,12 @@ class TestAsksForProduct:
         assert plan.action is NextAction.ASK_PRODUCT
         assert plan.needs_user_input
         # 자유 입력 대신 인덱스에 있는 상품을 선택지로 준다.
-        assert "무배당 운전자보험" in plan.options
+        assert "무배당 운전자보험" in plan.option_labels
 
     def test_상품명이_모호하면_후보를_제시한다(self, catalog):
         plan = _plan(catalog, QuestionType.COVERAGE, product_mentioned="더드림 암보험")
         assert plan.action is NextAction.ASK_PRODUCT
-        assert set(plan.options) == {"더드림 암보험", "더드림 암보험 플러스"}
+        assert set(plan.option_labels) == {"더드림 암보험", "더드림 암보험 플러스"}
 
     def test_상품_설명_질문은_상품이_없어도_일반론으로_답한다(self, catalog):
         # 시점 민감도가 REQUIRED가 아니면 되묻지 않고 진행한다.
@@ -126,10 +126,19 @@ class TestSessionContext:
 class TestUnregisteredTerms:
     """약관은 우선 일부만 등록한다. 없는 약관은 역질문으로 확정해 등록 요청으로 남긴다."""
 
-    def test_미등록_상품은_선택지에_나오지_않는다(self, catalog):
+    def test_미등록_상품도_선택지에_보이되_준비중으로_표시된다(self, catalog):
+        # 상품명 자체는 보여야 FA가 자료에 있는 상품인지 알 수 있다.
         plan = _plan(catalog, QuestionType.COVERAGE)
         assert plan.action is NextAction.ASK_PRODUCT
-        assert "옛날든든보험" not in plan.options
+        assert "옛날든든보험" in plan.option_labels
+
+        legacy = next(o for o in plan.options if o.label == "옛날든든보험")
+        assert legacy.available is False
+
+    def test_등록된_약관이_선택지_앞에_온다(self, catalog):
+        plan = _plan(catalog, QuestionType.COVERAGE)
+        available = [o.available for o in plan.options]
+        assert available == sorted(available, reverse=True)
 
     def test_미등록_상품도_가입_시점을_먼저_묻는다(self, catalog):
         # 상품명만으로는 어느 판을 등록해야 할지 정해지지 않는다.

@@ -71,8 +71,8 @@ class FakeCatalog(ProductCatalog):
         self._products = list(products)
 
     def search(self, name: str):
-        """약관이 등록된 상품만."""
-        return [p for p in self._match(name) if p.indexed]
+        """약관 등록 여부와 무관하게 후보를 주되, 등록된 상품을 앞에 둔다."""
+        return sorted(self._match(name), key=lambda p: not p.indexed)
 
     def search_registry(self, name: str):
         """등록 여부와 무관한 상품 마스터."""

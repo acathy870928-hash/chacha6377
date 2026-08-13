@@ -104,6 +104,25 @@ class ProductCatalog(Protocol):
 
 
 @dataclass(frozen=True)
+class Option:
+    """되묻기 선택지 하나. 화면에서는 칩으로 그린다."""
+
+    label: str
+    value: str
+    """선택 시 넘길 식별자. 상품이면 product_id, 판이면 edition_id."""
+
+    available: bool = True
+    """약관이 등록되어 있는지. False여도 목록에는 보여준다.
+
+    상품명 자체가 보여야 FA가 자료에 있는 상품인지 알 수 있고,
+    등록 요청도 정확한 상품으로 쌓인다. 화면에서는 「약관 준비중」으로 표시한다.
+    """
+
+    note: str = ""
+    """보조 표기. 보험사명이나 시행일처럼 같은 이름을 구분해 주는 정보."""
+
+
+@dataclass(frozen=True)
 class TurnPlan:
     action: NextAction
     decision: RoutingDecision
@@ -114,11 +133,15 @@ class TurnPlan:
     prompt: str = ""
     """FA에게 보여줄 되묻기 문구. 되묻지 않는 경우 빈 문자열."""
 
-    options: tuple[str, ...] = ()
+    options: tuple[Option, ...] = ()
     """되묻기 선택지(칩). 자유 입력만 받아야 하면 비어 있다."""
 
     terms_request: TermsRequest | None = None
     """등록되지 않은 약관에 대한 요청. 누적해서 다음 등록 배치의 우선순위로 쓴다."""
+
+    @property
+    def option_labels(self) -> tuple[str, ...]:
+        return tuple(option.label for option in self.options)
 
     @property
     def needs_user_input(self) -> bool:
@@ -237,7 +260,7 @@ def plan_turn(
                 "말씀하신 시점에 약관이 개정되었습니다. "
                 "가입일이 정확히 언제인지 알려주시면 해당 약관으로 확인하겠습니다."
             ),
-            options=tuple(e.label for e in resolution.candidates),
+            options=_edition_options(resolution.candidates),
         )
 
     return TurnPlan(
@@ -249,12 +272,41 @@ def plan_turn(
             f"{product.name}은 약관이 여러 차례 개정되었습니다. "
             "보상은 가입 시점의 약관을 따르므로, 언제 가입한 계약인지 알려주세요."
         ),
-        options=tuple(e.label for e in sorted_editions(product)),
+        options=_edition_options(sorted_editions(product)),
     )
 
 
 #: 상품 마스터에도 없는 상품에 붙이는 식별자 접두어.
 UNREGISTERED_PREFIX = "unregistered:"
+
+
+def _product_options(products: list[Product]) -> tuple[Option, ...]:
+    """상품 선택지.
+
+    약관이 없는 상품도 목록에 넣되 `available=False`로 표시한다.
+    화면에서는 「약관 준비중」으로 그리고, 골라도 등록 요청 경로로 이어진다.
+    """
+    return tuple(
+        Option(
+            label=product.name,
+            value=product.product_id,
+            available=product.indexed,
+            note=product.insurer,
+        )
+        for product in products
+    )
+
+
+def _edition_options(editions: tuple[PolicyEdition, ...]) -> tuple[Option, ...]:
+    """약관 판 선택지. 시행일을 함께 보여 어느 시기 약관인지 알 수 있게 한다."""
+    return tuple(
+        Option(
+            label=edition.label,
+            value=edition.edition_id,
+            note=f"{edition.effective_from:%Y.%m.%d} 시행",
+        )
+        for edition in editions
+    )
 
 
 def _unregistered_product(name: str) -> Product:
@@ -297,7 +349,7 @@ def _plan_unregistered(
                 "언제 가입한 계약인지 알려주시면 해당 약관을 확보 대상으로 올리겠습니다."
             ),
             # 판 정보를 모르면 선택지를 만들 수 없으므로 자유 입력으로 받는다.
-            options=tuple(e.label for e in editions),
+            options=_edition_options(editions),
         )
 
     resolution = resolve_edition(product, contract_date)
@@ -354,7 +406,7 @@ def _resolve_product(
             return None, replace(
                 placeholder,
                 prompt=f"「{mentioned}」에 해당하는 상품이 여럿입니다. 어느 상품일까요?",
-                options=tuple(p.name for p in candidates),
+                options=_product_options(candidates),
             )
 
         # 마스터에도 없는 상품. 「모른다」로 끝내면 등록 요청이 쌓이지 않으므로,
@@ -374,5 +426,5 @@ def _resolve_product(
         placeholder,
         context=context,
         prompt="상품에 따라 내용이 다릅니다. 어느 상품 기준으로 확인할까요?",
-        options=tuple(p.name for p in catalog.search("")),
+        options=_product_options(catalog.search("")),
     )

@@ -67,16 +67,18 @@ class TestSearch:
         )
         assert len(catalog.search("더드림암보험")) == 2
 
-    def test_인덱스에_없는_상품은_선택지에_넣지_않는다(self):
+    def test_약관이_없는_상품도_목록에_보이되_뒤로_밀린다(self):
         # 공시실에는 있으나 벤더 인덱스에 약관이 없는 상품.
+        # 상품명 자체는 보여야 FA가 확인할 수 있고 등록 요청도 정확히 쌓인다.
         catalog = InMemoryProductCatalog(
             [
                 _product("old", "옛날운전자보험", indexed=False),
                 _product("new", "든든운전자보험"),
             ]
         )
-        assert [p.product_id for p in catalog.search("운전자보험")] == ["new"]
-        assert [p.product_id for p in catalog.search("")] == ["new"]
+        # 바로 답할 수 있는 쪽이 앞에 온다.
+        assert [p.product_id for p in catalog.search("운전자보험")] == ["new", "old"]
+        assert [p.product_id for p in catalog.search("")] == ["new", "old"]
 
     def test_없는_이름이면_빈_목록(self):
         catalog = InMemoryProductCatalog([_product("driver", "든든운전자보험")])

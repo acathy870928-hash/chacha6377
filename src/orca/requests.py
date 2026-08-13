@@ -34,7 +34,16 @@ class TermsRequest:
     """판이 특정된 경우 그 판. 등록 요청 시 어느 판인지 지정하는 데 쓴다."""
 
     question: str = ""
-    """원 질문. 어떤 맥락에서 필요했는지 남긴다."""
+    """원 질문.
+
+    두 가지 용도가 있다.
+      1. 등록 후 검수 — 이 질문을 다시 돌려 근거 조항이 실제로 나오는지 확인한다.
+      2. 알림 — 「요청하신 약관이 등록되었습니다」만 보내면 FA는 무엇을 물었는지
+         기억하지 못한다. 원 질문을 함께 보여 맥락을 복구한다.
+    """
+
+    requester_id: str = ""
+    """요청한 FA. 등록 완료 시 알림 대상이 된다."""
 
     @property
     def key(self) -> tuple[str, str, int | None]:
@@ -74,6 +83,24 @@ class RequestLog:
         ranked = sorted(counts.items(), key=lambda item: (-item[1], order[item[0]]))
         result = [(representative[key], count) for key, count in ranked]
         return result[:limit] if limit else result
+
+    def subscribers(self, key: tuple[str, str, int | None]) -> list[str]:
+        """해당 약관을 기다리는 FA 목록. 등록 완료 알림 대상이다.
+
+        같은 FA가 여러 번 물었어도 한 번만 알린다.
+        """
+        seen: list[str] = []
+        for entry in self.entries:
+            if entry.key == key and entry.requester_id and entry.requester_id not in seen:
+                seen.append(entry.requester_id)
+        return seen
+
+    def questions_for(self, key: tuple[str, str, int | None]) -> list[str]:
+        """해당 약관으로 답해야 했던 질문들.
+
+        등록 후 검수에 그대로 쓴다. 이 질문들에 근거 조항이 나와야 등록이 끝난 것이다.
+        """
+        return [e.question for e in self.entries if e.key == key and e.question]
 
     def unresolved_count(self) -> int:
         return len(self.entries)
