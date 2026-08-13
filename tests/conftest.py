@@ -53,19 +53,40 @@ CANCER_B = Product(
 )
 
 
+#: 상품 마스터(공시실)에는 있으나 아직 약관이 등록되지 않은 상품.
+LEGACY = Product(
+    product_id="legacy",
+    name="옛날든든보험",
+    insurer="△△화재",
+    editions=(
+        _edition("legacy", "legacy-1", "1판 (2016.01 시행)", date(2016, 1, 1), date(2019, 12, 31)),
+        _edition("legacy", "legacy-2", "2판 (2020.01 시행)", date(2020, 1, 1)),
+    ),
+    indexed=False,
+)
+
+
 class FakeCatalog(ProductCatalog):
     def __init__(self, products):
         self._products = list(products)
 
     def search(self, name: str):
-        if not name:
-            return list(self._products)
-        return [p for p in self._products if name in p.name or p.name in name]
+        """약관이 등록된 상품만."""
+        return [p for p in self._match(name) if p.indexed]
+
+    def search_registry(self, name: str):
+        """등록 여부와 무관한 상품 마스터."""
+        return self._match(name)
 
     def get(self, product_id: str):
         return next((p for p in self._products if p.product_id == product_id), None)
 
+    def _match(self, name: str):
+        if not name:
+            return list(self._products)
+        return [p for p in self._products if name in p.name or p.name in name]
+
 
 @pytest.fixture
 def catalog():
-    return FakeCatalog([DRIVER, AUTOPILOT, CANCER_A, CANCER_B])
+    return FakeCatalog([DRIVER, AUTOPILOT, CANCER_A, CANCER_B, LEGACY])

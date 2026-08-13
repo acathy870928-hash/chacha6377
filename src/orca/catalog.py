@@ -84,6 +84,27 @@ class InMemoryProductCatalog:
         ]
         return [e.product for e in matched][: self._max_options]
 
+    def search_registry(self, name: str) -> list[Product]:
+        """등록 여부와 무관하게 상품 마스터 전체에서 찾는다.
+
+        약관이 아직 등록되지 않은 상품을 식별하기 위한 조회다.
+        「우리가 아는 상품인데 약관만 없다」와 「그런 상품 자체를 모른다」는
+        FA에게 안내할 내용이 다르다.
+        """
+        needle = normalize_product_name(name) if name else ""
+        if not needle:
+            return [e.product for e in self._entries][: self._max_options]
+
+        matched = [
+            e
+            for e in self._entries
+            if any(
+                needle in normalize_product_name(n) or normalize_product_name(n) in needle
+                for n in e.names()
+            )
+        ]
+        return [e.product for e in matched][: self._max_options]
+
     def get(self, product_id: str) -> Product | None:
         return next((e.product for e in self._entries if e.product.product_id == product_id), None)
 

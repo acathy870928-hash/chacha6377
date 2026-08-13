@@ -21,6 +21,7 @@ from .clarify import (
     TurnPlan,
     plan_turn,
 )
+from .requests import RequestLog, TermsRequest
 from .routing import (
     Classification,
     RoutingDecision,
@@ -59,8 +60,10 @@ __all__ = [
     "Product",
     "ProductCatalog",
     "QuestionType",
+    "RequestLog",
     "RoutingDecision",
     "Source",
+    "TermsRequest",
     "TurnPlan",
     "VersionSensitivity",
     "build_classification_prompt",

@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Callable, Protocol
 
 from .types import (
@@ -77,6 +77,9 @@ class Classification:
     needs_policy_terms: bool = False
     reason: str = ""
 
+    question: str = ""
+    """원 질문. 미등록 약관 요청을 남길 때 함께 기록한다."""
+
 
 @dataclass(frozen=True)
 class RoutingDecision:
@@ -126,7 +129,8 @@ def parse_classification(raw: str) -> Classification:
 
 
 def classify(question: str, llm: LLMClient | Callable[[str], str]) -> Classification:
-    return parse_classification(llm(build_classification_prompt(question)))
+    classification = parse_classification(llm(build_classification_prompt(question)))
+    return replace(classification, question=question)
 
 
 def policy_for(classification: Classification) -> RoutingPolicy:

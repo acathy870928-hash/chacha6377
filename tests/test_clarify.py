@@ -49,12 +49,6 @@ class TestAsksForProduct:
         assert plan.action is NextAction.ASK_PRODUCT
         assert set(plan.options) == {"더드림 암보험", "더드림 암보험 플러스"}
 
-    def test_없는_상품이면_추측하지_않는다(self, catalog):
-        plan = _plan(catalog, QuestionType.COVERAGE, product_mentioned="없는보험")
-        assert plan.action is NextAction.ASK_PRODUCT
-        assert plan.options == ()
-        assert "찾지 못했습니다" in plan.prompt
-
     def test_상품_설명_질문은_상품이_없어도_일반론으로_답한다(self, catalog):
         # 시점 민감도가 REQUIRED가 아니면 되묻지 않고 진행한다.
         plan = _plan(catalog, QuestionType.PRODUCT_INFO)
@@ -127,6 +121,66 @@ class TestSessionContext:
         assert plan.action is NextAction.ASK_CONTRACT_DATE
         # 다음 턴에서 시점만 받으면 되도록 상품을 들고 간다.
         assert plan.context.product_id == "driver"
+
+
+class TestUnregisteredTerms:
+    """약관은 우선 일부만 등록한다. 없는 약관은 역질문으로 확정해 등록 요청으로 남긴다."""
+
+    def test_미등록_상품은_선택지에_나오지_않는다(self, catalog):
+        plan = _plan(catalog, QuestionType.COVERAGE)
+        assert plan.action is NextAction.ASK_PRODUCT
+        assert "옛날든든보험" not in plan.options
+
+    def test_미등록_상품도_가입_시점을_먼저_묻는다(self, catalog):
+        # 상품명만으로는 어느 판을 등록해야 할지 정해지지 않는다.
+        plan = _plan(catalog, QuestionType.COVERAGE, product_mentioned="옛날든든보험")
+        assert plan.action is NextAction.ASK_CONTRACT_DATE
+        assert "아직 약관이 등록되어 있지 않습니다" in plan.prompt
+
+    def test_시점까지_받으면_등록_요청으로_남긴다(self, catalog):
+        plan = _plan(
+            catalog,
+            QuestionType.COVERAGE,
+            product_mentioned="옛날든든보험",
+            period_mentioned="2018년 5월",
+            question="음주운전 사고인데 보험금 나오나요?",
+        )
+        assert plan.action is NextAction.TERMS_NOT_REGISTERED
+        assert plan.terms_request is not None
+        assert plan.terms_request.product_id == "legacy"
+        assert plan.terms_request.edition_label == "1판 (2016.01 시행)"
+        assert plan.terms_request.contract_date.year == 2018
+        assert plan.terms_request.question == "음주운전 사고인데 보험금 나오나요?"
+
+    def test_미등록_상품은_추측해서_답하지_않는다(self, catalog):
+        plan = _plan(
+            catalog,
+            QuestionType.COVERAGE,
+            product_mentioned="옛날든든보험",
+            period_mentioned="2018년 5월",
+        )
+        assert plan.sources == ()
+        assert "확인되지 않은 내용으로 답하지 않겠습니다" in plan.prompt
+
+    def test_마스터에도_없는_상품도_요청으로_남긴다(self, catalog):
+        # 「모른다」로 끝내면 등록 요청이 쌓이지 않는다.
+        first = _plan(catalog, QuestionType.COVERAGE, product_mentioned="처음보는보험")
+        assert first.action is NextAction.ASK_CONTRACT_DATE
+
+        second = _plan(
+            catalog,
+            QuestionType.COVERAGE,
+            context=first.context,
+            period_mentioned="2022년 3월",
+        )
+        assert second.action is NextAction.TERMS_NOT_REGISTERED
+        assert second.terms_request.product_name == "처음보는보험"
+        # 마스터에 없으므로 상품 ID는 남기지 않는다.
+        assert second.terms_request.product_id is None
+
+    def test_되묻는_중에_미등록_상품_컨텍스트가_유지된다(self, catalog):
+        plan = _plan(catalog, QuestionType.COVERAGE, product_mentioned="처음보는보험")
+        assert plan.context.product_name == "처음보는보험"
 
 
 class TestOutOfScope:
