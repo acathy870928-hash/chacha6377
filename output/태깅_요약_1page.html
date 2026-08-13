@@ -1,38 +1,45 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><title>AI 챗봇 문서 태깅 결과 요약</title>
+<html lang="ko"><head><meta charset="utf-8"><title>AI 챗봇 문서 태깅 — 로직과 태그 체계</title>
 <style>
-  @page { size: A4; margin: 12mm 12mm 10mm; }
+  @page { size: A4; margin: 10mm 11mm 8mm; }
   * { box-sizing: border-box; }
   body { font-family: "NanumGothic", "NanumBarunGothic", sans-serif; margin: 0;
-         color: #1a1a1a; font-size: 9pt; line-height: 1.45; }
-  h1 { font-size: 15pt; margin: 0 0 1mm; letter-spacing: -0.3px; }
-  .sub { color: #666; font-size: 8pt; margin-bottom: 3.5mm; }
-  h2 { font-size: 9.5pt; margin: 3.5mm 0 1.5mm; padding-bottom: 0.8mm;
+         color: #1a1a1a; font-size: 8.4pt; line-height: 1.32; }
+  h1 { font-size: 14pt; margin: 0 0 0.8mm; letter-spacing: -0.3px; }
+  .sub { color: #666; font-size: 7.4pt; margin-bottom: 2.4mm; }
+  h2 { font-size: 8.8pt; margin: 2.3mm 0 1.1mm; padding-bottom: 0.7mm;
        border-bottom: 1.2px solid #333; letter-spacing: -0.2px; }
-  .kpis { display: flex; gap: 2mm; }
-  .kpi { flex: 1; border: 1px solid #d5d5d5; border-radius: 2mm; padding: 2mm 2.5mm; text-align: center; }
-  .kpi .n { font-size: 13pt; font-weight: bold; line-height: 1.1; }
-  .kpi .l { font-size: 7pt; color: #666; margin-top: 0.5mm; }
-  table { width: 100%; border-collapse: collapse; font-size: 8pt; }
-  th, td { border: 1px solid #ddd; padding: 1.2mm 2mm; text-align: left; vertical-align: top; }
+  .kpis { display: flex; gap: 1.6mm; }
+  .kpi { flex: 1; border: 1px solid #d5d5d5; border-radius: 1.5mm; padding: 1.6mm 1mm; text-align: center; }
+  .kpi .n { font-size: 11.5pt; font-weight: bold; line-height: 1.1; }
+  .kpi .l { font-size: 6.6pt; color: #666; margin-top: 0.4mm; }
+  table { width: 100%; border-collapse: collapse; font-size: 7.6pt; }
+  th, td { border: 1px solid #ddd; padding: 0.7mm 1.4mm; text-align: left; vertical-align: top; }
   th { background: #f2f2f2; font-weight: bold; }
   td.n { text-align: right; white-space: nowrap; }
-  .cols { display: flex; gap: 4mm; }
+  .cols { display: flex; gap: 3.5mm; }
   .cols > div { flex: 1; }
-  ul { margin: 0.5mm 0 0; padding-left: 4mm; }
-  li { margin-bottom: 0.6mm; }
-  .grp { margin-bottom: 1.8mm; }
-  .grp .cap { font-size: 7.5pt; color: #444; font-weight: bold; margin-bottom: 0.8mm; }
-  .tags { font-size: 7.6pt; line-height: 1.75; }
+  .flow { display: flex; align-items: stretch; gap: 1.2mm; }
+  .step { flex: 1; border: 1px solid #ccc; border-radius: 1.5mm; padding: 1.5mm; background: #fafafa; }
+  .step .t { font-weight: bold; font-size: 7.6pt; margin-bottom: 0.6mm; }
+  .step .d { font-size: 6.7pt; color: #444; line-height: 1.3; }
+  .step .no { display: inline-block; background: #333; color: #fff; border-radius: 50%;
+              width: 3.4mm; height: 3.4mm; text-align: center; line-height: 3.4mm;
+              font-size: 6.4pt; margin-right: 1mm; }
+  .arrow { align-self: center; color: #999; font-size: 9pt; }
+  .tags { font-size: 7.2pt; line-height: 1.55; }
   .tag { display: inline-block; border: 1px solid #ccc; border-radius: 1mm;
-         padding: 0.2mm 1.1mm; margin: 0 0.6mm 0.6mm 0; white-space: nowrap; }
-  .tag b { font-weight: normal; color: #777; font-size: 6.8pt; }
-  .foot { margin-top: 2.5mm; font-size: 7pt; color: #777; border-top: 1px solid #ddd; padding-top: 1.2mm; }
+         padding: 0.1mm 0.9mm; margin: 0 0.45mm 0.35mm 0; white-space: nowrap; }
+  .tag b { font-weight: normal; color: #888; font-size: 6.4pt; }
+  .cap { font-size: 7.1pt; color: #444; font-weight: bold; margin: 0.9mm 0 0.4mm; }
+  code { font-family: "NanumGothicCoding", monospace; font-size: 7pt; background: #f2f2f2; padding: 0 0.7mm; }
+  .ex { background: #f7f7f7; border-radius: 1mm; padding: 1.4mm 1.8mm; font-size: 7.2pt; line-height: 1.6; }
+  .foot { margin-top: 2mm; font-size: 6.8pt; color: #777; border-top: 1px solid #ddd; padding-top: 1mm; }
 </style></head>
 <body>
 
-<h1>AI 챗봇 문서 태깅 결과 요약</h1>
-<div class="sub">대상 목록: AI_Datum_List20260812 (14,097건) · 판단 기준: 문서 제목(파일명) 우선 · 작성일 2026-08-13</div>
+<h1>AI 챗봇 문서 태깅 — 로직과 태그 체계</h1>
+<div class="sub">대상: AI_Datum_List20260812 (14,097건) · 판단 기준: 문서 제목(파일명) 우선 · 작성일 2026-08-13</div>
 
 <div class="kpis">
   <div class="kpi"><div class="n">14,097</div><div class="l">전체 문서</div></div>
@@ -43,83 +50,99 @@
   <div class="kpi"><div class="n">183건</div><div class="l">태그당 평균 문서</div></div>
 </div>
 
-<div class="cols" style="margin-top:3.5mm">
-  <div>
-    <h2>태깅 원칙</h2>
-    <ul>
-      <li><b>제목 우선</b> — 제목으로 판단이 서면 본문을 열지 않는다. 본문을 파고들수록 그 문서에만 맞는 태그가 생긴다.</li>
-      <li><b>문서당 1~3개</b> — 3개를 억지로 채우지 않는다.</li>
-      <li><b>재사용 가능</b> — "다른 문서에도 다시 쓸 태그인가"를 통과해야 한다.</li>
-      <li><b>중간 수준</b> — #보험·#교육처럼 넓거나 #당뇨병고객인수기준처럼 좁은 태그를 쓰지 않는다.</li>
-      <li><b>복합 태그 금지</b> — #법인퇴직금절세 → #법인 + #퇴직연금 + #절세로 쪼갠다.</li>
-    </ul>
+<h2>태깅 로직 — 문서 하나가 거치는 5단계</h2>
+<div class="flow">
+  <div class="step"><div class="t"><span class="no">1</span>제목 정규화</div>
+    <div class="d">확장자와 등록 자동 접미사를 떼어 판단용 제목을 만든다.<br>
+    <code>…보험_260812_S337_171152.md</code> → <code>…보험</code></div></div>
+  <div class="arrow">▶</div>
+  <div class="step"><div class="t"><span class="no">2</span>제외 판정</div>
+    <div class="d">약관·요약서·사업방법서·설명서·도서 패턴이면 태그 없이 <b>제외</b>.<br>
+    단 "(교육) 약관을 파고드는…"처럼 <b>소재로 다룬 자료</b>는 살린다.</div></div>
+  <div class="arrow">▶</div>
+  <div class="step"><div class="t"><span class="no">3</span>키워드 매칭</div>
+    <div class="d">표준 태그 84종에 등록된 패턴을 제목에 대조해 후보를 모은다.<br>
+    오탐 차단 조건(<code>not</code>)에 걸리면 그 태그는 제외.</div></div>
+  <div class="arrow">▶</div>
+  <div class="step"><div class="t"><span class="no">4</span>우선순위 정렬</div>
+    <div class="d">후보를 우선순위 순으로 세우고 <b>상위 3개까지만</b> 채택.<br>
+    같은 순위면 제목에서 먼저 나온 쪽이 앞선다.</div></div>
+  <div class="arrow">▶</div>
+  <div class="step"><div class="t"><span class="no">5</span>폴백 보장</div>
+    <div class="d">후보가 하나도 없으면 폴더·부서 접두어로 <b>최소 1개</b>를 준다.<br>
+    그래도 없으면 <code>#보험기초</code>.</div></div>
+</div>
+
+<div class="cols" style="margin-top:2.5mm">
+  <div style="flex:1.15">
+    <h2>4단계 우선순위 사다리 — 무엇을 먼저 남기는가</h2>
+    <table>
+      <tr><th>순위</th><th>태그군</th><th>이유</th></tr>
+      <tr><td>10~12</td><td>분쟁조정 판례 법령 통계 수수료 준법감시 소비자보호 민원 언더라이팅 보험금청구 계약관리</td><td>문서의 <b>정체</b>를 규정하는 업무 영역</td></tr>
+      <tr><td>14~18</td><td>상품분석 상품소식 카드뉴스 설계사교육 영업화법 고객상담 마케팅 사내공지 보험료</td><td>자료의 <b>형태·용도</b></td></tr>
+      <tr><td>20~22</td><td>보험 상품군 19종 + 암</td><td>어떤 <b>상품</b>에 관한 것인가</td></tr>
+      <tr><td>30~32</td><td>세무·재무·투자 15종</td><td>재무 <b>주제</b></td></tr>
+      <tr><td>40~50</td><td>건강·의료 27종 → 보험산업 → 보험기초</td><td>세부 주제와 <b>기본값</b></td></tr>
+    </table>
+    <div style="font-size:7pt;color:#555;margin-top:1mm">
+      상품 태그와 질병 태그는 <b>같이 붙인다</b>. 암보험 자료 145건 중 144건에 <code>#암</code>이 함께 붙어,
+      상품 쪽에서 찾든 질병 쪽에서 찾든 같은 문서가 검색된다.
+    </div>
   </div>
   <div>
-    <h2>태깅 제외 (4,665건)</h2>
+    <h2>문서당 태그 수 — 3개를 채우지 않는다</h2>
     <table>
-      <tr><th>제외 사유</th><th class="n">문서 수</th></tr>
-      <tr><td>사업방법서·방법서</td><td class="n">1,883</td></tr>
-      <tr><td>상품요약서</td><td class="n">1,732</td></tr>
-      <tr><td>약관</td><td class="n">598</td></tr>
-      <tr><td>도서·스캔된 책</td><td class="n">388</td></tr>
-      <tr><td>상품설명서·상품안내장</td><td class="n">64</td></tr>
+      <tr><th>태그 수</th><th class="n">문서 수</th><th class="n">비율</th></tr>
+      <tr><td>1개</td><td class="n">4,880</td><td class="n">51.7%</td></tr>
+      <tr><td>2개</td><td class="n">3,199</td><td class="n">33.9%</td></tr>
+      <tr><td>3개 (상한)</td><td class="n">1,351</td><td class="n">14.3%</td></tr>
+      <tr><td>0개 (제외)</td><td class="n">4,665</td><td class="n">—</td></tr>
     </table>
-    <div style="font-size:7.3pt;color:#555;margin-top:1.2mm">
-      단, 약관을 <i>소재로 다룬</i> 교육자료는 약관 문서가 아니므로 제외하지 않는다.
+    <div class="ex" style="margin-top:1.2mm">
+      DB손해보험 보상처리 서비스 안내 → <b>#보험금청구</b><br>
+      변액보험_과거상품별수익률정규화 → <b>#변액보험 #투자</b><br>
+      AIA (무)더블업 암보험 상품 분석 → <b>#상품분석 #암보험 #암</b>
     </div>
   </div>
 </div>
 
 <h2>표준 태그 84종 (괄호 안은 사용 문서 수)</h2>
-<div class="grp">
-  <div class="cap">문서 성격 · 업무 영역 (22)</div>
-  <div class="tags">
-    <span class="tag">#상품분석 <b>1732</b></span><span class="tag">#설계사교육 <b>434</b></span><span class="tag">#통계 <b>277</b></span><span class="tag">#상품소식 <b>247</b></span><span class="tag">#분쟁조정 <b>166</b></span><span class="tag">#영업화법 <b>123</b></span><span class="tag">#보험금청구 <b>111</b></span><span class="tag">#카드뉴스 <b>108</b></span><span class="tag">#고객상담 <b>103</b></span><span class="tag">#사내공지 <b>87</b></span><span class="tag">#수수료 <b>81</b></span><span class="tag">#소비자보호 <b>68</b></span><span class="tag">#보험료 <b>63</b></span><span class="tag">#언더라이팅 <b>60</b></span><span class="tag">#준법감시 <b>59</b></span><span class="tag">#법령 <b>52</b></span><span class="tag">#마케팅 <b>52</b></span><span class="tag">#보험산업 <b>41</b></span><span class="tag">#판례 <b>24</b></span><span class="tag">#계약관리 <b>21</b></span><span class="tag">#민원 <b>12</b></span><span class="tag">#시책 <b>3</b></span>
-  </div>
+<div class="cap">문서 성격 · 업무 영역 (22)</div>
+<div class="tags">
+  <span class="tag">#상품분석 <b>1732</b></span><span class="tag">#설계사교육 <b>434</b></span><span class="tag">#통계 <b>277</b></span><span class="tag">#상품소식 <b>247</b></span><span class="tag">#분쟁조정 <b>166</b></span><span class="tag">#영업화법 <b>123</b></span><span class="tag">#보험금청구 <b>111</b></span><span class="tag">#카드뉴스 <b>108</b></span><span class="tag">#고객상담 <b>103</b></span><span class="tag">#사내공지 <b>87</b></span><span class="tag">#수수료 <b>81</b></span><span class="tag">#소비자보호 <b>68</b></span><span class="tag">#보험료 <b>63</b></span><span class="tag">#언더라이팅 <b>60</b></span><span class="tag">#준법감시 <b>59</b></span><span class="tag">#법령 <b>52</b></span><span class="tag">#마케팅 <b>52</b></span><span class="tag">#보험산업 <b>41</b></span><span class="tag">#판례 <b>24</b></span><span class="tag">#계약관리 <b>21</b></span><span class="tag">#민원 <b>12</b></span><span class="tag">#시책 <b>3</b></span>
 </div>
-<div class="grp">
-  <div class="cap">보험 상품군 (19)</div>
-  <div class="tags">
-    <span class="tag">#종신보험 <b>441</b></span><span class="tag">#변액보험 <b>425</b></span><span class="tag">#연금보험 <b>394</b></span><span class="tag">#건강보험 <b>320</b></span><span class="tag">#국민연금 <b>224</b></span><span class="tag">#실손보험 <b>155</b></span><span class="tag">#퇴직연금 <b>149</b></span><span class="tag">#암보험 <b>145</b></span><span class="tag">#어린이보험 <b>139</b></span><span class="tag">#자동차보험 <b>127</b></span><span class="tag">#간편보험 <b>106</b></span><span class="tag">#간병보험 <b>104</b></span><span class="tag">#저축보험 <b>93</b></span><span class="tag">#운전자보험 <b>84</b></span><span class="tag">#정기보험 <b>73</b></span><span class="tag">#상해보험 <b>60</b></span><span class="tag">#재물보험 <b>60</b></span><span class="tag">#주택연금 <b>34</b></span><span class="tag">#여행자보험 <b>30</b></span>
-  </div>
+<div class="cap">보험 상품군 (19)</div>
+<div class="tags">
+  <span class="tag">#종신보험 <b>441</b></span><span class="tag">#변액보험 <b>425</b></span><span class="tag">#연금보험 <b>394</b></span><span class="tag">#건강보험 <b>320</b></span><span class="tag">#국민연금 <b>224</b></span><span class="tag">#실손보험 <b>155</b></span><span class="tag">#퇴직연금 <b>149</b></span><span class="tag">#암보험 <b>145</b></span><span class="tag">#어린이보험 <b>139</b></span><span class="tag">#자동차보험 <b>127</b></span><span class="tag">#간편보험 <b>106</b></span><span class="tag">#간병보험 <b>104</b></span><span class="tag">#저축보험 <b>93</b></span><span class="tag">#운전자보험 <b>84</b></span><span class="tag">#정기보험 <b>73</b></span><span class="tag">#상해보험 <b>60</b></span><span class="tag">#재물보험 <b>60</b></span><span class="tag">#주택연금 <b>34</b></span><span class="tag">#여행자보험 <b>30</b></span>
 </div>
-<div class="grp">
-  <div class="cap">세무 · 재무 · 투자 (15)</div>
-  <div class="tags">
-    <span class="tag">#투자 <b>843</b></span><span class="tag">#세금 <b>783</b></span><span class="tag">#부동산 <b>401</b></span><span class="tag">#노후준비 <b>362</b></span><span class="tag">#주식 <b>187</b></span><span class="tag">#상속 <b>159</b></span><span class="tag">#ETF <b>138</b></span><span class="tag">#증여 <b>90</b></span><span class="tag">#경제지표 <b>87</b></span><span class="tag">#펀드 <b>86</b></span><span class="tag">#법인 <b>75</b></span><span class="tag">#양도소득세 <b>71</b></span><span class="tag">#연말정산 <b>32</b></span><span class="tag">#재무설계 <b>29</b></span><span class="tag">#절세 <b>21</b></span>
-  </div>
+<div class="cap">세무 · 재무 · 투자 (15)</div>
+<div class="tags">
+  <span class="tag">#투자 <b>843</b></span><span class="tag">#세금 <b>783</b></span><span class="tag">#부동산 <b>401</b></span><span class="tag">#노후준비 <b>362</b></span><span class="tag">#주식 <b>187</b></span><span class="tag">#상속 <b>159</b></span><span class="tag">#ETF <b>138</b></span><span class="tag">#증여 <b>90</b></span><span class="tag">#경제지표 <b>87</b></span><span class="tag">#펀드 <b>86</b></span><span class="tag">#법인 <b>75</b></span><span class="tag">#양도소득세 <b>71</b></span><span class="tag">#연말정산 <b>32</b></span><span class="tag">#재무설계 <b>29</b></span><span class="tag">#절세 <b>21</b></span>
 </div>
-<div class="grp">
-  <div class="cap">건강 · 의료 (27)</div>
-  <div class="tags">
-    <span class="tag">#건강상식 <b>1661</b></span><span class="tag">#의약품 <b>1022</b></span><span class="tag">#인체정보 <b>313</b></span><span class="tag">#암 <b>235</b></span><span class="tag">#감염병 <b>124</b></span><span class="tag">#임신출산 <b>123</b></span><span class="tag">#여성질환 <b>101</b></span><span class="tag">#간질환 <b>92</b></span><span class="tag">#소화기질환 <b>80</b></span><span class="tag">#정신건강 <b>73</b></span><span class="tag">#피부질환 <b>68</b></span><span class="tag">#관절질환 <b>51</b></span><span class="tag">#치매 <b>51</b></span><span class="tag">#치과 <b>47</b></span><span class="tag">#심장질환 <b>34</b></span><span class="tag">#비만 <b>32</b></span><span class="tag">#소아질환 <b>31</b></span><span class="tag">#호흡기질환 <b>28</b></span><span class="tag">#당뇨병 <b>26</b></span><span class="tag">#안과질환 <b>26</b></span><span class="tag">#신장질환 <b>25</b></span><span class="tag">#고혈압 <b>20</b></span><span class="tag">#뇌질환 <b>20</b></span><span class="tag">#갑상선 <b>19</b></span><span class="tag">#전립선 <b>18</b></span><span class="tag">#탈모 <b>17</b></span><span class="tag">#골절 <b>13</b></span>
-  </div>
+<div class="cap">건강 · 의료 (27)</div>
+<div class="tags">
+  <span class="tag">#건강상식 <b>1661</b></span><span class="tag">#의약품 <b>1022</b></span><span class="tag">#인체정보 <b>313</b></span><span class="tag">#암 <b>235</b></span><span class="tag">#감염병 <b>124</b></span><span class="tag">#임신출산 <b>123</b></span><span class="tag">#여성질환 <b>101</b></span><span class="tag">#간질환 <b>92</b></span><span class="tag">#소화기질환 <b>80</b></span><span class="tag">#정신건강 <b>73</b></span><span class="tag">#피부질환 <b>68</b></span><span class="tag">#관절질환 <b>51</b></span><span class="tag">#치매 <b>51</b></span><span class="tag">#치과 <b>47</b></span><span class="tag">#심장질환 <b>34</b></span><span class="tag">#비만 <b>32</b></span><span class="tag">#소아질환 <b>31</b></span><span class="tag">#호흡기질환 <b>28</b></span><span class="tag">#당뇨병 <b>26</b></span><span class="tag">#안과질환 <b>26</b></span><span class="tag">#신장질환 <b>25</b></span><span class="tag">#고혈압 <b>20</b></span><span class="tag">#뇌질환 <b>20</b></span><span class="tag">#갑상선 <b>19</b></span><span class="tag">#전립선 <b>18</b></span><span class="tag">#탈모 <b>17</b></span><span class="tag">#골절 <b>13</b></span>
 </div>
-<div class="grp">
-  <div class="cap">분류 보조 (1)</div>
-  <div class="tags"><span class="tag">#보험기초 <b>530</b></span>
-    <span style="font-size:7.3pt;color:#555">— 다른 태그를 찾지 못했을 때의 기본값. 이 태그가 늘어나면 새 태그로 승격할 주제가 있다는 신호.</span>
-  </div>
+<div class="cap">분류 보조 (1)</div>
+<div class="tags"><span class="tag">#보험기초 <b>530</b></span>
+  <span style="font-size:7pt;color:#555">— 다른 태그를 찾지 못했을 때의 기본값. 이 태그가 늘어나면 새 태그로 승격할 주제가 있다는 신호.</span>
 </div>
 
-<div class="cols">
+<div class="cols" style="margin-top:2mm">
   <div>
-    <h2>태그 구조 — 두 층으로 쓴다</h2>
-    <div style="font-size:8pt">
-      상위 태그(<b>#건강상식 #세금 #설계사교육 #투자 #상품분석</b>)가 큰 갈래를 잡고,
-      세부 태그(<b>#당뇨병 #상속 #영업화법</b>)가 그 안에서 무엇인지를 좁힌다.
-      상품 태그와 질병 태그도 함께 붙인다.
-      <div style="margin-top:1.5mm;padding:1.5mm 2mm;background:#f6f6f6;border-radius:1mm;font-size:7.6pt">
-        암보험 상품 분석 → <b>#상품분석 #암보험 #암</b><br>
-        건강칼럼 위암 Q&amp;A → <b>#건강상식 #암</b><br>
-        <span style="color:#555">→ 상품 쪽에서 찾든 질병 쪽에서 찾든 같이 검색된다</span>
-      </div>
-    </div>
+    <h2>태그를 이렇게 정한 이유</h2>
+    <table>
+      <tr><th style="width:26%">원칙</th><th>내용</th></tr>
+      <tr><td>제목 우선</td><td>본문을 파고들수록 그 문서에만 맞는 태그가 생겨 체계가 무너진다</td></tr>
+      <tr><td>재사용 가능</td><td>"다른 문서에도 다시 쓸 태그인가"를 통과해야 등록. 새 태그는 규칙 파일로만 늘려 즉흥적인 고유 태그를 차단</td></tr>
+      <tr><td>중간 수준</td><td>#보험·#교육처럼 넓거나 #당뇨병고객인수기준처럼 좁은 태그를 쓰지 않는다</td></tr>
+      <tr><td>복합 태그 금지</td><td>#법인퇴직금절세 → #법인 + #퇴직연금 + #절세로 쪼갠다</td></tr>
+    </table>
   </div>
   <div>
-    <h2>통합 검토 결과</h2>
+    <h2>검증 결과</h2>
     <table>
-      <tr><th>검토 항목</th><th>판단</th></tr>
+      <tr><th style="width:52%">검토 항목</th><th>결과</th></tr>
       <tr><td>1개 문서만 쓴 태그</td><td><b>없음</b> (최저 #시책 3건)</td></tr>
       <tr><td>#상속·#증여·#양도소득세 → #세금</td><td>통합 안 함 (검색 불가해짐)</td></tr>
       <tr><td>질병 태그 → #건강상식</td><td>통합 안 함 (모두 13건 이상)</td></tr>
@@ -130,8 +153,8 @@
 </div>
 
 <div class="foot">
-  태깅 규칙·표준 태그 사전·실행 스크립트: <b>.claude/skills/document-tagging</b> (브랜치 claude/chatbot-document-tagging-ck4fy8) ·
-  산출물: 태깅결과 엑셀, 문서별 태깅결과 텍스트, 태그체계 최종검토리포트
+  규칙·표준 태그 사전·실행 스크립트: <b>.claude/skills/document-tagging</b> (브랜치 claude/chatbot-document-tagging-ck4fy8) ·
+  산출물: 태깅결과 엑셀, 문서별 태깅결과 텍스트, 태그체계 최종검토리포트 · 같은 스크립트로 다음 문서 묶음도 동일 기준 재현 가능
 </div>
 
 </body></html>
