@@ -14,7 +14,7 @@ from orca.routing import Classification, route
 from orca.types import QuestionType
 from orca.versioning import ApproxDate
 
-PRICING = TermsPricing(price_per_edition=30000)
+PRICING = TermsPricing(price_per_file=30000)
 
 
 def _plan(catalog, *, pricing=PRICING, pending=None, context=None, **kwargs):
@@ -104,7 +104,7 @@ class TestUnpricedIsDefault:
     def test_단가가_정해지면_금액_동의로_바뀐다(self, catalog):
         plan = _plan(
             catalog,
-            pricing=TermsPricing(price_per_edition=30000),
+            pricing=TermsPricing(price_per_file=30000),
             product_mentioned="옛날든든보험",
             period_mentioned="2018년 5월",
         )

@@ -9,7 +9,7 @@
 
 주의: **상품 1건 = 약관 1건이 아니다.**
 같은 상품도 보장형태 · 납입방법 · 개정 판에 따라 약관 파일이 갈린다.
-따라서 「약관 100건」은 상품 100개가 아니라 그보다 적은 상품 수에 해당한다.
+**과금 단위는 약관 파일 수**이므로 「약관 200건」은 상품 200개가 아니다.
 `registration_plan()`이 이 배수를 감안해 상품 수를 잡는다.
 """
 
@@ -112,30 +112,31 @@ class RegistrationPlan:
     contract_coverage: float
     """이 상품들이 덮는 계약 건수 비율. 보상 질문이 걸릴 확률의 대리 지표."""
 
-    estimated_terms: int
-    """예상 약관 파일 수. 상품 수 × 상품당 약관 배수."""
+    estimated_files: int
+    """예상 약관 파일 수. 이것이 과금 단위다 (상품 수 × 상품당 파일 수)."""
 
 
 def registration_plan(
     seeds: list[SeedProduct],
     *,
-    terms_budget: int = 100,
-    terms_per_product: float = 2.0,
+    files_budget: int = 200,
+    files_per_product: float = 2.0,
 ) -> RegistrationPlan:
-    """약관 등록 예산 안에서 어떤 상품부터 넣을지 정한다.
+    """약관 파일 예산 안에서 어떤 상품부터 넣을지 정한다.
 
     담는 순서는 두 단계다.
       1. 목록으로 지정된 상품(생명보험) — 실적 수치가 없고, 선정 자체가 이미 끝났다.
       2. 실적이 있는 상품(손해보험) — 계약 건수가 많은 순.
 
     상품 하나가 약관 여러 건을 차지한다는 점을 반영한다.
-    `terms_per_product`는 보장형태 · 납입방법 · 판 수에 따라 달라지므로
+    **과금 단위는 약관 파일 수다.** `files_per_product`(상품당 파일 수)는
+    보장형태 · 납입방법 · 판 수에 따라 달라지므로
     벤더에서 실제 약관 목록을 받으면 그 값으로 바꿔 다시 계산한다.
     """
     preselected = [s for s in seeds if s.preselected]
     measured = sorted((s for s in seeds if not s.preselected), key=lambda s: -(s.contracts or 0))
 
-    limit = max(1, int(terms_budget / terms_per_product))
+    limit = max(1, int(files_budget / files_per_product))
     picked = (preselected + measured)[:limit]
 
     total = sum(s.contracts or 0 for s in seeds) or 1
@@ -144,7 +145,7 @@ def registration_plan(
     return RegistrationPlan(
         products=picked,
         contract_coverage=covered / total,
-        estimated_terms=int(len(picked) * terms_per_product),
+        estimated_files=int(len(picked) * files_per_product),
     )
 
 

@@ -29,7 +29,14 @@ from .clarify import (
     TurnPlan,
     plan_turn,
 )
-from .pricing import UNPRICED, TermsPricing
+from .pricing import (
+    UNPRICED,
+    CostEstimate,
+    TermsPricing,
+    estimate_by_contract,
+    estimate_by_product,
+    products_within_budget,
+)
 from .requests import (
     RegistrationCandidate,
     RequestLog,
@@ -73,6 +80,7 @@ __all__ = [
     "CatalogEntry",
     "Classification",
     "ConversationContext",
+    "CostEstimate",
     "EditionResolution",
     "EnrolledBenefit",
     "EnrolledContract",
@@ -94,11 +102,14 @@ __all__ = [
     "VersionSensitivity",
     "build_classification_prompt",
     "classify",
+    "estimate_by_contract",
+    "estimate_by_product",
     "normalize_benefit_name",
     "normalize_product_name",
     "parse_approx_date",
     "parse_classification",
     "plan_turn",
+    "products_within_budget",
     "resolve_edition",
     "route",
     "scope_for",

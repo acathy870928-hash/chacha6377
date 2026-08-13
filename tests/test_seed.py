@@ -49,29 +49,29 @@ class TestProductId:
 class TestRegistrationPlan:
     def test_건수가_많은_상품부터_담는다(self):
         seeds = load_seed()
-        plan = registration_plan(seeds, terms_budget=100, terms_per_product=2.0)
+        plan = registration_plan(seeds, files_budget=100, files_per_product=2.0)
 
         contracts = [s.contracts for s in plan.products]
         assert contracts == sorted(contracts, reverse=True)
         assert plan.products[0].product.category == "운전자"
 
-    def test_약관_예산을_상품_수로_환산한다(self):
+    def test_파일_예산을_상품_수로_환산한다(self):
         seeds = load_seed()
         # 상품 하나가 약관 2건을 차지한다고 보면 100건 예산 = 상품 50개.
-        plan = registration_plan(seeds, terms_budget=100, terms_per_product=2.0)
+        plan = registration_plan(seeds, files_budget=100, files_per_product=2.0)
         assert len(plan.products) == 50
-        assert plan.estimated_terms == 100
+        assert plan.estimated_files == 100
 
-    def test_상품당_약관이_많으면_담을_상품이_줄어든다(self):
+    def test_상품당_파일이_많으면_담을_상품이_줄어든다(self):
         seeds = load_seed()
-        few = registration_plan(seeds, terms_budget=100, terms_per_product=4.0)
-        many = registration_plan(seeds, terms_budget=100, terms_per_product=1.0)
+        few = registration_plan(seeds, files_budget=100, files_per_product=4.0)
+        many = registration_plan(seeds, files_budget=100, files_per_product=1.0)
         assert len(few.products) < len(many.products)
         assert few.contract_coverage < many.contract_coverage
 
     def test_커버리지를_계산한다(self):
         seeds = load_seed()
-        plan = registration_plan(seeds, terms_budget=100, terms_per_product=2.0)
+        plan = registration_plan(seeds, files_budget=100, files_per_product=2.0)
         # 상위 50개면 계약의 8할 이상을 덮는다.
         assert 0.8 < plan.contract_coverage < 1.0
 
@@ -109,7 +109,7 @@ class TestLifeSeed:
 
 class TestMixedPlan:
     def test_목록_지정_상품이_먼저_들어간다(self):
-        plan = registration_plan(load_all(), terms_budget=100, terms_per_product=2.0)
+        plan = registration_plan(load_all(), files_budget=100, files_per_product=2.0)
         life_count = len([s for s in plan.products if s.preselected])
         assert life_count == 29
         # 나머지 예산은 실적순으로 손해보험이 채운다.
@@ -117,13 +117,13 @@ class TestMixedPlan:
 
     def test_배수가_크면_실적_상품이_밀려난다(self):
         # 생명보험이 예산을 먼저 쓰므로, 배수가 커질수록 손해보험 커버리지가 무너진다.
-        loose = registration_plan(load_all(), terms_budget=100, terms_per_product=2.0)
-        tight = registration_plan(load_all(), terms_budget=100, terms_per_product=3.0)
+        loose = registration_plan(load_all(), files_budget=100, files_per_product=2.0)
+        tight = registration_plan(load_all(), files_budget=100, files_per_product=3.0)
         assert tight.contract_coverage < loose.contract_coverage * 0.6
 
     def test_목록을_나눠_예산을_따로_잡을_수_있다(self):
         # 한 예산에 섞지 않고 업권별로 따로 계획하면 이 문제를 피할 수 있다.
-        nonlife = registration_plan(load_seed(), terms_budget=60, terms_per_product=2.0)
+        nonlife = registration_plan(load_seed(), files_budget=60, files_per_product=2.0)
         assert len(nonlife.products) == 30
         assert nonlife.contract_coverage > 0.7
 
