@@ -53,6 +53,49 @@ CANCER_B = Product(
 )
 
 
+def _yearly_editions(product_id: str, start_year: int, end_year: int):
+    """실손형: 매년 1월·7월 개정 → 판이 수십 개."""
+    editions = []
+    n = 0
+    for year in range(start_year, end_year + 1):
+        for month in (1, 7):
+            n += 1
+            starts = date(year, month, 1)
+            editions.append(
+                PolicyEdition(
+                    product_id=product_id,
+                    edition_id=f"{product_id}-{n}",
+                    label=f"{starts:%Y.%m} 시행",
+                    effective_from=starts,
+                )
+            )
+    # effective_to를 다음 판 시행 전날로 채운다.
+    closed = []
+    for i, e in enumerate(editions):
+        if i + 1 < len(editions):
+            nxt = editions[i + 1].effective_from
+            closed.append(
+                PolicyEdition(
+                    product_id=e.product_id,
+                    edition_id=e.edition_id,
+                    label=e.label,
+                    effective_from=e.effective_from,
+                    effective_to=date(nxt.year, nxt.month, 1) - __import__("datetime").timedelta(days=1),
+                )
+            )
+        else:
+            closed.append(e)
+    return tuple(closed)
+
+
+#: 실손처럼 개정이 잦은 상품. 판이 40개라 목록 제시가 성립하지 않는다.
+SILSON = Product(
+    product_id="silson",
+    name="실손의료비보장보험",
+    insurer="○○화재",
+    editions=_yearly_editions("silson", 2005, 2024),
+)
+
 #: 상품 마스터(공시실)에는 있으나 아직 약관이 등록되지 않은 상품.
 LEGACY = Product(
     product_id="legacy",
@@ -100,4 +143,4 @@ class FakeCatalog(ProductCatalog):
 
 @pytest.fixture
 def catalog():
-    return FakeCatalog([DRIVER, AUTOPILOT, CANCER_A, CANCER_B, LEGACY])
+    return FakeCatalog([DRIVER, AUTOPILOT, CANCER_A, CANCER_B, LEGACY, SILSON])

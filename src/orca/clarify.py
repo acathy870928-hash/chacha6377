@@ -281,19 +281,30 @@ def plan_turn(
                 "말씀하신 시점에 약관이 개정되었습니다. "
                 "가입일이 정확히 언제인지 알려주시면 해당 약관으로 확인하겠습니다."
             ),
-            options=_edition_options(resolution.candidates),
+            options=_edition_ask_options(resolution.candidates),
         )
 
+    editions = sorted_editions(product)
+    options = _edition_ask_options(editions)
+    if options:
+        prompt = (
+            f"{product.name}은 약관이 여러 차례 개정되었습니다. "
+            "보상은 가입 시점의 약관을 따르므로, 언제 가입한 계약인지 알려주세요."
+        )
+    else:
+        # 판이 너무 많아 목록을 보여줄 수 없다. 연·월 입력으로 받는다.
+        first_year = editions[0].effective_from.year
+        prompt = (
+            f"{product.name}은 약관 개정이 잦아 가입 시점으로 확인합니다. "
+            f"몇 년 몇 월에 가입한 계약인가요? ({first_year}년부터 조회 가능)"
+        )
     return TurnPlan(
         action=NextAction.ASK_CONTRACT_DATE,
         decision=decision,
         product=product,
         context=context,
-        prompt=(
-            f"{product.name}은 약관이 여러 차례 개정되었습니다. "
-            "보상은 가입 시점의 약관을 따르므로, 언제 가입한 계약인지 알려주세요."
-        ),
-        options=_edition_options(sorted_editions(product)),
+        prompt=prompt,
+        options=options,
     )
 
 
@@ -303,6 +314,19 @@ UNREGISTERED_PREFIX = "unregistered:"
 #: 이 수를 넘으면 상품이 아니라 보험사부터 되묻는다.
 #: 칩으로 한 화면에 보여줄 수 있는 수를 기준으로 잡았다.
 _INSURER_NARROWING_THRESHOLD = 8
+
+#: 판 선택지를 칩으로 보여줄 수 있는 최대 수.
+#: 실손처럼 개정이 잦은 상품은 판이 150개를 넘을 수 있다. 그 목록을 칩으로
+#: 늘어놓는 것은 성립하지 않으므로, 넘으면 가입 연·월을 입력으로 받고
+#: 날짜 → 판 변환은 resolve_edition()이 뒤에서 처리한다.
+EDITION_CHIP_LIMIT = 6
+
+
+def _edition_ask_options(editions: tuple[PolicyEdition, ...]) -> tuple[Option, ...]:
+    """가입 시점 되묻기에 붙일 선택지. 판이 많으면 칩을 포기하고 입력만 받는다."""
+    if len(editions) > EDITION_CHIP_LIMIT:
+        return ()
+    return _edition_options(editions)
 
 
 def _product_options(products: list[Product]) -> tuple[Option, ...]:
@@ -373,8 +397,8 @@ def _plan_unregistered(
                 f"{product.name}은 아직 약관이 등록되어 있지 않습니다. "
                 "언제 가입한 계약인지 알려주시면 해당 약관을 확보 대상으로 올리겠습니다."
             ),
-            # 판 정보를 모르면 선택지를 만들 수 없으므로 자유 입력으로 받는다.
-            options=_edition_options(editions),
+            # 판 정보가 없으면 자유 입력으로, 많으면 역시 자유 입력으로 받는다.
+            options=_edition_ask_options(editions),
         )
 
     resolution = resolve_edition(product, contract_date)
