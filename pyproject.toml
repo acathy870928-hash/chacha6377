@@ -1,0 +1,16 @@
+[project]
+name = "orca"
+version = "0.1.0"
+description = "Orca AI 질문 라우팅과 약관 판 특정"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
