@@ -15,6 +15,7 @@ from enum import Enum
 from typing import Protocol
 
 from .benefits import BenefitScope, scope_for
+from .coverage import BenefitMatch, CoverageProfile, EnrolledContract
 from .pricing import UNPRICED, TermsPricing
 from .requests import TermsRequest
 from .routing import RoutingDecision
@@ -51,6 +52,12 @@ class NextAction(Enum):
     ANSWER_GENERAL = "answer_general"
     """특정되지 않았지만 시점 민감도가 낮아 일반론으로 답한다.
     임의로 최신 판을 고르지 않으며, 일반론임을 답변에 명시한다."""
+
+    NOT_ENROLLED = "not_enrolled"
+    """보장분석 결과 해당 담보에 가입한 계약이 없다.
+
+    약관을 뒤질 필요 없이 즉시 답할 수 있는 경우다.
+    다만 조회 범위 밖 계약(오래된 계약 · 단독실손)이 있을 수 있으므로 단정하지 않는다."""
 
     OUT_OF_SCOPE = "out_of_scope"
     """약관으로 답할 수 없는 질문(개별 계약 값 등). 이번 범위 밖임을 안내한다."""
@@ -168,6 +175,15 @@ class TurnPlan:
     terms_request: TermsRequest | None = None
     """등록되지 않은 약관에 대한 요청. 누적해서 다음 등록 배치의 우선순위로 쓴다."""
 
+    matches: tuple[BenefitMatch, ...] = ()
+    """보장분석에서 걸린 가입 담보. 어느 계약에 얼마씩 있는지 답변에 그대로 싣는다.
+
+    **여러 계약에 걸쳐 있으면 전부 보여준다.** 하나만 답하면 FA가 청구를 놓친다.
+    """
+
+    contracts: tuple[EnrolledContract, ...] = ()
+    """이번 답변이 대상으로 삼는 보유 계약. 각 계약의 상품 · 계약년월로 약관 판이 정해진다."""
+
     @property
     def benefit_scope(self) -> BenefitScope:
         """담보를 하나만 볼지, 걸리는 것을 모두 볼지.
@@ -211,12 +227,15 @@ def plan_turn(
     *,
     pricing: TermsPricing = UNPRICED,
     pending_keys: set[tuple[str, str, int | None]] | None = None,
+    coverage: CoverageProfile | None = None,
 ) -> TurnPlan:
     """라우팅 결과와 세션 상태로 이번 턴의 행동을 정한다.
 
     `pricing` — 초기 등록분에 없는 약관을 확보할 때 요청자가 부담할 비용 기준.
     `pending_keys` — 이미 접수돼 진행 중인 약관(`RequestLog.pending_keys()`).
     여기 있으면 중복 과금 없이 대기 안내만 한다.
+    `coverage` — 보장분석 결과. 있으면 상품 · 가입 시점을 되묻지 않고
+    실제 가입 담보로 답한다.
     """
     context = context or ConversationContext()
     classification = decision.classification
@@ -258,6 +277,13 @@ def plan_turn(
             product=product,
             context=context,
         )
+
+    # 보장분석이 붙어 있으면 상품 · 가입 시점을 되묻지 않는다.
+    # 리포트에 계약별 상품명과 계약년월이 있으므로 특정이 이미 끝나 있다.
+    if coverage is not None:
+        planned = _plan_with_coverage(decision, coverage, context)
+        if planned is not None:
+            return planned
 
     product, ask_product = _resolve_product(
         classification.product_mentioned, catalog, context, decision
@@ -364,6 +390,67 @@ def plan_turn(
         context=context,
         prompt=prompt,
         options=options,
+    )
+
+
+def _plan_with_coverage(
+    decision: RoutingDecision,
+    coverage: CoverageProfile,
+    context: ConversationContext,
+) -> TurnPlan | None:
+    """보장분석으로 답할 수 있으면 그 계획을 돌려준다. 아니면 None.
+
+    되묻기를 건너뛰는 근거는 리포트 자체다.
+    계약별 상품명과 계약년월이 있으므로 약관 판이 이미 정해진다.
+    """
+    classification = decision.classification
+
+    # FA가 상품을 지목했으면 그 계약으로 좁힌다.
+    if classification.product_mentioned:
+        contract = coverage.find_contract(classification.product_mentioned)
+        contracts = (contract,) if contract else ()
+    else:
+        contracts = coverage.contracts
+
+    if not contracts:
+        # 보유 계약에 없는 상품을 물었다. 일반 약관 경로로 넘긴다.
+        return None
+
+    benefit = classification.benefit_mentioned
+    if not benefit:
+        # 담보를 지목하지 않았다. 걸리는 담보를 모두 봐야 하므로 계약 전체를 대상으로 검색한다.
+        return TurnPlan(
+            action=NextAction.SEARCH,
+            decision=decision,
+            sources=decision.sources,
+            contracts=contracts,
+            context=context,
+        )
+
+    matches = tuple(m for m in coverage.find_benefits(benefit) if m.contract in contracts)
+
+    if not matches:
+        # 가입한 담보가 없다. 약관을 뒤질 필요 없이 바로 답한다.
+        # 다만 조회 범위 밖 계약이 있을 수 있으므로 단정하지 않는다.
+        return TurnPlan(
+            action=NextAction.NOT_ENROLLED,
+            decision=decision,
+            contracts=contracts,
+            context=context,
+            prompt=(
+                f"보장분석 기준으로 「{benefit}」 담보에 가입한 계약이 없습니다. "
+                "조회되지 않는 계약(오래된 계약 · 단독실손 등)이 있을 수 있으니 "
+                "증권으로 한 번 더 확인해 주세요."
+            ),
+        )
+
+    return TurnPlan(
+        action=NextAction.SEARCH,
+        decision=decision,
+        sources=decision.sources,
+        matches=matches,
+        contracts=tuple(m.contract for m in matches),
+        context=context,
     )
 
 

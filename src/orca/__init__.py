@@ -10,6 +10,13 @@
 """
 
 from .benefits import ENROLLMENT_CAVEAT, ENUMERATE_HINT, BenefitScope, scope_for
+from .coverage import (
+    BenefitMatch,
+    CoverageProfile,
+    EnrolledBenefit,
+    EnrolledContract,
+    normalize_benefit_name,
+)
 from .catalog import (
     CatalogEntry,
     InMemoryProductCatalog,
@@ -60,11 +67,15 @@ __all__ = [
     "ENUMERATE_HINT",
     "UNPRICED",
     "ApproxDate",
+    "BenefitMatch",
     "BenefitScope",
+    "CoverageProfile",
     "CatalogEntry",
     "Classification",
     "ConversationContext",
     "EditionResolution",
+    "EnrolledBenefit",
+    "EnrolledContract",
     "EditionStatus",
     "InMemoryProductCatalog",
     "NextAction",
@@ -83,6 +94,7 @@ __all__ = [
     "VersionSensitivity",
     "build_classification_prompt",
     "classify",
+    "normalize_benefit_name",
     "normalize_product_name",
     "parse_approx_date",
     "parse_classification",
