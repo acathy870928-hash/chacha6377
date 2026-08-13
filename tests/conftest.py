@@ -70,21 +70,32 @@ class FakeCatalog(ProductCatalog):
     def __init__(self, products):
         self._products = list(products)
 
-    def search(self, name: str):
+    def search(self, name: str, *, insurer: str | None = None):
         """약관 등록 여부와 무관하게 후보를 주되, 등록된 상품을 앞에 둔다."""
-        return sorted(self._match(name), key=lambda p: not p.indexed)
+        return sorted(self._match(name, insurer), key=lambda p: not p.indexed)
 
     def search_registry(self, name: str):
         """등록 여부와 무관한 상품 마스터."""
-        return self._match(name)
+        return self._match(name, None)
+
+    def count_matches(self, name: str, *, insurer: str | None = None):
+        return len(self._match(name, insurer))
+
+    def insurers(self):
+        seen = []
+        for p in self._products:
+            if p.insurer and p.insurer not in seen:
+                seen.append(p.insurer)
+        return seen
 
     def get(self, product_id: str):
         return next((p for p in self._products if p.product_id == product_id), None)
 
-    def _match(self, name: str):
+    def _match(self, name: str, insurer: str | None):
+        pool = [p for p in self._products if not insurer or p.insurer == insurer]
         if not name:
-            return list(self._products)
-        return [p for p in self._products if name in p.name or p.name in name]
+            return pool
+        return [p for p in pool if name in p.name or p.name in name]
 
 
 @pytest.fixture

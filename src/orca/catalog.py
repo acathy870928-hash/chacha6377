@@ -60,8 +60,21 @@ class InMemoryProductCatalog:
         ]
         self._max_options = max_options
 
-    def search(self, name: str) -> list[Product]:
-        """이름으로 상품 후보를 찾는다.
+    def insurers(self) -> list[str]:
+        """카탈로그에 있는 보험사 목록.
+
+        공시실 전량을 적재하면 상품이 수천 건이 되어 이름만으로는 좁혀지지 않는다.
+        그때는 보험사를 먼저 고르게 한다(모홈 검색 화면도 업권 → 회사 → 검색 순이다).
+        """
+        seen: list[str] = []
+        for entry in self._entries:
+            insurer = entry.product.insurer
+            if insurer and insurer not in seen:
+                seen.append(insurer)
+        return seen
+
+    def search(self, name: str, *, insurer: str | None = None) -> list[Product]:
+        """이름으로 상품 후보를 찾는다. `insurer`를 주면 그 회사 안에서만 찾는다.
 
         **약관이 등록되지 않은 상품도 포함한다.** 목록에서 상품명 자체는 보여야
         FA가 「우리 자료에 있긴 한데 약관만 없구나」를 알 수 있고,
@@ -73,14 +86,18 @@ class InMemoryProductCatalog:
         같은 상품도 보장형태 · 납입방법에 따라 약관이 갈린다.
         후보가 둘 이상이면 되묻는 편이, 잘못된 약관으로 보상을 답하는 것보다 낫다.
         """
+        pool = self._entries
+        if insurer:
+            pool = [e for e in pool if e.product.insurer == insurer]
+
         needle = normalize_product_name(name) if name else ""
 
         if not needle:
-            matched = list(self._entries)
+            matched = list(pool)
         else:
             matched = [
                 e
-                for e in self._entries
+                for e in pool
                 if any(
                     needle in normalize_product_name(n) or normalize_product_name(n) in needle
                     for n in e.names()
@@ -90,6 +107,28 @@ class InMemoryProductCatalog:
         # 등록된 약관을 먼저 보여준다. 바로 답할 수 있는 쪽이 위에 있어야 한다.
         matched.sort(key=lambda e: not e.product.indexed)
         return [e.product for e in matched][: self._max_options]
+
+    def count_matches(self, name: str, *, insurer: str | None = None) -> int:
+        """`search`가 잘라내기 전의 후보 수.
+
+        후보가 너무 많아 보험사부터 물어야 하는지 판단하는 데 쓴다.
+        """
+        pool = self._entries
+        if insurer:
+            pool = [e for e in pool if e.product.insurer == insurer]
+
+        needle = normalize_product_name(name) if name else ""
+        if not needle:
+            return len(pool)
+
+        return sum(
+            1
+            for e in pool
+            if any(
+                needle in normalize_product_name(n) or normalize_product_name(n) in needle
+                for n in e.names()
+            )
+        )
 
     def search_registry(self, name: str) -> list[Product]:
         """등록 여부와 무관하게 상품 마스터 전체에서 찾는다.

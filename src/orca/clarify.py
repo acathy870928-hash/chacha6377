@@ -30,6 +30,13 @@ class NextAction(Enum):
     SEARCH = "search"
     """특정 완료. 소스를 검색해 답변한다."""
 
+    ASK_INSURER = "ask_insurer"
+    """어느 보험사인지 먼저 되묻는다.
+
+    공시실 전량을 적재하면 상품이 수천 건이 되어 상품명만으로는 좁혀지지 않는다.
+    후보가 칩으로 보여줄 수 있는 수를 넘으면 보험사부터 고르게 한다.
+    """
+
     ASK_PRODUCT = "ask_product"
     """어느 상품인지 되묻는다."""
 
@@ -63,6 +70,9 @@ class ConversationContext:
     매번 상품을 다시 묻지 않기 위해 여기에 들고 간다.
     """
 
+    insurer: str | None = None
+    """상담 중인 계약의 보험사. 상품 후보를 좁히는 데 쓴다."""
+
     product_id: str | None = None
     product_name: str | None = None
     """카탈로그로 되찾을 수 없는 상품(= 마스터에도 없는 미등록 상품)을 위해 이름도 들고 간다."""
@@ -70,11 +80,21 @@ class ConversationContext:
     contract_date: ApproxDate | None = None
     edition_id: str | None = None
 
+    def with_insurer(self, insurer: str) -> ConversationContext:
+        if insurer == self.insurer:
+            return self
+        # 보험사가 바뀌면 그 아래 상품 · 판 정보는 버린다.
+        return ConversationContext(insurer=insurer)
+
     def with_product(self, product: Product) -> ConversationContext:
         if product.product_id == self.product_id:
             return self
-        # 상품이 바뀌면 그 상품에 매인 판 정보는 버린다.
-        return ConversationContext(product_id=product.product_id, product_name=product.name)
+        # 상품이 바뀌면 그 상품에 매인 판 정보는 버린다. 보험사는 상품에서 다시 채운다.
+        return ConversationContext(
+            insurer=product.insurer or self.insurer,
+            product_id=product.product_id,
+            product_name=product.name,
+        )
 
     def with_contract_date(self, contract_date: ApproxDate) -> ConversationContext:
         return replace(self, contract_date=contract_date, edition_id=None)
@@ -90,8 +110,8 @@ class ProductCatalog(Protocol):
     검색이 흔들리므로, 여기서 나온 후보를 칩으로 제시해 고르게 한다.
     """
 
-    def search(self, name: str) -> list[Product]:
-        """약관이 등록된 상품에서 찾는다. 빈 문자열이면 대표 목록을 돌려준다."""
+    def search(self, name: str, *, insurer: str | None = None) -> list[Product]:
+        """상품 후보를 찾는다. 빈 문자열이면 대표 목록을 돌려준다."""
 
     def search_registry(self, name: str) -> list[Product]:
         """등록 여부와 무관하게 상품 마스터에서 찾는다.
@@ -146,6 +166,7 @@ class TurnPlan:
     @property
     def needs_user_input(self) -> bool:
         return self.action in (
+            NextAction.ASK_INSURER,
             NextAction.ASK_PRODUCT,
             NextAction.ASK_CONTRACT_DATE,
             NextAction.ASK_EXACT_DATE,
@@ -279,6 +300,10 @@ def plan_turn(
 #: 상품 마스터에도 없는 상품에 붙이는 식별자 접두어.
 UNREGISTERED_PREFIX = "unregistered:"
 
+#: 이 수를 넘으면 상품이 아니라 보험사부터 되묻는다.
+#: 칩으로 한 화면에 보여줄 수 있는 수를 기준으로 잡았다.
+_INSURER_NARROWING_THRESHOLD = 8
+
 
 def _product_options(products: list[Product]) -> tuple[Option, ...]:
     """상품 선택지.
@@ -394,14 +419,19 @@ def _resolve_product(
     placeholder = TurnPlan(action=NextAction.ASK_PRODUCT, decision=decision, context=context)
 
     if mentioned:
-        # 약관이 등록된 상품을 먼저 본다.
-        candidates = catalog.search(mentioned)
+        candidates = catalog.search(mentioned, insurer=context.insurer)
         if not candidates:
             # 없으면 상품 마스터까지 넓힌다. 여기서 걸리면 「아는 상품인데 약관만 없는」 경우다.
             candidates = _search_registry(catalog, mentioned)
 
         if len(candidates) == 1:
             return candidates[0], placeholder
+
+        # 후보가 칩으로 보여줄 수 있는 수를 넘으면 보험사부터 좁힌다.
+        ask_insurer = _maybe_ask_insurer(mentioned, catalog, context, decision)
+        if ask_insurer is not None:
+            return None, ask_insurer
+
         if candidates:
             return None, replace(
                 placeholder,
@@ -422,9 +452,54 @@ def _resolve_product(
         if product is not None:
             return product, placeholder
 
+    ask_insurer = _maybe_ask_insurer("", catalog, context, decision)
+    if ask_insurer is not None:
+        return None, ask_insurer
+
     return None, replace(
         placeholder,
         context=context,
         prompt="상품에 따라 내용이 다릅니다. 어느 상품 기준으로 확인할까요?",
-        options=_product_options(catalog.search("")),
+        options=_product_options(catalog.search("", insurer=context.insurer)),
+    )
+
+
+def _maybe_ask_insurer(
+    mentioned: str,
+    catalog: ProductCatalog,
+    context: ConversationContext,
+    decision: RoutingDecision,
+) -> TurnPlan | None:
+    """후보가 너무 많으면 보험사부터 묻는 계획을 돌려준다.
+
+    공시실 상품명을 전량 적재하면 상품이 수천 건이 된다. 그 상태에서
+    상품 칩만 8개 잘라 보여주면 FA가 찾는 상품이 그 안에 없을 확률이 높다.
+    보험사를 먼저 고르면 후보가 한 자릿수로 줄어든다.
+    """
+    if context.insurer:
+        return None
+
+    count_matches = getattr(catalog, "count_matches", None)
+    insurers_of = getattr(catalog, "insurers", None)
+    if not callable(count_matches) or not callable(insurers_of):
+        return None
+
+    if count_matches(mentioned) <= _INSURER_NARROWING_THRESHOLD:
+        return None
+
+    insurers = list(insurers_of() or [])
+    if len(insurers) < 2:
+        return None
+
+    prompt = (
+        f"「{mentioned}」로 검색되는 상품이 많습니다. 어느 보험사 상품일까요?"
+        if mentioned
+        else "상품에 따라 내용이 다릅니다. 어느 보험사 상품일까요?"
+    )
+    return TurnPlan(
+        action=NextAction.ASK_INSURER,
+        decision=decision,
+        context=context,
+        prompt=prompt,
+        options=tuple(Option(label=name, value=name) for name in insurers),
     )
