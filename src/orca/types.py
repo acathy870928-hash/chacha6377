@@ -144,6 +144,9 @@ class Product:
     product_id: str
     name: str
     insurer: str = ""
+    category: str = ""
+    """종별. 건강보험 · 운전자 · 실손의료 등. 되묻기에서 후보를 좁히는 데 쓴다."""
+
     editions: tuple[PolicyEdition, ...] = field(default_factory=tuple)
 
     indexed: bool = True
