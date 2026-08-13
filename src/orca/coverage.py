@@ -95,8 +95,78 @@ class EnrolledContract:
     insured: str = ""
     """피보험자. 계약자와 다를 수 있다(부모가 계약자인 경우 등)."""
 
+    policyholder: str = ""
+    """계약자."""
+
+    terms_url: str = ""
+    """보장분석 업체가 제공하는 이 계약의 약관 링크(「약관보기」).
+
+    **중요한 지점이다.** 링크가 있다는 것은 업체가 계약과 약관을
+    이미 연결해 두었다는 뜻이다. 어느 상품의 어느 판인지 추정할 필요가 없다.
+    등록 대상 약관을 고를 때 이 목록이 실적 추정보다 정확한 근거가 된다.
+    """
+
+    @property
+    def has_terms_link(self) -> bool:
+        return bool(self.terms_url)
+
     def find(self, keyword: str) -> tuple[EnrolledBenefit, ...]:
         return tuple(b for b in self.benefits if b.matches(keyword))
+
+
+def terms_key(contract: EnrolledContract) -> str:
+    """등록 대상 약관을 식별하는 키.
+
+    같은 상품이라도 계약년월이 다르면 적용 판이 다를 수 있으므로 연도까지 넣는다.
+    """
+    from .catalog import normalize_product_name
+
+    year = contract.contract_start.year if contract.contract_start else None
+    return f"{contract.insurer}:{normalize_product_name(contract.product_name)}:{year}"
+
+
+@dataclass(frozen=True)
+class TermsNeed:
+    """보유 계약에서 도출된 약관 등록 수요 한 건."""
+
+    key: str
+    insurer: str
+    product_name: str
+    contract_year: int | None
+    contract_count: int
+    """이 약관이 필요한 보유 계약 수. 곧 등록 우선순위다."""
+
+    terms_url: str = ""
+    """업체가 약관 링크를 주면 확보가 그만큼 쉬워진다."""
+
+
+def aggregate_terms_needs(profiles: list[CoverageProfile]) -> list[TermsNeed]:
+    """여러 고객의 보장분석에서 실제로 필요한 약관 목록을 뽑는다.
+
+    **실적 상위 상품을 추정해 등록하는 것보다 정확하다.**
+    FA가 관리하는 고객이 실제로 보유한 계약이므로, 여기 있는 약관은
+    언젠가 반드시 조회된다. 보유 계약 수가 많은 순이 곧 우선순위다.
+    """
+    grouped: dict[str, list[EnrolledContract]] = {}
+    for profile in profiles:
+        for contract in profile.contracts:
+            grouped.setdefault(terms_key(contract), []).append(contract)
+
+    needs = [
+        TermsNeed(
+            key=key,
+            insurer=contracts[0].insurer,
+            product_name=contracts[0].product_name,
+            contract_year=(
+                contracts[0].contract_start.year if contracts[0].contract_start else None
+            ),
+            contract_count=len(contracts),
+            terms_url=next((c.terms_url for c in contracts if c.terms_url), ""),
+        )
+        for key, contracts in grouped.items()
+    ]
+    needs.sort(key=lambda n: (-n.contract_count, n.insurer, n.product_name))
+    return needs
 
 
 @dataclass(frozen=True)
@@ -150,6 +220,13 @@ class CoverageProfile:
             if needle in name or name in needle:
                 return contract
         return None
+
+    def contracts_needing_terms(self, registered: set[str]) -> tuple[EnrolledContract, ...]:
+        """보유 계약 중 약관이 아직 등록되지 않은 것.
+
+        `registered`에는 이미 등록된 약관의 키(보험사:상품명)를 넣는다.
+        """
+        return tuple(c for c in self.contracts if terms_key(c) not in registered)
 
     def total_amount(self, keyword: str) -> int | None:
         """해당 담보의 계약 합산 가입금액(만원).
