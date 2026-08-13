@@ -54,12 +54,18 @@ CLASSIFICATION_PROMPT = """\
   "product_mentioned": "질문에 등장한 상품명, 없으면 null",
   "period_mentioned": "질문에 등장한 가입 시점 표현, 없으면 null",
   "rider_mentioned": "질문에 등장한 특약명, 없으면 null",
+  "benefit_mentioned": "질문에 지목된 담보명, 없으면 null",
   "needs_policy_terms": true 또는 false,
   "reason": "한 문장"
 }}
 
 needs_policy_terms는 답하기 위해 보험약관을 확인해야 하는지 여부입니다.
 상품마다 달라지는 내용이면 true, 일반 지식으로 답할 수 있으면 false입니다.
+
+benefit_mentioned는 질문이 특정 담보를 지목했을 때만 채웁니다.
+- 「골절진단비 나오나요?」 → "골절진단비"
+- 「골절됐는데 뭐 받을 수 있어요?」 → null (담보를 지목하지 않고 상황만 말함)
+담보를 지목하지 않은 질문은 걸릴 수 있는 담보를 모두 찾아야 하므로 구분이 중요합니다.
 
 [질문]
 {question}
@@ -78,6 +84,12 @@ class Classification:
     product_mentioned: str | None = None
     period_mentioned: str | None = None
     rider_mentioned: str | None = None
+
+    benefit_mentioned: str | None = None
+    """질문에 지목된 담보(급부). 예) 「골절진단비」 「수술비」
+
+    지목되지 않았으면 해당 상황에 걸리는 담보를 모두 제시해야 한다(BenefitScope).
+    """
     needs_policy_terms: bool = False
     reason: str = ""
 
@@ -127,6 +139,7 @@ def parse_classification(raw: str) -> Classification:
         product_mentioned=_clean(data.get("product_mentioned")),
         period_mentioned=_clean(data.get("period_mentioned")),
         rider_mentioned=_clean(data.get("rider_mentioned")),
+        benefit_mentioned=_clean(data.get("benefit_mentioned")),
         needs_policy_terms=bool(data.get("needs_policy_terms", False)),
         reason=str(data.get("reason", "")),
     )

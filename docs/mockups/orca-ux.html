@@ -259,12 +259,43 @@
   }
   .clause.exc b { color: #A9422F; }
   .clause .loc { color: #6C766F; font-size: 11.5px; }
+  .benefits {
+    border: 1px solid #E3E8E4;
+    border-radius: 10px;
+    padding: 9px 11px 8px;
+    margin: 10px 0;
+    background: #FAFCFB;
+  }
+  .bhead {
+    font-size: 10.5px; letter-spacing: 0.06em; color: #6C766F;
+    margin-bottom: 7px; font-weight: 600;
+  }
+  .brow {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 4px 0; font-size: 12.5px;
+    border-top: 1px solid #EFF3F0;
+  }
+  .brow:nth-of-type(1) { border-top: none; }
+  .bn { color: #1A211C; }
+  .btag {
+    flex: none; font-size: 10.5px; font-weight: 600;
+    border-radius: 999px; padding: 2px 8px;
+  }
+  .btag.ok { background: #E3F3EA; color: #00794A; }
+  .btag.no { background: #FAECE8; color: #A9422F; }
+  .bnote { margin: 7px 0 0; font-size: 10.5px; color: #8A948D; }
+
   .src {
     font-size: 11px; color: #6C766F; margin-top: 10px;
     padding-top: 9px; border-top: 1px dashed #E3E8E4;
     font-variant-numeric: tabular-nums;
   }
   .caveat { font-size: 11px; color: #98A29B; margin-top: 6px; }
+  .caveat.enroll {
+    color: #8A7742; background: #FCF8EE;
+    border-radius: 8px; padding: 7px 9px; margin-top: 9px;
+  }
+  .caveat.enroll b { color: #6B5A2E; }
   details.fold summary {
     cursor: pointer; font-size: 12px; font-weight: 600; color: #00794A;
     list-style: none; user-select: none;
@@ -380,7 +411,7 @@
   <p class="lede">되묻기 · 약관 판 특정 · 미등록 요청 · 알림 — 지금까지 로직으로 확정한 규칙을 Orca AI 대화 화면에 얹은 목업입니다. 대화 내용과 상품명은 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처에서 가져왔습니다.</p>
   <p class="meta">근거 코드: <code>src/orca/clarify.py</code> · <code>routing.py</code> · <code>versioning.py</code> — 테스트 101건 통과 기준</p>
 
-  <h2>여섯 가지 설계 규칙</h2>
+  <h2>일곱 가지 설계 규칙</h2>
   <p class="h2-sub">화면 요소 하나하나가 아래 규칙에서 나옵니다. 규칙이 바뀌면 화면도 바뀌어야 합니다.</p>
   <div class="rules">
     <div class="rule"><span class="no">R1</span><b>되묻기는 걸러낸 뒤에만</b><p>약관이 필요한 질문 + 상품 미특정일 때만 묻는다. 개념 질문, 판이 하나뿐인 상품, 세션에 남은 상품은 묻지 않는다.</p></div>
@@ -388,6 +419,7 @@
     <div class="rule"><span class="no">R3</span><b>준비중 상품도 보여준다</b><p>약관이 없어도 상품명은 목록에 나온다. 골라도 헛걸음이 아니라 등록 요청으로 이어진다.</p></div>
     <div class="rule"><span class="no">R4</span><b>임의로 판을 고르지 않는다</b><p>가입 시점이 확정되지 않으면 최신 판으로 답하지 않는다. 일반론일 때는 일반론임을 밝힌다.</p></div>
     <div class="rule"><span class="no">R5</span><b>지급사유와 면책은 한 쌍</b><p>「나오나요」에 지급사유만 보여주면 면책에 걸리는 건을 나온다고 오해하게 만든다. 항상 함께 제시한다.</p></div>
+    <div class="rule"><span class="no">R7</span><b>약관의 담보 ≠ 가입한 담보</b><p>약관에는 가입 가능한 담보가 전부 들어 있다. 지급 답변은 「해당 담보에 가입한 경우」라는 조건부이며, 담보를 지목하지 않은 질문에는 걸리는 담보를 모두 제시한다.</p></div>
     <div class="rule"><span class="no">R6</span><b>비용은 먼저 밝히고 동의를 받는다</b><p>초기 200개 외 약관은 요청자 부담. 단가 미확정인 지금은 요청 의사만 받고 금액은 확인 후 안내한다. 완료 알림은 원 질문 재검증 통과 후.</p></div>
   </div>
 
@@ -445,12 +477,21 @@
         <div class="msg-user">2021년 6월쯤이요</div>
         <div class="card">
           <p class="sum">음주운전 중 사고는 이 약관의 대부분 담보에서 <b>지급되지 않습니다</b>. 상해사망·후유장해 담보는 예외가 있어 아래 조항 확인이 필요합니다. <span class="mark">4</span></p>
+          <div class="benefits">
+            <div class="bhead">이 상황에 걸리는 담보 <span class="mark">5</span></div>
+            <div class="brow"><span class="bn">상해사망·후유장해</span><span class="btag ok">일부 지급 가능</span></div>
+            <div class="brow"><span class="bn">자동차사고 부상치료비</span><span class="btag no">면책</span></div>
+            <div class="brow"><span class="bn">교통사고처리지원금</span><span class="btag no">면책</span></div>
+            <div class="brow"><span class="bn">벌금</span><span class="btag no">면책</span></div>
+            <p class="bnote">약관에 있는 담보 기준이며, 계약마다 가입한 담보가 다릅니다.</p>
+          </div>
           <details class="fold" open>
             <summary>근거 조항</summary>
             <div class="clause"><b>지급사유</b>제3조(보험금의 지급사유) — 피보험자가 보험기간 중 상해의 직접결과로써… <span class="loc">2판 제3조 1항</span></div>
-            <div class="clause exc"><b>면책</b>제5조(보험금을 지급하지 않는 사유) — 피보험자가 음주운전 또는 무면허운전을 하는 동안 발생한 손해… <span class="loc">2판 제5조 1항 6호</span> <span class="mark">5</span></div>
+            <div class="clause exc"><b>면책</b>제5조(보험금을 지급하지 않는 사유) — 피보험자가 음주운전 또는 무면허운전을 하는 동안 발생한 손해… <span class="loc">2판 제5조 1항 6호</span> <span class="mark">6</span></div>
           </details>
           <div class="src">참좋은운전자상해보험 약관 2판 (2021.04.01 시행) · DB손보</div>
+          <p class="caveat enroll">약관상 담보 기준입니다. 실제 지급은 <b>해당 담보에 가입한 계약</b>에 한하므로, 가입 담보를 함께 확인해 주세요. <span class="mark">7</span></p>
           <p class="caveat">실제 지급 여부는 사실관계 확인과 보상 심사에 따라 결정됩니다.</p>
         </div>
       </div>
@@ -460,8 +501,10 @@
       <div class="note"><span class="mark">1</span><p>후보가 8개를 넘으면 보험사부터.<small>카탈로그 전량 적재 시 상품이 수천 건 — 상품 칩만 자르면 찾는 상품이 그 안에 없다. 모홈도 업권→회사→검색 순.</small></p></div>
       <div class="note"><span class="mark">2</span><p>준비중 상품도 목록에 보인다 (R3).<small>대시 테두리 + 「약관 준비중」 배지. 골라도 죽은 길이 아니라 Flow 04로 이어진다.</small></p></div>
       <div class="note"><span class="mark">3</span><p>판이 여럿일 때만 시점을 묻고, 왜 묻는지 한 줄로 밝힌다.<small>판이 하나면 이 말풍선 자체가 없다. 칩은 <b>판이 6개 이하일 때만</b> — 실손처럼 판이 150개를 넘는 상품은 칩 없이 「몇 년 몇 월에 가입한 계약인가요? (2005년부터 조회 가능)」으로 입력만 받는다. 시행일이 대개 매월 1일이라 연·월만으로 판이 확정되고, 연도만 말하면 그 해에 걸친 판 2~3개만 칩으로 좁혀 묻는다.</small></p></div>
-      <div class="note"><span class="mark">4</span><p>답변 구조: 요약 → 근거 조항(접기) → 출처 → 유의.<small>모바일에서 조항 원문은 길다. 요약 먼저, 원문은 펼쳐보기. 출처에 상품·판·시행일을 반드시 표기.</small></p></div>
-      <div class="note"><span class="mark">5</span><p>지급사유(초록)와 면책(적갈)이 항상 한 쌍 (R5).<small>색 테두리가 조항 유형을 시각적으로 분리한다. FA가 고객에게 그대로 읽어줄 수 있는 단위.</small></p></div>
+      <div class="note"><span class="mark">4</span><p>답변 구조: 요약 → 담보 목록 → 근거 조항(접기) → 출처 → 유의.<small>모바일에서 조항 원문은 길다. 요약 먼저, 원문은 펼쳐보기. 출처에 상품·판·시행일을 반드시 표기.</small></p></div>
+      <div class="note"><span class="mark">5</span><p><b>담보를 지목하지 않았으면 걸리는 담보를 모두 늘어놓는다.</b><small>「음주운전 사고인데 나오나요?」는 담보를 지목하지 않았다 — 하나만 답하면 FA가 청구 가능한 담보를 놓친다. 골절 하나에도 진단비·입원일당·수술비·후유장해가 함께 걸린다. 「골절진단비 나오나요?」처럼 지목하면 그 담보만 깊게 본다 (<code>BenefitScope</code>).</small></p></div>
+      <div class="note"><span class="mark">6</span><p>지급사유(초록)와 면책(적갈)이 항상 한 쌍 (R5).<small>색 테두리가 조항 유형을 시각적으로 분리한다. FA가 고객에게 그대로 읽어줄 수 있는 단위.</small></p></div>
+      <div class="note"><span class="mark">7</span><p><b>약관에 담보가 있다 ≠ 그 계약이 가입했다.</b><small>약관에는 그 상품에서 <b>가입할 수 있는 담보가 전부</b> 들어 있고, 실제 계약은 그중 일부만 가입한다. 계약별 가입 담보는 Cloud DATA(범위 밖)라 우리가 확인할 수 없다. 그래서 약관 기반 지급 답변은 언제나 조건부이며, 가입 담보 확인을 FA에게 넘긴다. 이 전제를 빠뜨리면 미가입 특약을 「나온다」고 답하게 된다.</small></p></div>
     </div>
   </section>
 
@@ -567,7 +610,7 @@
         <tr><td><code>ASK_PRODUCT</code></td><td class="ui">상품 칩 행 — 준비중은 대시 테두리 + 배지</td><td class="ui"><code>options[].available</code>, <code>note</code>(보험사·시행일)</td></tr>
         <tr><td><code>ASK_CONTRACT_DATE</code></td><td class="ui">판 ≤6개: 경계 칩 + 자유 입력 / 판 &gt;6개(실손형): 칩 없이 연·월 입력만</td><td class="ui"><code>options[]</code> 비면 입력 UI만. 이유 문구는 <code>prompt</code></td></tr>
         <tr><td><code>ASK_EXACT_DATE</code></td><td class="ui">입력 시점에 걸친 판 2~3개만 칩으로 좁혀 묻기</td><td class="ui">경계에 걸친 판 후보 <code>options[]</code></td></tr>
-        <tr><td><code>SEARCH</code></td><td class="ui">답변 카드: 요약 → 근거 조항 접기 → 출처 → 유의</td><td class="ui"><code>product</code>, <code>edition</code> → 컨텍스트 바 갱신</td></tr>
+        <tr><td><code>SEARCH</code></td><td class="ui">답변 카드: 요약 → 담보 목록 → 근거 조항 접기 → 출처 → 가입 담보 유의</td><td class="ui"><code>product</code>, <code>edition</code> → 컨텍스트 바 갱신 · <code>benefit_scope</code> · <code>needs_enrollment_caveat</code></td></tr>
         <tr><td><code>ANSWER_GENERAL</code></td><td class="ui">「일반론」 배너 + 답변 카드</td><td class="ui"><code>prompt</code> = 일반론 고지 문구</td></tr>
         <tr><td><code>CONFIRM_PAID_REQUEST</code></td><td class="ui">견적 카드(상품·판·금액) + [요청하기] / [취소]<br>단가 미확정 시 금액란은 「확인 후 안내」, 버튼은 [확보 요청하기]</td><td class="ui"><code>terms_request.billable/price</code> · <code>price=None</code>이면 숫자 미표시</td></tr>
         <tr><td><code>TERMS_NOT_REGISTERED</code></td><td class="ui">접수 카드 + 등록 완료 푸시 (검수 통과 후). 진행 중이면 「추가 비용 없이」 안내</td><td class="ui"><code>terms_request</code> → RequestLog · <code>pending_keys()</code>로 중복 과금 차단</td></tr>

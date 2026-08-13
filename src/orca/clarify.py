@@ -14,10 +14,11 @@ from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Protocol
 
+from .benefits import BenefitScope, scope_for
 from .pricing import UNPRICED, TermsPricing
 from .requests import TermsRequest
 from .routing import RoutingDecision
-from .types import PolicyEdition, Product, Source, VersionSensitivity
+from .types import PolicyEdition, Product, QuestionType, Source, VersionSensitivity
 from .versioning import (
     ApproxDate,
     EditionStatus,
@@ -166,6 +167,28 @@ class TurnPlan:
 
     terms_request: TermsRequest | None = None
     """등록되지 않은 약관에 대한 요청. 누적해서 다음 등록 배치의 우선순위로 쓴다."""
+
+    @property
+    def benefit_scope(self) -> BenefitScope:
+        """담보를 하나만 볼지, 걸리는 것을 모두 볼지.
+
+        FA가 담보를 지목하지 않았으면 해당 상황에 걸릴 수 있는 담보를 모두 제시한다.
+        하나만 답하면 청구 가능한 담보를 놓친다.
+        """
+        return scope_for(self.decision.classification.benefit_mentioned)
+
+    @property
+    def needs_enrollment_caveat(self) -> bool:
+        """답변에 「가입한 담보에 한함」 전제를 붙여야 하는지.
+
+        약관에는 그 상품에서 가입할 수 있는 담보가 전부 들어 있고,
+        실제 계약은 그중 일부만 가입한다. 계약별 가입 담보는 이번 범위 밖이므로
+        지급 여부를 다루는 답변은 언제나 조건부여야 한다.
+        """
+        return self.action in (NextAction.SEARCH, NextAction.ANSWER_GENERAL) and (
+            self.decision.classification.question_type
+            in (QuestionType.COVERAGE, QuestionType.BENEFIT_TERM)
+        )
 
     @property
     def option_labels(self) -> tuple[str, ...]:

@@ -9,6 +9,7 @@
   · VELUGA : 벤더 API (모델만 지정하면 생성 답변까지 반환)
 """
 
+from .benefits import ENROLLMENT_CAVEAT, ENUMERATE_HINT, BenefitScope, scope_for
 from .catalog import (
     CatalogEntry,
     InMemoryProductCatalog,
@@ -55,8 +56,11 @@ from .versioning import (
 
 __all__ = [
     "ROUTING_TABLE",
+    "ENROLLMENT_CAVEAT",
+    "ENUMERATE_HINT",
     "UNPRICED",
     "ApproxDate",
+    "BenefitScope",
     "CatalogEntry",
     "Classification",
     "ConversationContext",
@@ -85,5 +89,6 @@ __all__ = [
     "plan_turn",
     "resolve_edition",
     "route",
+    "scope_for",
     "select_within_budget",
 ]
