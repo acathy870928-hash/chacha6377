@@ -139,9 +139,17 @@ class PolicyEdition:
 
 @dataclass(frozen=True)
 class Product:
-    """벤더 인덱스에 존재하는 상품. 되묻기 선택지의 원천이 된다."""
+    """되묻기 선택지가 되는 상품."""
 
     product_id: str
     name: str
     insurer: str = ""
     editions: tuple[PolicyEdition, ...] = field(default_factory=tuple)
+
+    indexed: bool = True
+    """벤더 인덱스에 이 상품의 약관이 실제로 들어 있는지.
+
+    상품 목록은 공시실에서도 얻을 수 있지만, 약관 검색은 벤더 인덱스에서만 된다.
+    인덱스에 없는 상품을 선택지로 띄우면 FA가 고른 뒤에 「자료 없음」이 나온다.
+    되묻기 후보는 이 값이 True인 상품으로만 구성한다.
+    """

@@ -9,6 +9,11 @@
   · VELUGA : 벤더 API (모델만 지정하면 생성 답변까지 반환)
 """
 
+from .catalog import (
+    CatalogEntry,
+    InMemoryProductCatalog,
+    normalize_product_name,
+)
 from .clarify import (
     ConversationContext,
     NextAction,
@@ -43,10 +48,12 @@ from .versioning import (
 __all__ = [
     "ROUTING_TABLE",
     "ApproxDate",
+    "CatalogEntry",
     "Classification",
     "ConversationContext",
     "EditionResolution",
     "EditionStatus",
+    "InMemoryProductCatalog",
     "NextAction",
     "PolicyEdition",
     "Product",
@@ -58,6 +65,7 @@ __all__ = [
     "VersionSensitivity",
     "build_classification_prompt",
     "classify",
+    "normalize_product_name",
     "parse_approx_date",
     "parse_classification",
     "plan_turn",
