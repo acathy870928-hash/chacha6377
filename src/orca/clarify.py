@@ -202,6 +202,24 @@ def plan_turn(
             context=context,
         )
 
+    # 약관을 쓰지만 판 특정이 필요 없는 질문(담보 용어 설명 등)도 되묻지 않는다.
+    # 정의는 약관 공통이므로 전체 약관에서 일반 설명으로 답한다.
+    # 상품이 언급됐고 하나로 떨어지면 검색 범위만 조용히 좁힌다 — 못 좁혀도 묻지 않는다.
+    if decision.version_sensitivity is VersionSensitivity.NONE:
+        product = None
+        if classification.product_mentioned:
+            candidates = catalog.search(classification.product_mentioned, insurer=context.insurer)
+            if len(candidates) == 1:
+                product = candidates[0]
+                context = context.with_product(product)
+        return TurnPlan(
+            action=NextAction.SEARCH,
+            decision=decision,
+            sources=decision.sources,
+            product=product,
+            context=context,
+        )
+
     product, ask_product = _resolve_product(
         classification.product_mentioned, catalog, context, decision
     )

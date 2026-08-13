@@ -34,6 +34,10 @@ class QuestionType(Enum):
     PRODUCT_INFO = "product_info"
     """특정 상품의 구조 · 특징. 예) 「오토파일럿 변액연금 어떤 상품이야?」"""
 
+    BENEFIT_TERM = "benefit_term"
+    """약관에 정의된 담보 · 급부 용어의 설명. 예) 「골절진단비가 뭔가요?」
+    정의 자체는 약관 공통이므로 상품 · 판을 특정하지 않아도 답할 수 있다."""
+
     COVERAGE = "coverage"
     """보장 범위 · 지급 여부 · 면책. 보상 질문의 핵심.
     예) 「음주운전 사고인데 보험금 나오나요?」"""
@@ -86,6 +90,14 @@ ROUTING_TABLE: dict[QuestionType, RoutingPolicy] = {
         sources=(Source.VELUGA,),
         version_sensitivity=VersionSensitivity.PREFERRED,
         note="상품해설서 · 방법서. 개정으로 내용이 바뀔 수 있으나 개요 수준은 판 무관한 경우가 많다.",
+    ),
+    QuestionType.BENEFIT_TERM: RoutingPolicy(
+        sources=(Source.VELUGA,),
+        version_sensitivity=VersionSensitivity.NONE,
+        note=(
+            "담보 용어 설명. 정의는 약관 공통이므로 특정 없이 일반 설명으로 답하되, "
+            "금액·지급 조건은 상품마다 다름을 함께 밝힌다."
+        ),
     ),
     QuestionType.COVERAGE: RoutingPolicy(
         sources=(Source.VELUGA,),
