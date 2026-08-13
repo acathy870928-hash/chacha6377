@@ -171,6 +171,17 @@ class TestUnregisteredTerms:
         assert plan.sources == ()
         assert "확인되지 않은 내용으로 답하지 않겠습니다" in plan.prompt
 
+    def test_등록을_약속하지_않는다(self, catalog):
+        # 등록에는 비용이 들고 승인을 거친다. 반드시 등록된다고 말하면 과약속이다.
+        plan = _plan(
+            catalog,
+            QuestionType.COVERAGE,
+            product_mentioned="옛날든든보험",
+            period_mentioned="2018년 5월",
+        )
+        assert "검토 후" in plan.prompt
+        assert "확보 요청을 접수" in plan.prompt
+
     def test_마스터에도_없는_상품도_요청으로_남긴다(self, catalog):
         # 「모른다」로 끝내면 등록 요청이 쌓이지 않는다.
         first = _plan(catalog, QuestionType.COVERAGE, product_mentioned="처음보는보험")

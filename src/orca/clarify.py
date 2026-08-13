@@ -413,7 +413,7 @@ def _plan_unregistered(
             context=context,
             prompt=(
                 f"{product.name}은 아직 약관이 등록되어 있지 않습니다. "
-                "언제 가입한 계약인지 알려주시면 해당 약관을 확보 대상으로 올리겠습니다."
+                "언제 가입한 계약인지 알려주시면 해당 약관을 확보 요청으로 남기겠습니다."
             ),
             # 판 정보가 없으면 자유 입력으로, 많으면 역시 자유 입력으로 받는다.
             options=_edition_ask_options(editions),
@@ -430,7 +430,8 @@ def _plan_unregistered(
         context=context,
         prompt=(
             f"{product.name}의 약관은 아직 등록되어 있지 않아 확인할 수 없습니다. "
-            "확인되지 않은 내용으로 답하지 않겠습니다. 해당 약관을 확보 대상으로 등록했습니다."
+            "확인되지 않은 내용으로 답하지 않겠습니다. "
+            "확보 요청을 접수했고, 검토 후 등록되면 알려드리겠습니다."
         ),
         terms_request=TermsRequest(
             product_name=product.name,

@@ -1,4 +1,4 @@
-"""미등록 약관 요청 기록.
+"""미등록 약관 요청 기록과 등록 후보 산정.
 
 약관은 처음부터 전부 등록하지 않는다. 우선 100건 규모로 시작하고,
 없는 약관은 역질문으로 **상품명과 가입 시점을 확정한 뒤** 요청으로 남긴다.
@@ -7,16 +7,48 @@
 상품명만으로는 어느 판을 등록해야 하는지 알 수 없다.
 가입 시점까지 받아야 등록 대상이 하나로 정해진다.
 
-쌓인 요청은 빈도순으로 다음 등록 배치의 우선순위가 된다.
-즉 등록 목록이 추측이 아니라 실제 FA 수요로 정해진다.
+## 등록에는 비용이 든다
+
+벤더에 약관을 등록할 때 비용이 발생한다. 따라서 요청이 왔다고 자동으로 등록하지 않는다.
+
+  - 쌓인 요청은 **등록 후보**가 될 뿐이고, 승인 단계를 거친다.
+  - 우선순위는 단순 요청 건수가 아니라 **비용 대비 수요**로 정한다.
+    판 하나를 등록해 몇 명의 FA가 얼마나 풀리는지가 기준이다.
+  - 요청한 FA에게 「등록하겠다」고 약속하지 않는다. 접수와 검토까지만 알린다.
+
+비용 단위는 **판(edition)**이다. 같은 상품이라도 판마다 따로 등록해야 하므로,
+실손처럼 판이 많은 상품은 전체 등록이 비현실적이고 요청이 몰린 판만 골라 넣는다.
 """
 
 from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, field
+from enum import Enum
 
 from .versioning import ApproxDate
+
+
+class RequestStatus(Enum):
+    """요청 처리 상태. 등록이 유료이므로 접수와 등록 사이에 승인이 있다."""
+
+    RECEIVED = "received"
+    """접수됨. 아직 등록 여부가 정해지지 않았다."""
+
+    APPROVED = "approved"
+    """등록하기로 승인됨. 비용 집행 대상."""
+
+    REGISTERED = "registered"
+    """등록 · 임베딩 완료. 아직 검수 전이므로 알림을 보내지 않는다."""
+
+    VERIFIED = "verified"
+    """원 질문으로 검수 통과. 이 시점에 요청자에게 알린다."""
+
+    DECLINED = "declined"
+    """등록하지 않기로 함. 사유와 함께 요청자에게 알린다."""
+
+    UNAVAILABLE = "unavailable"
+    """약관 자체를 확보할 수 없음(상품 오인, 공시 미존재 등)."""
 
 
 @dataclass(frozen=True)
@@ -102,5 +134,100 @@ class RequestLog:
         """
         return [e.question for e in self.entries if e.key == key and e.question]
 
+    def candidates(self) -> list[RegistrationCandidate]:
+        """등록 후보. 같은 약관(보험사 + 상품 + 가입 연도)에 대한 요청을 묶는다.
+
+        묶는 단위가 곧 비용 단위다. 판 하나를 등록하면 그 판을 기다린 요청이 함께 풀린다.
+        """
+        grouped: dict[tuple[str, str, int | None], list[TermsRequest]] = {}
+        for entry in self.entries:
+            grouped.setdefault(entry.key, []).append(entry)
+
+        result: list[RegistrationCandidate] = []
+        for key, entries in grouped.items():
+            first = entries[0]
+            requesters: list[str] = []
+            for entry in entries:
+                if entry.requester_id and entry.requester_id not in requesters:
+                    requesters.append(entry.requester_id)
+            result.append(
+                RegistrationCandidate(
+                    key=key,
+                    product_name=first.product_name,
+                    insurer=first.insurer,
+                    product_id=first.product_id,
+                    edition_label=first.edition_label,
+                    contract_year=key[2],
+                    request_count=len(entries),
+                    requester_count=len(requesters),
+                    questions=[e.question for e in entries if e.question],
+                )
+            )
+        return result
+
     def unresolved_count(self) -> int:
         return len(self.entries)
+
+
+@dataclass(frozen=True)
+class RegistrationCandidate:
+    """등록을 검토할 약관 하나. 요청 여러 건이 묶인 결과다."""
+
+    key: tuple[str, str, int | None]
+    product_name: str
+    insurer: str
+    product_id: str | None
+    edition_label: str | None
+    contract_year: int | None
+    request_count: int
+    requester_count: int
+    questions: list[str]
+
+    @property
+    def demand(self) -> int:
+        """수요 점수.
+
+        **요청 건수보다 요청한 FA 수를 무겁게 본다.**
+        한 사람이 열 번 물어본 것보다 열 사람이 한 번씩 물어본 쪽이
+        조직 전체로 더 자주 막히고 있다는 뜻이다.
+        요청자 정보가 없는 경우를 대비해 건수도 함께 반영한다.
+        """
+        return self.requester_count * 3 + self.request_count
+
+    @property
+    def is_identified(self) -> bool:
+        """상품 마스터에서 식별된 요청인지.
+
+        마스터에도 없는 이름은 오타일 수 있으므로 자동 승인 대상에서 뺀다.
+        """
+        return self.product_id is not None
+
+
+def select_within_budget(
+    candidates: list[RegistrationCandidate],
+    *,
+    editions_budget: int,
+    min_requesters: int = 2,
+) -> tuple[list[RegistrationCandidate], list[RegistrationCandidate]]:
+    """예산 안에서 등록할 후보를 고른다. (승인, 보류) 순으로 돌려준다.
+
+    등록이 유료이므로 두 단계로 거른다.
+
+      1. **최소 수요 미달은 제외한다.** 요청자가 `min_requesters`명 미만이면
+         비용을 들일 근거가 약하다. 오타로 들어온 이름도 여기서 걸린다.
+      2. 남은 후보를 수요 순으로 예산만큼 담는다.
+
+    판 하나당 비용이 같다고 보므로 예산은 판 수로 센다.
+    단가가 상품 · 판에 따라 다르면 이 함수 대신 비용을 인자로 받는 형태로 바꾼다.
+    """
+    eligible = [
+        c for c in candidates if c.requester_count >= min_requesters and c.is_identified
+    ]
+    held = [c for c in candidates if c not in eligible]
+
+    eligible.sort(key=lambda c: (-c.demand, c.product_name))
+    approved = eligible[:editions_budget]
+    held.extend(eligible[editions_budget:])
+
+    held.sort(key=lambda c: (-c.demand, c.product_name))
+    return approved, held

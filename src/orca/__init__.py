@@ -21,7 +21,13 @@ from .clarify import (
     TurnPlan,
     plan_turn,
 )
-from .requests import RequestLog, TermsRequest
+from .requests import (
+    RegistrationCandidate,
+    RequestLog,
+    RequestStatus,
+    TermsRequest,
+    select_within_budget,
+)
 from .routing import (
     Classification,
     RoutingDecision,
@@ -60,7 +66,9 @@ __all__ = [
     "Product",
     "ProductCatalog",
     "QuestionType",
+    "RegistrationCandidate",
     "RequestLog",
+    "RequestStatus",
     "RoutingDecision",
     "Source",
     "TermsRequest",
@@ -74,4 +82,5 @@ __all__ = [
     "plan_turn",
     "resolve_edition",
     "route",
+    "select_within_budget",
 ]
