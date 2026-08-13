@@ -50,16 +50,66 @@ class TestPriceDisclosure:
     def test_판까지_특정해_무엇에_대한_비용인지_밝힌다(self, legacy_plan):
         assert "1판 (2016.01 시행)" in legacy_plan.prompt
 
-    def test_금액이_미확정이면_숫자를_지어내지_않는다(self, catalog):
+
+class TestUnpricedIsDefault:
+    """단가 미확정이 현재 기본 상태다."""
+
+    def test_기본값이_미확정이다(self, catalog):
+        decision = route(
+            Classification(
+                question_type=QuestionType.COVERAGE,
+                product_mentioned="옛날든든보험",
+                period_mentioned="2018년 5월",
+            )
+        )
+        # pricing을 넘기지 않으면 UNPRICED로 동작한다.
+        plan = plan_turn(decision, catalog)
+        assert plan.action is NextAction.CONFIRM_PAID_REQUEST
+        assert plan.terms_request.price is None
+
+    def test_숫자를_지어내지_않는다(self, catalog):
         plan = _plan(
             catalog,
             pricing=UNPRICED,
             product_mentioned="옛날든든보험",
             period_mentioned="2018년 5월",
         )
-        assert plan.action is NextAction.CONFIRM_PAID_REQUEST
-        assert "등록 비용이 발생합니다" in plan.prompt
-        assert plan.terms_request.price is None
+        assert "원" not in plan.prompt.replace("등록 비용", "")
+        assert all("원" not in label for label in plan.option_labels)
+
+    def test_금액_없이는_확정_동의를_받지_않는다(self, catalog):
+        # 「비용이 발생합니다, 요청하시겠어요?」는 백지 동의가 된다.
+        # 요청 의사만 받고 금액은 확인 후 안내한다.
+        plan = _plan(
+            catalog,
+            pricing=UNPRICED,
+            product_mentioned="옛날든든보험",
+            period_mentioned="2018년 5월",
+        )
+        assert "발생할 수 있습니다" in plan.prompt
+        assert "확인해 안내" in plan.prompt
+        assert plan.option_labels == ("확보 요청하기", "취소")
+
+    def test_비용_확인_후_안내라는_점을_선택지에도_남긴다(self, catalog):
+        plan = _plan(
+            catalog,
+            pricing=UNPRICED,
+            product_mentioned="옛날든든보험",
+            period_mentioned="2018년 5월",
+        )
+        confirm = plan.options[0]
+        assert confirm.value == "confirm"
+        assert confirm.note == "비용 확인 후 안내"
+
+    def test_단가가_정해지면_금액_동의로_바뀐다(self, catalog):
+        plan = _plan(
+            catalog,
+            pricing=TermsPricing(price_per_edition=30000),
+            product_mentioned="옛날든든보험",
+            period_mentioned="2018년 5월",
+        )
+        assert plan.option_labels == ("요청하기 (30,000원)", "취소")
+        assert plan.terms_request.price == 30000
 
 
 class TestNoDoubleCharge:

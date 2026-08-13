@@ -293,6 +293,7 @@
     margin: 0; font-size: 16px; color: #1A211C;
     font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
   }
+  .quote .amount b.tbd { font-size: 13px; color: #8A7742; font-weight: 600; }
 
   .receipt {
     align-self: stretch;
@@ -387,7 +388,7 @@
     <div class="rule"><span class="no">R3</span><b>준비중 상품도 보여준다</b><p>약관이 없어도 상품명은 목록에 나온다. 골라도 헛걸음이 아니라 등록 요청으로 이어진다.</p></div>
     <div class="rule"><span class="no">R4</span><b>임의로 판을 고르지 않는다</b><p>가입 시점이 확정되지 않으면 최신 판으로 답하지 않는다. 일반론일 때는 일반론임을 밝힌다.</p></div>
     <div class="rule"><span class="no">R5</span><b>지급사유와 면책은 한 쌍</b><p>「나오나요」에 지급사유만 보여주면 면책에 걸리는 건을 나온다고 오해하게 만든다. 항상 함께 제시한다.</p></div>
-    <div class="rule"><span class="no">R6</span><b>비용은 먼저 밝히고 동의를 받는다</b><p>초기 200개 외 약관은 요청자 부담. 금액과 대상(상품·판)을 고지하고 동의받은 뒤 접수한다. 완료 알림은 원 질문 재검증 통과 후.</p></div>
+    <div class="rule"><span class="no">R6</span><b>비용은 먼저 밝히고 동의를 받는다</b><p>초기 200개 외 약관은 요청자 부담. 단가 미확정인 지금은 요청 의사만 받고 금액은 확인 후 안내한다. 완료 알림은 원 질문 재검증 통과 후.</p></div>
   </div>
 
   <h2>대화 플로우</h2>
@@ -510,10 +511,10 @@
         <div class="msg-bot">옛날든든보험(△△화재)은 아직 약관이 등록되어 있지 않습니다. 언제 가입한 계약인지 알려주시면 해당 약관을 확보 요청으로 남기겠습니다. <span class="mark">1</span></div>
         <div class="msg-user">2018년 5월이요</div>
         <div class="quote"><b>옛날든든보험 · 1판 (2016.01 시행)</b>
-          <p>이 약관은 등록되어 있지 않아 확인할 수 없습니다. 확보를 요청하시면 등록 비용이 발생합니다. <span class="mark">2</span></p>
-          <div class="amount"><span>등록 비용</span><b>30,000원</b></div>
+          <p>이 약관은 등록되어 있지 않아 확인할 수 없습니다. 확보에는 등록 비용이 발생할 수 있습니다. 요청을 남기시면 비용과 진행 여부를 확인해 안내드리겠습니다. <span class="mark">2</span></p>
+          <div class="amount"><span>등록 비용</span><b class="tbd">확인 후 안내</b></div>
         </div>
-        <div class="chips"><span class="chip on">요청하기 (30,000원)</span><span class="chip">취소</span></div>
+        <div class="chips"><span class="chip on">확보 요청하기</span><span class="chip">취소</span></div>
         <div class="receipt"><b>확보 요청을 접수했습니다 <span class="mark">3</span></b>
           <p>옛날든든보험 1판 (2016.01 시행) · 등록이 끝나면 알려드리겠습니다. 확인되지 않은 내용으로 답하지 않습니다.</p>
         </div>
@@ -529,7 +530,7 @@
     </div></div>
     <div class="notes">
       <div class="note"><span class="mark">1</span><p>미등록이어도 가입 시점을 끝까지 확정한다.<small>등록 요청도 비용도 상품이 아니라 <b>상품+판 단위</b>다. 판이 정해져야 얼마인지 말할 수 있다.</small></p></div>
-      <div class="note"><span class="mark">2</span><p><b>금액을 고지하고 동의를 받는다</b> (R6).<small>초기 200개 상품 외 약관은 요청한 FA 부담. 무엇에 대한 비용인지(상품·판)와 금액을 함께 보이고, 취소 선택지를 항상 남긴다. 단가 미확정이면 숫자를 지어내지 않고 「등록 비용이 발생합니다」로만 고지한다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p><b>단가 미확정 — 지금은 요청 의사만 받는다</b> (R6).<small>초기 200개 상품 외 약관은 요청한 FA 부담이지만 <b>벤더 단가가 아직 미확정</b>이다. 금액 없이 「비용이 발생합니다, 요청하시겠어요?」로 받으면 백지 동의가 된다. 그래서 지금은 「발생할 수 있습니다 · 확인해 안내드리겠습니다」로 요청 의사만 받고, 금액 확정 후 개별 안내한다. 단가가 정해지면 <code>TermsPricing</code> 주입만으로 「요청하기 (30,000원)」 형태의 확정 동의로 바뀐다 — 코드 수정 없이.</small></p></div>
       <div class="note"><span class="mark">3</span><p>접수는 동의 이후에만.<small>같은 약관을 다른 FA가 이미 요청했다면 이 화면 대신 「추가 비용 없이 확보 진행 중」 안내가 나간다 — 등록된 약관은 전사가 함께 쓰므로 같은 것을 두 번 사게 두지 않는다.</small></p></div>
       <div class="note"><span class="mark">4</span><p>알림에 원 질문을 그대로 싣는다.<small>3일 뒤의 FA는 무엇을 물었는지 기억하지 못한다. 탭 한 번으로 그때 컨텍스트(상품·판·질문)로 복귀. 발송은 원 질문 재검증 통과 후에만. 확보 실패 시에는 사유 안내와 환불이 따른다.</small></p></div>
     </div>
@@ -568,7 +569,7 @@
         <tr><td><code>ASK_EXACT_DATE</code></td><td class="ui">입력 시점에 걸친 판 2~3개만 칩으로 좁혀 묻기</td><td class="ui">경계에 걸친 판 후보 <code>options[]</code></td></tr>
         <tr><td><code>SEARCH</code></td><td class="ui">답변 카드: 요약 → 근거 조항 접기 → 출처 → 유의</td><td class="ui"><code>product</code>, <code>edition</code> → 컨텍스트 바 갱신</td></tr>
         <tr><td><code>ANSWER_GENERAL</code></td><td class="ui">「일반론」 배너 + 답변 카드</td><td class="ui"><code>prompt</code> = 일반론 고지 문구</td></tr>
-        <tr><td><code>CONFIRM_PAID_REQUEST</code></td><td class="ui">견적 카드(상품·판·금액) + [요청하기] / [취소]</td><td class="ui"><code>terms_request.billable/price</code> · 금액 미확정이면 숫자 숨김</td></tr>
+        <tr><td><code>CONFIRM_PAID_REQUEST</code></td><td class="ui">견적 카드(상품·판·금액) + [요청하기] / [취소]<br>단가 미확정 시 금액란은 「확인 후 안내」, 버튼은 [확보 요청하기]</td><td class="ui"><code>terms_request.billable/price</code> · <code>price=None</code>이면 숫자 미표시</td></tr>
         <tr><td><code>TERMS_NOT_REGISTERED</code></td><td class="ui">접수 카드 + 등록 완료 푸시 (검수 통과 후). 진행 중이면 「추가 비용 없이」 안내</td><td class="ui"><code>terms_request</code> → RequestLog · <code>pending_keys()</code>로 중복 과금 차단</td></tr>
         <tr><td><code>NO_TERMS_AVAILABLE</code></td><td class="ui">자료 없음 안내 — 추측 금지 문구</td><td class="ui"><code>prompt</code></td></tr>
         <tr><td><code>OUT_OF_SCOPE</code></td><td class="ui">경계 안내 + 가능한 질문으로 유도</td><td class="ui"><code>prompt</code></td></tr>

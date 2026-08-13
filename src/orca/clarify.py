@@ -474,21 +474,38 @@ def _plan_unregistered(
     # 초기 등록분에 없는 약관이다. 비용이 발생하므로 동의를 먼저 받는다.
     amount = pricing.price_for(1)
     where = f"{product.name} · {edition.label}" if edition else product.name
+
+    if amount is None:
+        # 단가 미확정. 금액 없이 「비용이 발생합니다」로 동의를 받으면 백지 동의가 된다.
+        # 이 단계에서는 **요청 의사만** 받고, 금액은 확인해서 따로 안내한다.
+        prompt = (
+            f"{where} 약관은 등록되어 있지 않아 확인할 수 없습니다. "
+            "확보에는 등록 비용이 발생할 수 있습니다. "
+            "요청을 남기시면 비용과 진행 여부를 확인해 안내드리겠습니다."
+        )
+        options = (
+            Option(label="확보 요청하기", value="confirm", note="비용 확인 후 안내"),
+            Option(label="취소", value="cancel"),
+        )
+    else:
+        prompt = (
+            f"{where} 약관은 등록되어 있지 않아 확인할 수 없습니다. "
+            f"확보를 요청하시면 {pricing.format(1)}의 등록 비용이 발생합니다. "
+            "요청하시겠어요?"
+        )
+        options = (
+            Option(label=f"요청하기 ({pricing.format(1)})", value="confirm"),
+            Option(label="취소", value="cancel"),
+        )
+
     return TurnPlan(
         action=NextAction.CONFIRM_PAID_REQUEST,
         decision=decision,
         product=product,
         edition=edition,
         context=context,
-        prompt=(
-            f"{where} 약관은 등록되어 있지 않아 확인할 수 없습니다. "
-            f"확보를 요청하시면 {pricing.format(1)}의 등록 비용이 발생합니다. "
-            "요청하시겠어요?"
-        ),
-        options=(
-            Option(label=f"요청하기 ({pricing.format(1)})", value="confirm"),
-            Option(label="취소", value="cancel"),
-        ),
+        prompt=prompt,
+        options=options,
         terms_request=replace(request, billable=True, price=amount),
     )
 
