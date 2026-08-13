@@ -21,6 +21,7 @@ from .clarify import (
     TurnPlan,
     plan_turn,
 )
+from .pricing import UNPRICED, TermsPricing
 from .requests import (
     RegistrationCandidate,
     RequestLog,
@@ -54,6 +55,7 @@ from .versioning import (
 
 __all__ = [
     "ROUTING_TABLE",
+    "UNPRICED",
     "ApproxDate",
     "CatalogEntry",
     "Classification",
@@ -71,6 +73,7 @@ __all__ = [
     "RequestStatus",
     "RoutingDecision",
     "Source",
+    "TermsPricing",
     "TermsRequest",
     "TurnPlan",
     "VersionSensitivity",

@@ -14,6 +14,7 @@ from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Protocol
 
+from .pricing import UNPRICED, TermsPricing
 from .requests import TermsRequest
 from .routing import RoutingDecision
 from .types import PolicyEdition, Product, Source, VersionSensitivity
@@ -56,9 +57,16 @@ class NextAction(Enum):
     NO_TERMS_AVAILABLE = "no_terms_available"
     """해당 시점의 약관이 색인에 없다. 추측하지 않고 없다고 답한다."""
 
+    CONFIRM_PAID_REQUEST = "confirm_paid_request"
+    """등록되지 않은 약관을 확보하려면 **요청자 부담 비용**이 발생한다.
+    금액을 고지하고 동의를 받는다. 동의 전에는 요청을 접수하지 않는다."""
+
     TERMS_NOT_REGISTERED = "terms_not_registered"
     """상품은 알지만 약관이 아직 등록되지 않았다.
-    없다고 안내하되, 상품 · 가입 시점을 확정해 등록 요청으로 남긴다(TurnPlan.terms_request)."""
+    없다고 안내하되, 상품 · 가입 시점을 확정해 등록 요청으로 남긴다(TurnPlan.terms_request).
+
+    비용이 발생하는 요청이면 이 상태에 오기 전에 CONFIRM_PAID_REQUEST로 동의를 받는다.
+    이미 다른 FA가 요청해 진행 중인 약관은 비용 없이 바로 이 상태로 온다."""
 
 
 @dataclass(frozen=True)
@@ -177,8 +185,16 @@ def plan_turn(
     decision: RoutingDecision,
     catalog: ProductCatalog,
     context: ConversationContext | None = None,
+    *,
+    pricing: TermsPricing = UNPRICED,
+    pending_keys: set[tuple[str, str, int | None]] | None = None,
 ) -> TurnPlan:
-    """라우팅 결과와 세션 상태로 이번 턴의 행동을 정한다."""
+    """라우팅 결과와 세션 상태로 이번 턴의 행동을 정한다.
+
+    `pricing` — 초기 등록분에 없는 약관을 확보할 때 요청자가 부담할 비용 기준.
+    `pending_keys` — 이미 접수돼 진행 중인 약관(`RequestLog.pending_keys()`).
+    여기 있으면 중복 과금 없이 대기 안내만 한다.
+    """
     context = context or ConversationContext()
     classification = decision.classification
 
@@ -249,7 +265,9 @@ def plan_turn(
     # 바로 「없다」고 끝내지 않고 가입 시점까지 확정한 뒤 요청으로 남긴다.
     # 상품명만으로는 어느 판을 등록해야 할지 정해지지 않기 때문이다.
     if not product.indexed:
-        return _plan_unregistered(decision, product, contract_date, context)
+        return _plan_unregistered(
+            decision, product, contract_date, context, pricing, pending_keys or set()
+        )
 
     resolution = resolve_edition(product, contract_date)
 
@@ -397,12 +415,16 @@ def _plan_unregistered(
     product: Product,
     contract_date: ApproxDate | None,
     context: ConversationContext,
+    pricing: TermsPricing = UNPRICED,
+    pending: set[tuple[str, str, int | None]] | None = None,
 ) -> TurnPlan:
     """약관이 등록되지 않은 상품에 대한 처리.
 
     가입 시점을 먼저 확정한다. 등록 요청이 「상품명」이 아니라
-    「상품 + 판」 단위여야 무엇을 등록할지 정해지기 때문이다.
+    「상품 + 판」 단위여야 무엇을 등록할지 정해지기 때문이고,
+    비용도 판 단위로 발생하므로 금액을 고지하려면 판이 정해져 있어야 한다.
     """
+    pending = pending or set()
     editions = sorted_editions(product)
 
     if contract_date is None and decision.version_sensitivity is VersionSensitivity.REQUIRED:
@@ -422,6 +444,63 @@ def _plan_unregistered(
     resolution = resolve_edition(product, contract_date)
     edition = resolution.edition if resolution.is_settled else None
 
+    request = TermsRequest(
+        product_name=product.name,
+        insurer=product.insurer,
+        product_id=(
+            None if product.product_id.startswith(UNREGISTERED_PREFIX) else product.product_id
+        ),
+        contract_date=contract_date,
+        edition_label=edition.label if edition else None,
+        question=decision.classification.question,
+    )
+
+    # 같은 약관을 다른 FA가 이미 요청했다면 비용을 다시 받지 않는다.
+    # 등록된 약관은 전사가 함께 쓰므로 같은 것을 두 번 사는 셈이 된다.
+    if request.key in pending:
+        return TurnPlan(
+            action=NextAction.TERMS_NOT_REGISTERED,
+            decision=decision,
+            product=product,
+            edition=edition,
+            context=context,
+            prompt=(
+                f"{product.name}의 약관은 이미 다른 요청으로 확보가 진행 중입니다. "
+                "추가 비용 없이 등록되면 알려드리겠습니다."
+            ),
+            terms_request=request,
+        )
+
+    # 초기 등록분에 없는 약관이다. 비용이 발생하므로 동의를 먼저 받는다.
+    amount = pricing.price_for(1)
+    where = f"{product.name} · {edition.label}" if edition else product.name
+    return TurnPlan(
+        action=NextAction.CONFIRM_PAID_REQUEST,
+        decision=decision,
+        product=product,
+        edition=edition,
+        context=context,
+        prompt=(
+            f"{where} 약관은 등록되어 있지 않아 확인할 수 없습니다. "
+            f"확보를 요청하시면 {pricing.format(1)}의 등록 비용이 발생합니다. "
+            "요청하시겠어요?"
+        ),
+        options=(
+            Option(label=f"요청하기 ({pricing.format(1)})", value="confirm"),
+            Option(label="취소", value="cancel"),
+        ),
+        terms_request=replace(request, billable=True, price=amount),
+    )
+
+
+def _plan_paid_request_accepted(
+    decision: RoutingDecision,
+    product: Product,
+    edition: PolicyEdition | None,
+    context: ConversationContext,
+    request: TermsRequest,
+) -> TurnPlan:
+    """FA가 비용에 동의한 뒤의 접수 처리."""
     return TurnPlan(
         action=NextAction.TERMS_NOT_REGISTERED,
         decision=decision,
@@ -429,23 +508,10 @@ def _plan_unregistered(
         edition=edition,
         context=context,
         prompt=(
-            f"{product.name}의 약관은 아직 등록되어 있지 않아 확인할 수 없습니다. "
-            "확인되지 않은 내용으로 답하지 않겠습니다. "
-            "확보 요청을 접수했고, 검토 후 등록되면 알려드리겠습니다."
+            f"{product.name}의 약관 확보 요청을 접수했습니다. "
+            "확인되지 않은 내용으로 답하지 않습니다. 등록이 끝나면 알려드리겠습니다."
         ),
-        terms_request=TermsRequest(
-            product_name=product.name,
-            insurer=product.insurer,
-            # 마스터에도 없는 상품이면 상품 ID를 남기지 않는다(임시 식별자일 뿐이다).
-            product_id=(
-                None
-                if product.product_id.startswith(UNREGISTERED_PREFIX)
-                else product.product_id
-            ),
-            contract_date=contract_date,
-            edition_label=edition.label if edition else None,
-            question=decision.classification.question,
-        ),
+        terms_request=request,
     )
 
 

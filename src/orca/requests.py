@@ -75,7 +75,17 @@ class TermsRequest:
     """
 
     requester_id: str = ""
-    """요청한 FA. 등록 완료 시 알림 대상이 된다."""
+    """요청한 FA. 등록 완료 시 알림 대상이 되고, 유료 요청이면 청구 대상이다."""
+
+    billable: bool = False
+    """이 요청이 요청자 부담인지.
+
+    초기 등록분(회사 부담)에 없는 약관은 요청한 FA가 비용을 부담한다.
+    따라서 **접수 전에 비용을 고지하고 동의를 받아야** 한다.
+    """
+
+    price: int | None = None
+    """고지한 등록 비용. 동의 시점의 금액을 그대로 남긴다(사후 단가 변경과 무관하게)."""
 
     @property
     def key(self) -> tuple[str, str, int | None]:
@@ -133,6 +143,15 @@ class RequestLog:
         등록 후 검수에 그대로 쓴다. 이 질문들에 근거 조항이 나와야 등록이 끝난 것이다.
         """
         return [e.question for e in self.entries if e.key == key and e.question]
+
+    def pending_keys(self) -> set[tuple[str, str, int | None]]:
+        """이미 접수돼 확보가 진행 중인 약관.
+
+        **중복 과금을 막는 데 쓴다.** 같은 약관을 다른 FA가 이미 요청했다면
+        두 번째 FA에게 다시 비용을 받지 않는다. 등록된 약관은 전사가 함께 쓰므로
+        같은 것을 두 번 사는 셈이 된다.
+        """
+        return {e.key for e in self.entries}
 
     def candidates(self) -> list[RegistrationCandidate]:
         """등록 후보. 같은 약관(보험사 + 상품 + 가입 연도)에 대한 요청을 묶는다.

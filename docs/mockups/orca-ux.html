@@ -273,6 +273,27 @@
   details.fold[open] summary::before { content: "▾ "; }
   details.fold summary:focus-visible { outline: 2px solid #009A55; outline-offset: 2px; border-radius: 4px; }
 
+  .quote {
+    align-self: stretch;
+    border: 1px solid #E6DCC2;
+    background: #FCF8EE;
+    border-radius: 14px;
+    padding: 11px 13px;
+    font-size: 12.5px;
+  }
+  .quote b { display: block; color: #6B5A2E; margin-bottom: 4px; }
+  .quote p { margin: 0; color: #45514A; }
+  .quote .amount {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 9px; padding-top: 9px;
+    border-top: 1px solid #EDE3CC;
+  }
+  .quote .amount span { color: #6C766F; font-size: 11.5px; }
+  .quote .amount b {
+    margin: 0; font-size: 16px; color: #1A211C;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+  }
+
   .receipt {
     align-self: stretch;
     border: 1px solid #CDE8DA;
@@ -366,7 +387,7 @@
     <div class="rule"><span class="no">R3</span><b>준비중 상품도 보여준다</b><p>약관이 없어도 상품명은 목록에 나온다. 골라도 헛걸음이 아니라 등록 요청으로 이어진다.</p></div>
     <div class="rule"><span class="no">R4</span><b>임의로 판을 고르지 않는다</b><p>가입 시점이 확정되지 않으면 최신 판으로 답하지 않는다. 일반론일 때는 일반론임을 밝힌다.</p></div>
     <div class="rule"><span class="no">R5</span><b>지급사유와 면책은 한 쌍</b><p>「나오나요」에 지급사유만 보여주면 면책에 걸리는 건을 나온다고 오해하게 만든다. 항상 함께 제시한다.</p></div>
-    <div class="rule"><span class="no">R6</span><b>접수는 즉시, 등록은 약속하지 않는다</b><p>등록에는 비용이 들고 수요·예산 승인을 거친다. 접수와 검토까지만 알리고, 원 질문 재검증이 통과한 뒤에 완료를 알린다.</p></div>
+    <div class="rule"><span class="no">R6</span><b>비용은 먼저 밝히고 동의를 받는다</b><p>초기 200개 외 약관은 요청자 부담. 금액과 대상(상품·판)을 고지하고 동의받은 뒤 접수한다. 완료 알림은 원 질문 재검증 통과 후.</p></div>
   </div>
 
   <h2>대화 플로우</h2>
@@ -477,34 +498,40 @@
   <!-- FLOW 4 -->
   <section class="flow">
     <div class="flow-head">
-      <span class="flow-tag">FLOW 04 — 미등록 약관</span>
-      <h3>없어도 끝까지 묻고, 접수하고, 알린다</h3>
-      <p class="why">역질문이 등록 요청 수집을 겸한다. 상품명만으로는 어느 판을 등록할지 정할 수 없다 — <code>ASK_CONTRACT_DATE → TERMS_NOT_REGISTERED</code></p>
+      <span class="flow-tag">FLOW 04 — 미등록 약관 (요청자 부담)</span>
+      <h3>끝까지 묻고, 금액을 밝히고, 동의를 받는다</h3>
+      <p class="why">초기 200개 상품 외 약관은 요청한 FA가 비용을 부담한다. 동의 없이 접수하지 않는다 — <code>ASK_CONTRACT_DATE → CONFIRM_PAID_REQUEST → TERMS_NOT_REGISTERED</code></p>
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:31</span><span>●●● ▲ 26</span></div>
       <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
       <div class="chat">
         <div class="msg-user">옛날든든보험 골절 진단금 나오나요?</div>
-        <div class="msg-bot">옛날든든보험(△△화재)은 아직 약관이 등록되어 있지 않습니다. 언제 가입한 계약인지 알려주시면 해당 약관을 확보 대상으로 올리겠습니다. <span class="mark">1</span></div>
+        <div class="msg-bot">옛날든든보험(△△화재)은 아직 약관이 등록되어 있지 않습니다. 언제 가입한 계약인지 알려주시면 해당 약관을 확보 요청으로 남기겠습니다. <span class="mark">1</span></div>
         <div class="msg-user">2018년 5월이요</div>
-        <div class="receipt"><b>확보 요청을 접수했습니다 <span class="mark">2</span></b>
-          <p>옛날든든보험 1판 (2016.01 시행) 기준 · 검토 후 등록되면 알려드리겠습니다. 확인되지 않은 내용으로 답하지 않습니다.</p>
+        <div class="quote"><b>옛날든든보험 · 1판 (2016.01 시행)</b>
+          <p>이 약관은 등록되어 있지 않아 확인할 수 없습니다. 확보를 요청하시면 등록 비용이 발생합니다. <span class="mark">2</span></p>
+          <div class="amount"><span>등록 비용</span><b>30,000원</b></div>
+        </div>
+        <div class="chips"><span class="chip on">요청하기 (30,000원)</span><span class="chip">취소</span></div>
+        <div class="receipt"><b>확보 요청을 접수했습니다 <span class="mark">3</span></b>
+          <p>옛날든든보험 1판 (2016.01 시행) · 등록이 끝나면 알려드리겠습니다. 확인되지 않은 내용으로 답하지 않습니다.</p>
         </div>
         <div class="push">
           <div class="app"><span class="dot"></span> ORCA AI · 3일 후</div>
           <b>요청하신 약관이 등록되었습니다</b>
           옛날든든보험 1판 (2016.01 시행) · △△화재
-          <div class="q">"골절 진단금 나오나요?" <span class="mark">3</span></div>
+          <div class="q">"골절 진단금 나오나요?" <span class="mark">4</span></div>
           <span class="cta">바로 확인하기</span>
         </div>
       </div>
       <div class="inputbar">질문을 입력해주세요. <span class="go">↑</span></div>
     </div></div>
     <div class="notes">
-      <div class="note"><span class="mark">1</span><p>미등록이어도 가입 시점을 끝까지 확정한다.<small>등록 요청은 상품이 아니라 상품+판 단위여야 한다. FA 입장에선 등록/미등록의 대화가 똑같다 — 이 상품이 등록됐는지 알 필요가 없다.</small></p></div>
-      <div class="note"><span class="mark">2</span><p>접수 확인은 즉시. 단, <b>등록을 약속하지 않는다</b> (R6).<small>등록에는 비용이 들고 승인을 거친다. 「확보 대상으로 등록했습니다」는 과약속 — 「접수했습니다 · 검토 후 알려드리겠습니다」까지만. 어느 판 기준인지는 명시한다.</small></p></div>
-      <div class="note"><span class="mark">3</span><p>알림에 원 질문을 그대로 싣는다.<small>3일 뒤의 FA는 무엇을 물었는지 기억하지 못한다. 탭 한 번으로 그때 컨텍스트(상품·판·질문)로 복귀. 발송은 원 질문 재검증 통과 후에만.</small></p></div>
+      <div class="note"><span class="mark">1</span><p>미등록이어도 가입 시점을 끝까지 확정한다.<small>등록 요청도 비용도 상품이 아니라 <b>상품+판 단위</b>다. 판이 정해져야 얼마인지 말할 수 있다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p><b>금액을 고지하고 동의를 받는다</b> (R6).<small>초기 200개 상품 외 약관은 요청한 FA 부담. 무엇에 대한 비용인지(상품·판)와 금액을 함께 보이고, 취소 선택지를 항상 남긴다. 단가 미확정이면 숫자를 지어내지 않고 「등록 비용이 발생합니다」로만 고지한다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>접수는 동의 이후에만.<small>같은 약관을 다른 FA가 이미 요청했다면 이 화면 대신 「추가 비용 없이 확보 진행 중」 안내가 나간다 — 등록된 약관은 전사가 함께 쓰므로 같은 것을 두 번 사게 두지 않는다.</small></p></div>
+      <div class="note"><span class="mark">4</span><p>알림에 원 질문을 그대로 싣는다.<small>3일 뒤의 FA는 무엇을 물었는지 기억하지 못한다. 탭 한 번으로 그때 컨텍스트(상품·판·질문)로 복귀. 발송은 원 질문 재검증 통과 후에만. 확보 실패 시에는 사유 안내와 환불이 따른다.</small></p></div>
     </div>
   </section>
 
@@ -541,7 +568,8 @@
         <tr><td><code>ASK_EXACT_DATE</code></td><td class="ui">입력 시점에 걸친 판 2~3개만 칩으로 좁혀 묻기</td><td class="ui">경계에 걸친 판 후보 <code>options[]</code></td></tr>
         <tr><td><code>SEARCH</code></td><td class="ui">답변 카드: 요약 → 근거 조항 접기 → 출처 → 유의</td><td class="ui"><code>product</code>, <code>edition</code> → 컨텍스트 바 갱신</td></tr>
         <tr><td><code>ANSWER_GENERAL</code></td><td class="ui">「일반론」 배너 + 답변 카드</td><td class="ui"><code>prompt</code> = 일반론 고지 문구</td></tr>
-        <tr><td><code>TERMS_NOT_REGISTERED</code></td><td class="ui">접수 카드 (즉시, 등록 약속 없음) + 등록 완료 푸시 (승인·검수 통과 후)</td><td class="ui"><code>terms_request</code> → RequestLog → <code>candidates()</code> → <code>select_within_budget()</code></td></tr>
+        <tr><td><code>CONFIRM_PAID_REQUEST</code></td><td class="ui">견적 카드(상품·판·금액) + [요청하기] / [취소]</td><td class="ui"><code>terms_request.billable/price</code> · 금액 미확정이면 숫자 숨김</td></tr>
+        <tr><td><code>TERMS_NOT_REGISTERED</code></td><td class="ui">접수 카드 + 등록 완료 푸시 (검수 통과 후). 진행 중이면 「추가 비용 없이」 안내</td><td class="ui"><code>terms_request</code> → RequestLog · <code>pending_keys()</code>로 중복 과금 차단</td></tr>
         <tr><td><code>NO_TERMS_AVAILABLE</code></td><td class="ui">자료 없음 안내 — 추측 금지 문구</td><td class="ui"><code>prompt</code></td></tr>
         <tr><td><code>OUT_OF_SCOPE</code></td><td class="ui">경계 안내 + 가능한 질문으로 유도</td><td class="ui"><code>prompt</code></td></tr>
       </tbody>

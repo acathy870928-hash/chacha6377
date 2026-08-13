@@ -146,7 +146,7 @@ class TestUnregisteredTerms:
         assert plan.action is NextAction.ASK_CONTRACT_DATE
         assert "아직 약관이 등록되어 있지 않습니다" in plan.prompt
 
-    def test_시점까지_받으면_등록_요청으로_남긴다(self, catalog):
+    def test_시점까지_받으면_비용_동의를_먼저_받는다(self, catalog):
         plan = _plan(
             catalog,
             QuestionType.COVERAGE,
@@ -154,8 +154,10 @@ class TestUnregisteredTerms:
             period_mentioned="2018년 5월",
             question="음주운전 사고인데 보험금 나오나요?",
         )
-        assert plan.action is NextAction.TERMS_NOT_REGISTERED
+        # 초기 등록분에 없는 약관이므로 요청자 부담이다. 동의 없이 접수하지 않는다.
+        assert plan.action is NextAction.CONFIRM_PAID_REQUEST
         assert plan.terms_request is not None
+        assert plan.terms_request.billable is True
         assert plan.terms_request.product_id == "legacy"
         assert plan.terms_request.edition_label == "1판 (2016.01 시행)"
         assert plan.terms_request.contract_date.year == 2018
@@ -169,18 +171,7 @@ class TestUnregisteredTerms:
             period_mentioned="2018년 5월",
         )
         assert plan.sources == ()
-        assert "확인되지 않은 내용으로 답하지 않겠습니다" in plan.prompt
-
-    def test_등록을_약속하지_않는다(self, catalog):
-        # 등록에는 비용이 들고 승인을 거친다. 반드시 등록된다고 말하면 과약속이다.
-        plan = _plan(
-            catalog,
-            QuestionType.COVERAGE,
-            product_mentioned="옛날든든보험",
-            period_mentioned="2018년 5월",
-        )
-        assert "검토 후" in plan.prompt
-        assert "확보 요청을 접수" in plan.prompt
+        assert "확인할 수 없습니다" in plan.prompt
 
     def test_마스터에도_없는_상품도_요청으로_남긴다(self, catalog):
         # 「모른다」로 끝내면 등록 요청이 쌓이지 않는다.
@@ -193,7 +184,7 @@ class TestUnregisteredTerms:
             context=first.context,
             period_mentioned="2022년 3월",
         )
-        assert second.action is NextAction.TERMS_NOT_REGISTERED
+        assert second.action is NextAction.CONFIRM_PAID_REQUEST
         assert second.terms_request.product_name == "처음보는보험"
         # 마스터에 없으므로 상품 ID는 남기지 않는다.
         assert second.terms_request.product_id is None
