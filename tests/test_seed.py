@@ -1,6 +1,8 @@
 from orca.catalog import InMemoryProductCatalog
 from orca.seed import (
+    LIFE_SEED_PATH,
     coverage_curve,
+    load_all,
     load_seed,
     make_product_id,
     registration_plan,
@@ -80,6 +82,50 @@ class TestCoverageCurve:
         assert curve[10] > 0.4
         assert curve[30] > 0.7
         assert curve[91] == 1.0
+
+
+class TestLifeSeed:
+    def test_생명보험_목록을_읽는다(self):
+        life = load_seed(LIFE_SEED_PATH)
+        assert len(life) == 29
+        categories = {s.product.category for s in life}
+        assert categories == {"연금보험", "종신보험", "단체기업", "암", "질병·치매", "종합", "치아"}
+
+    def test_실적이_없으면_목록_지정으로_본다(self):
+        # 생명보험 목록은 건수 없이 종별로 선정돼 전달됐다.
+        life = load_seed(LIFE_SEED_PATH)
+        assert all(s.preselected for s in life)
+        assert all(s.contracts is None for s in life)
+
+    def test_쉼표가_든_상품명도_읽는다(self):
+        names = {s.product.name for s in load_seed(LIFE_SEED_PATH)}
+        assert "삼성생명 치아보험(갱신형,무배당) 빠짐없이 튼튼하게" in names
+
+    def test_손보와_생보를_함께_읽는다(self):
+        allp = load_all()
+        assert len(allp) == 120
+        assert len([s for s in allp if s.preselected]) == 29
+
+
+class TestMixedPlan:
+    def test_목록_지정_상품이_먼저_들어간다(self):
+        plan = registration_plan(load_all(), terms_budget=100, terms_per_product=2.0)
+        life_count = len([s for s in plan.products if s.preselected])
+        assert life_count == 29
+        # 나머지 예산은 실적순으로 손해보험이 채운다.
+        assert len(plan.products) == 50
+
+    def test_배수가_크면_실적_상품이_밀려난다(self):
+        # 생명보험이 예산을 먼저 쓰므로, 배수가 커질수록 손해보험 커버리지가 무너진다.
+        loose = registration_plan(load_all(), terms_budget=100, terms_per_product=2.0)
+        tight = registration_plan(load_all(), terms_budget=100, terms_per_product=3.0)
+        assert tight.contract_coverage < loose.contract_coverage * 0.6
+
+    def test_목록을_나눠_예산을_따로_잡을_수_있다(self):
+        # 한 예산에 섞지 않고 업권별로 따로 계획하면 이 문제를 피할 수 있다.
+        nonlife = registration_plan(load_seed(), terms_budget=60, terms_per_product=2.0)
+        assert len(nonlife.products) == 30
+        assert nonlife.contract_coverage > 0.7
 
 
 class TestCatalogFromSeed:

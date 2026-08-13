@@ -22,16 +22,30 @@ from pathlib import Path
 from .catalog import CatalogEntry, normalize_product_name
 from .types import Product
 
-DEFAULT_SEED_PATH = Path(__file__).resolve().parents[2] / "data" / "products_nonlife.csv"
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+DEFAULT_SEED_PATH = DATA_DIR / "products_nonlife.csv"
+LIFE_SEED_PATH = DATA_DIR / "products_life.csv"
 
 
 @dataclass(frozen=True)
 class SeedProduct:
-    """실적 정보가 붙은 상품. 등록 우선순위 산정에만 쓴다."""
+    """등록 후보 상품. 실적이 있으면 우선순위 산정에 쓴다."""
 
     product: Product
-    contracts: int
-    monthly_premium: int
+    contracts: int | None = None
+    """계약 건수. 실적 자료가 없는 목록(생명보험)에서는 None이다."""
+
+    monthly_premium: int | None = None
+
+    @property
+    def preselected(self) -> bool:
+        """실적 없이 목록으로 지정된 상품인지.
+
+        생명보험 목록은 실적 수치 없이 종별로 선정돼 전달됐다.
+        목록에 올랐다는 것 자체가 선정 결과이므로 건수로 다시 줄 세우지 않고
+        등록 대상에 우선 포함한다.
+        """
+        return self.contracts is None
 
 
 def make_product_id(insurer: str, name: str) -> str:
@@ -66,11 +80,23 @@ def load_seed(path: Path | str | None = None, *, registered: set[str] | None = N
                         category=row["category"].strip(),
                         indexed=product_id in registered,
                     ),
-                    contracts=int(row["contracts"]),
-                    monthly_premium=int(row["monthly_premium"]),
+                    contracts=_optional_int(row.get("contracts")),
+                    monthly_premium=_optional_int(row.get("monthly_premium")),
                 )
             )
     return seeds
+
+
+def load_all(*, registered: set[str] | None = None) -> list[SeedProduct]:
+    """손해보험 · 생명보험 목록을 함께 읽는다."""
+    return load_seed(DEFAULT_SEED_PATH, registered=registered) + load_seed(
+        LIFE_SEED_PATH, registered=registered
+    )
+
+
+def _optional_int(value: str | None) -> int | None:
+    text = (value or "").strip()
+    return int(text) if text else None
 
 
 def to_entries(seeds: list[SeedProduct]) -> list[CatalogEntry]:
@@ -98,16 +124,22 @@ def registration_plan(
 ) -> RegistrationPlan:
     """약관 등록 예산 안에서 어떤 상품부터 넣을지 정한다.
 
-    건수 순으로 담되, 상품 하나가 약관 여러 건을 차지한다는 점을 반영한다.
+    담는 순서는 두 단계다.
+      1. 목록으로 지정된 상품(생명보험) — 실적 수치가 없고, 선정 자체가 이미 끝났다.
+      2. 실적이 있는 상품(손해보험) — 계약 건수가 많은 순.
+
+    상품 하나가 약관 여러 건을 차지한다는 점을 반영한다.
     `terms_per_product`는 보장형태 · 납입방법 · 판 수에 따라 달라지므로
     벤더에서 실제 약관 목록을 받으면 그 값으로 바꿔 다시 계산한다.
     """
-    ranked = sorted(seeds, key=lambda s: -s.contracts)
-    total = sum(s.contracts for s in seeds) or 1
+    preselected = [s for s in seeds if s.preselected]
+    measured = sorted((s for s in seeds if not s.preselected), key=lambda s: -(s.contracts or 0))
 
     limit = max(1, int(terms_budget / terms_per_product))
-    picked = ranked[:limit]
-    covered = sum(s.contracts for s in picked)
+    picked = (preselected + measured)[:limit]
+
+    total = sum(s.contracts or 0 for s in seeds) or 1
+    covered = sum(s.contracts or 0 for s in picked)
 
     return RegistrationPlan(
         products=picked,
@@ -117,14 +149,18 @@ def registration_plan(
 
 
 def coverage_curve(seeds: list[SeedProduct], points: tuple[int, ...]) -> list[tuple[int, float]]:
-    """상위 N개가 덮는 계약 비율. 어디서 예산을 끊을지 판단하는 근거."""
-    ranked = sorted(seeds, key=lambda s: -s.contracts)
-    total = sum(s.contracts for s in seeds) or 1
+    """상위 N개가 덮는 계약 비율. 어디서 예산을 끊을지 판단하는 근거.
+
+    실적이 있는 상품만 대상으로 한다.
+    """
+    measured = [s for s in seeds if not s.preselected]
+    ranked = sorted(measured, key=lambda s: -(s.contracts or 0))
+    total = sum(s.contracts or 0 for s in measured) or 1
 
     curve: list[tuple[int, float]] = []
     running = 0
     for index, seed in enumerate(ranked, start=1):
-        running += seed.contracts
+        running += seed.contracts or 0
         if index in points:
             curve.append((index, running / total))
     return curve
