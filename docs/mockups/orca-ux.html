@@ -235,6 +235,24 @@
     background: #FAF2DF; border-radius: 999px; padding: 1px 6px; margin-left: 5px;
   }
   .chip.more { color: #7A837D; }
+  .chip b { font-weight: 700; margin-left: 3px; font-variant-numeric: tabular-nums; }
+
+  .clist { padding: 6px 14px 8px; display: flex; flex-direction: column; }
+  .crow {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 2px; border-bottom: 1px solid #F0F2F0;
+  }
+  .crow.sel { background: #F2FAF5; border-radius: 10px; padding: 10px 10px; border-bottom-color: transparent; }
+  .cmain { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .cname { font-weight: 600; font-size: 13.5px; }
+  .cmeta { font-size: 11.5px; color: #6C766F; font-variant-numeric: tabular-nums; }
+  .cside { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex: none; }
+  .cbadge { font-size: 10.5px; font-weight: 600; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+  .cbadge.gap { background: #FAECE8; color: #A9422F; }
+  .cbadge.ok { background: #E3F3EA; color: #00794A; }
+  .cbadge.stale { background: #FAF2DF; color: #8A7742; }
+  .cbadge.none { background: #F0F2F0; color: #6C766F; }
+  .cdate { font-size: 10.5px; color: #98A29B; font-variant-numeric: tabular-nums; }
 
   .card {
     align-self: stretch;
@@ -408,7 +426,7 @@
 <div class="wrap">
   <p class="eyebrow">iFA · Orca AI · VELUGA</p>
   <h1>보상 질문은 화면에서<br>이렇게 흘러간다</h1>
-  <p class="lede">되묻기 · 약관 판 특정 · 미등록 요청 · 알림 — 지금까지 로직으로 확정한 규칙을 Orca AI 대화 화면에 얹은 목업입니다. 대화 내용과 상품명은 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처에서 가져왔습니다.</p>
+  <p class="lede">고객 선택 · 되묻기 · 약관 판 특정 · 미등록 요청 · 알림 — 지금까지 로직으로 확정한 규칙을 Orca AI 대화 화면에 얹은 목업입니다. 1차 오픈 대상은 설계사(FA)이며, 대화 내용과 상품명은 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처에서 가져왔습니다. 화면의 고객명은 가상입니다.</p>
   <p class="meta">근거 코드: <code>src/orca/clarify.py</code> · <code>routing.py</code> · <code>versioning.py</code> — 테스트 101건 통과 기준</p>
 
   <h2>일곱 가지 설계 규칙</h2>
@@ -424,7 +442,51 @@
   </div>
 
   <h2>대화 플로우</h2>
-  <p class="h2-sub">다섯 장면이면 전체 상태 기계가 다 나옵니다. 초록 번호가 화면과 설명을 잇습니다.</p>
+  <p class="h2-sub">여섯 장면이면 전체 상태 기계가 다 나옵니다. 초록 번호가 화면과 설명을 잇습니다.</p>
+
+  <!-- FLOW 0 -->
+  <section class="flow">
+    <div class="flow-head">
+      <span class="flow-tag">FLOW 00 — 상담 시작</span>
+      <h3>먼저 누구 기준인지 고른다</h3>
+      <p class="why">고객이 정해지면 계약 · 담보 · 약관 판이 전부 따라온다. 되묻기가 사라지는 출발점이자, 접근 통제가 걸리는 지점이다.</p>
+    </div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>8:20</span><span>●●● ▲ 28</span></div>
+      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="inputbar" style="margin:12px 14px 8px;">담당 고객 검색 <span class="mark">1</span><span class="go">🔍</span></div>
+      <div class="chips" style="padding:0 14px 4px;">
+        <span class="chip on">최근 <b>4</b></span><span class="chip">보장 부족 <b>17</b></span><span class="chip">만기 임박 <b>6</b></span><span class="chip">미분석 <b>23</b></span>
+        <span class="mark">2</span>
+      </div>
+      <div class="clist">
+        <div class="crow sel">
+          <div class="cmain"><span class="cname">차○희</span><span class="cmeta">계약 6건 · 월 225,074원</span></div>
+          <div class="cside"><span class="cbadge gap">부족 29/41</span><span class="cdate">8/10 상담</span></div>
+        </div>
+        <div class="crow">
+          <div class="cmain"><span class="cname">김○수</span><span class="cmeta">계약 4건 · 월 118,300원</span></div>
+          <div class="cside"><span class="cbadge ok">적정</span><span class="cdate">8/9 상담</span></div>
+        </div>
+        <div class="crow">
+          <div class="cmain"><span class="cname">박○영</span><span class="cmeta">계약 3건 · 월 96,500원</span></div>
+          <div class="cside"><span class="cbadge stale">분석 2024.01</span><span class="cdate">8/7 상담</span></div>
+        </div>
+        <div class="crow">
+          <div class="cmain"><span class="cname">최○민</span><span class="cmeta">계약 2건</span></div>
+          <div class="cside"><span class="cbadge none">미분석</span><span class="cdate">8/5 상담</span></div>
+        </div>
+      </div>
+      <div class="ctxbar" style="border-top:1px solid #F0F2F0;border-bottom:none;">상담 시작 <span class="pill">차○희 · 계약 6건</span> <span class="mark">3</span></div>
+      <div class="inputbar">질문을 입력해주세요. <span class="go">↑</span></div>
+    </div></div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p><b>담당 고객만 보인다.</b><small>목록 · 검색 · ID 조회 전부 담당 FA로 한정된다(<code>advisor_id</code>). 대화 중에 이름으로 고객을 특정하는 방식은 오조회를 만들기 쉬워, 접근 통제를 화면 단계에서 건다. 조회 이력도 여기서 남는다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>분류는 상담을 시작하는 통로다.<small><b>최근</b> — 이어지는 상담이 가장 많다. <b>보장 부족</b> — 제안 기회(41개 중 29개 부족). <b>만기 임박</b> — 시기를 놓치면 안 된다. <b>미분석</b> — 보장분석이 없거나 1년 넘은 고객. 이 상태면 되묻기 경로로 빠진다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>고른 고객이 대화 내내 상단에 남는다.<small>여기서 정해진 계약 · 담보 · 계약년월이 이후 모든 답변의 기준이 된다. 다른 고객 데이터로 답하고 있는 것을 아무도 모르는 상태가 가장 위험하므로 상시 노출한다.</small></p></div>
+      <div class="note"><span class="mark">✓</span><p>미분석 고객은 되묻기 경로로.<small>보장분석이 없으면 FLOW 02(보험사 → 상품 → 시점)로 자연히 되돌아간다. 두 경로가 공존하므로 전 고객이 분석돼 있지 않아도 서비스가 돈다.</small></p></div>
+    </div>
+  </section>
 
   <!-- FLOW 1 -->
   <section class="flow">

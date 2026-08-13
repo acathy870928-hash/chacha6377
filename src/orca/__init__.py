@@ -10,6 +10,11 @@
 """
 
 from .benefits import ENROLLMENT_CAVEAT, ENUMERATE_HINT, BenefitScope, scope_for
+from .customers import (
+    CustomerCategory,
+    CustomerDirectory,
+    CustomerSummary,
+)
 from .coverage import (
     BenefitMatch,
     CoverageProfile,
@@ -82,6 +87,9 @@ __all__ = [
     "Classification",
     "ConversationContext",
     "CostEstimate",
+    "CustomerCategory",
+    "CustomerDirectory",
+    "CustomerSummary",
     "EditionResolution",
     "EnrolledBenefit",
     "EnrolledContract",
