@@ -58,3 +58,25 @@ for name, marker in SHOTS:
                         f'--screenshot={OUT}/app_{name}{suffix}.png', f'file://{fp}'],
                        capture_output=True)
         print(f'{name+suffix:16s}', trim(f'{OUT}/app_{name}{suffix}.png'))
+
+# ── 가로 크롭 ──────────────────────────────────────────
+# 슬라이드 이미지 상자는 12.1 × 4.9인치, 즉 가로:세로 2.47이다.
+# 화면 전체를 넣으면 높이에 걸려 글자가 작아지므로, 각 화면에서 결정적인
+# 구간만 그 비율로 잘라 슬라이드 폭을 전부 쓰게 한다.
+TARGET = 2.47
+STARTS = {          # 어디서부터 자를지 — 전체 높이 대비
+    'branch':   0.10,   # 담보 목록 + 분기 카드
+    'scope':    0.14,   # 상품 검색 결과 + 가입 시점 + 스코프 바
+    'ask':      0.42,   # 판정 카드 + 근거 조항
+    'entry':    0.02,   # 고객 폴더 목록
+    'register': 0.03,   # 등록 경로 세 갈래
+    'coverage': 0.05,   # 계약별 담보
+}
+
+for name, a in STARTS.items():
+    src = Image.open(f'{OUT}/app_{name}_main.png').convert('RGB')
+    need = int(src.width / TARGET)
+    top = min(int(src.height * a), max(0, src.height - need))
+    src.crop((0, top, src.width, min(src.height, top + need))).save(f'{OUT}/app_{name}_wide.png')
+    im = Image.open(f'{OUT}/app_{name}_wide.png')
+    print(f'{name:9s} {im.size}  aspect {im.width/im.height:.2f}')

@@ -195,27 +195,28 @@ function card(s, o) {
 /* 화면 슬라이드 */
 function screen(eyebrow, title, sub, shot, notes) {
   const s = p.addSlide(); s.background={color:C.paper};
-  // 왼쪽에 설명을 몰고 오른쪽을 화면에 전부 내준다 — 슬라이드에서 UI가 읽혀야 한다
-  s.addText(eyebrow, { x:0.55, y:0.42, w:3.5, h:0.24, fontFace:F.b, fontSize:10.5, color:C.deep, bold:true, charSpacing:1.8 });
-  s.addText(title, { x:0.55, y:0.68, w:3.6, h:1.1, fontFace:F.h, fontSize:21, bold:true, color:C.ink, lineSpacing:28 });
-  s.addText(sub, { x:0.55, y:1.86, w:3.6, h:0.9, fontFace:F.b, fontSize:11.5, color:C.mute, lineSpacing:17 });
+  s.addText(eyebrow, { x:0.6, y:0.32, w:12.1, h:0.24, fontFace:F.b, fontSize:11, color:C.deep, bold:true, charSpacing:2 });
+  s.addText(title, { x:0.6, y:0.56, w:8.6, h:0.46, fontFace:F.h, fontSize:24, bold:true, color:C.ink });
+  s.addText(sub, { x:0.6, y:1.04, w:12.1, h:0.3, fontFace:F.b, fontSize:12, color:C.mute });
+  // 결정적인 구간만 가로로 잘라 슬라이드 폭을 다 쓴다 — 그래야 글자가 읽힌다
+  fit(s, shot + '_wide', { x:0.6, y:1.4, w:12.1, h:4.9 });
   notes.forEach(([t,d],i)=>{
-    const y = 2.94 + i*1.28;
-    s.addShape(p.ShapeType.roundRect, { x:0.55, y, w:0.07, h:1.06, rectRadius:0.03, fill:{color:C.green}, line:{color:C.green} });
-    s.addText(t, { x:0.82, y:y+0.02, w:3.3, h:0.32, fontFace:F.h, fontSize:12, bold:true, color:C.ink });
-    s.addText(d, { x:0.82, y:y+0.34, w:3.3, h:0.68, fontFace:F.b, fontSize:10, color:C.body, lineSpacing:15 });
+    const x = 0.6 + i*4.09;
+    card(s, { x, y:6.16, w:3.85, h:0.84 });
+    s.addShape(p.ShapeType.roundRect, { x, y:6.16, w:0.07, h:0.84, rectRadius:0.03, fill:{color:C.green}, line:{color:C.green} });
+    s.addText(t, { x:x+0.24, y:6.23, w:3.4, h:0.28, fontFace:F.h, fontSize:11.5, bold:true, color:C.ink });
+    s.addText(d, { x:x+0.24, y:6.5, w:3.4, h:0.44, fontFace:F.b, fontSize:9.5, color:C.body, lineSpacing:13 });
   });
-  fit(s, shot + '_main', { x:4.45, y:0.42, w:8.45, h:6.62 });
   foot(s);
 }
 
 screen('화면 ① 일반 답변', '먼저 일반으로 답하고, 개인화는 고르게 합니다',
-  '「골절되면 보상되나요?」는 일반지식만으로 답이 나옵니다. 그 답으로 충분한 경우가 많습니다.', 'branch',
+  '「골절되면 보상되나요?」는 일반지식만으로 답이 나옵니다. 여기서 「이 답변으로 충분해요」로 끝내거나, 「약관 등록하기」로 넘어갑니다.', 'branch',
   [['일반 답변은 실패가 아니다','「이 답변으로 충분해요」를 같은 무게로 둡니다.'],
    ['입구는 약관이지 고객이 아니다','상품을 고르면 그 약관 기준으로 답이 바뀝니다.'],
    ['여기서 금액은 말하지 않는다','담보 · 지급 조건 · 면책은 상품과 판마다 다릅니다.']]);
 
-screen('화면 ② 약관 스코프 확정', '찾기 전에 정확한 상품을 짚어냅니다',
+screen('화면 ② 「약관 등록하기」를 누르면', '찾기 전에 정확한 상품을 짚어냅니다',
   '보험사는 치거나 눌러 고르고, 상품은 검색으로 매칭합니다. 약관 시점까지 정해져야 검색이 열립니다.', 'scope',
   [['보종은 묻지 않는다','상품명을 이미 알고 있으니 검색이 더 빠릅니다.'],
    ['겹치는 상품을 함께 본다','「참좋은동행」과 「동행Ⅱ」는 다른 약관입니다.'],
