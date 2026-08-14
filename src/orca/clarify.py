@@ -229,6 +229,27 @@ class TurnPlan:
     """
 
     @property
+    def offer_personalize(self) -> bool:
+        """일반 답변 뒤에 「이 고객 기준으로 확인하기」를 제안할지.
+
+        「골절되면 보상되나요?」는 Micky만으로 「골절진단비가 있으면 보상 가능합니다」까지
+        답할 수 있다. 하지만 그 고객이 실제로 받을 수 있는지는 답하지 못한다.
+        그 간극을 FA가 메울 수 있게 **약관 등록 → 보장맵**으로 가는 길을 열어 준다.
+
+        특정 계약에 근거해 답한 경우(`matches`/`contracts`가 찬 경우)에는 제안하지 않는다.
+        이미 개인화된 답이므로 더 좁힐 것이 없다.
+        """
+        if self.action not in (NextAction.SEARCH, NextAction.ANSWER_GENERAL):
+            return False
+        if self.matches or self.contracts:
+            return False
+        return self.decision.classification.question_type in (
+            QuestionType.COVERAGE,
+            QuestionType.BENEFIT_TERM,
+            QuestionType.PROCEDURE,
+        )
+
+    @property
     def benefit_scope(self) -> BenefitScope:
         """담보를 하나만 볼지, 걸리는 것을 모두 볼지.
 

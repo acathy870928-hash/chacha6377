@@ -16,6 +16,14 @@ from .customers import (
     CustomerDirectory,
     CustomerSummary,
 )
+from .coverage_map import (
+    BenefitSource,
+    BenefitStatus,
+    CoverageMap,
+    MapEntry,
+    MappedBenefit,
+    summarize_gap,
+)
 from .coverage import (
     BenefitMatch,
     CoverageProfile,
@@ -97,6 +105,9 @@ __all__ = [
     "ApproxDate",
     "BenefitMatch",
     "BenefitScope",
+    "BenefitSource",
+    "BenefitStatus",
+    "CoverageMap",
     "CoverageProfile",
     "ClaimVerdict",
     "ClauseFinding",
@@ -119,6 +130,8 @@ __all__ = [
     "InMemoryProductCatalog",
     "NextAction",
     "Option",
+    "MapEntry",
+    "MappedBenefit",
     "PayoutEstimate",
     "PayoutSummary",
     "PolicyEdition",
@@ -157,4 +170,5 @@ __all__ = [
     "select_within_budget",
     "strip_pii",
     "summarize",
+    "summarize_gap",
 ]
