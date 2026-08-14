@@ -363,7 +363,7 @@ VELUGA가 제공한 「RFP 요구사항 정의 예시」를 따랐습니다.</p>
 </tr>
 <tr>
 <td>고객 계약 정보</td>
-<td>보장분석 리포트(PDF)로 발행되나 <strong>AI와 연결돼 있지 않음</strong></td>
+<td>보장분석 · My Data로 확인 가능하나 <strong>AI와 연결돼 있지 않음</strong></td>
 </tr>
 </tbody>
 </table></div>
@@ -768,7 +768,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <td>1</td>
 <td>기능</td>
 <td>IA-FUN-001</td>
-<td><strong>약관 스코프 확정 — 보험사 · 상품 · 판</strong></td>
+<td><strong>약관 스코프 확정 — 정확한 상품을 짚어낸다</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -782,7 +782,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <td>3</td>
 <td>기능</td>
 <td>IA-FUN-003</td>
-<td>약관 판 특정 및 되묻기(보완 경로)</td>
+<td>약관 시점 특정 및 되묻기(보완 경로)</td>
 <td></td>
 </tr>
 <tr>
@@ -1049,12 +1049,12 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <hr />
 <h2 id="sec-6">6. 1차 상세 요구사항 — 기능</h2>
 
-<div class="req" id="IA-FUN-001"><div class="reqhead"><h3 class="reqid">IA-FUN-001</h3><div class="reqname">약관 스코프 확정 — 보험사 · 상품 · 판</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+<div class="req" id="IA-FUN-001"><div class="reqhead"><h3 class="reqid">IA-FUN-001</h3><div class="reqname">약관 스코프 확정 — 찾기 전에 정확한 상품을 짚어낸다</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
 
 <div class="field"><div class="lab">정의</div><div class="val"><p>질문에 답하기 전에 어느 약관 한 권을 볼 것인지 사용자가 직접 좁혀 확정하는 기능. <strong>2.2의 1단계에 대응하며 이 시스템의 첫 관문이다</strong></p>
 </div></div><div class="field"><div class="lab">요구사항</div><div class="val">
 <ul>
-<li><strong>보험사 → 상품 → 가입 시점(판)</strong> 세 단계로 약관 1권을 확정할 수 있어야 함</li>
+<li><strong>보험사 → 상품 → 가입 시점</strong> 세 단계로 약관 1권을 확정할 수 있어야 함</li>
 <li>스코프가 확정되지 않은 상태에서는 <strong>약관 검색을 호출하지 않아야</strong> 함</li>
 <li>확정된 스코프를 화면에 <strong>상시 표시</strong>하고 언제든 변경할 수 있어야 함</li>
 </ul>
@@ -1063,7 +1063,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <li><strong>「AI가 되묻는다」가 아니라 「사용자가 미리 고른다」로 만든다.</strong> 질문이 들어오는 순간 이미 1권으로 좁혀져 있으면 「찾기」 문제 자체가 사라진다. FA는 보험사와 상품을 이미 알고 있으므로 두세 번이면 끝나고 마찰이 거의 없다</li>
 <li><strong>보험사는 치거나 눌러서 고른다.</strong> 이름을 알면 그대로 입력하고, 모르면 눌러 목록에서 고른다. 어느 쪽이든 <strong>목록에 있는 값으로만 확정</strong>한다 — 자유 입력만 받으면 「디비손보」 · 「DB손해」로 표기가 흔들려 같은 약관이 갈라진다</li>
 <li><strong>상품은 검색으로 매칭한다.</strong> 상품명을 치면 후보가 나열되고 그중에서 고른다. 이름이 겹치는 상품(「참좋은동행」 · 「참좋은동행Ⅱ」 · 「참좋은운전자상해」)을 나란히 놓고, <strong>판 개수를 함께 표시</strong>해 다음 단계를 예고한다. 한 건만 자동 선택하지 않는다</li>
-<li><strong>진입점은 일반 답변 하단의 「고객 약관 등록하고 확인하기」 버튼이다.</strong> 일반 답변을 먼저 내주고, 더 정확한 답이 필요할 때 FA가 눌러 들어온다. 이 버튼이 곧 아래 4단계의 입구다</li>
+<li><strong>진입점은 일반 답변 하단의 「약관 등록하기」 버튼이다.</strong> 일반 답변을 먼저 내주고, 가입한 상품 기준으로 확인해야 할 때 FA가 눌러 들어온다. 「고객」을 앞세우지 않는다 — 등록부터 해야 하는 화면으로 읽힌다</li>
 <li><strong>보종(장기 · 자동차 · 일반 · 통합 · 퇴직연금)은 선택 단계로 두지 않는다.</strong> 한 단계를 더 두면 FA가 「내 계약이 장기인가 통합인가」를 멈춰서 생각하게 되는데, 상품명은 이미 알고 있으므로 치는 편이 빠르다. 보종은 <strong>검색 결과의 꼬리표와 목록 필터로만</strong> 쓴다(IA-DAT-001)</li>
 <li>스코프 단계와 상태</li>
 </ul>
@@ -1178,7 +1178,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 </div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>라우팅 정의서, 질문유형 분류 기준서, 분류 프롬프트 명세, 단위테스트 결과서</p>
 </div></div></div><hr />
 
-<div class="req" id="IA-FUN-003"><div class="reqhead"><h3 class="reqid">IA-FUN-003</h3><div class="reqname">약관 판 특정 및 되묻기 (보완 경로)</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+<div class="req" id="IA-FUN-003"><div class="reqhead"><h3 class="reqid">IA-FUN-003</h3><div class="reqname">약관 시점 특정 및 되묻기 (보완 경로)</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
 
 <div class="field"><div class="lab">정의</div><div class="val"><p>선택기를 거치지 않고 바로 질문한 경우, 최소 횟수로 되물어 스코프를 확정하는 보완 경로</p>
 </div></div><div class="field"><div class="lab">요구사항</div><div class="val">
@@ -1256,12 +1256,13 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <li><strong>고객을 만들지 않고도 질문 · 약관 확인 · 답변이 모두 되어야 함</strong>(R14)</li>
 <li>고객 생성의 <strong>필수 입력값은 이름 하나</strong>여야 함. 주민등록번호 · 연락처 · 생년월일은 수집하지 않아야 함</li>
 <li>동일 이름의 담당 고객이 있으면 <strong>생성 전에 제시</strong>하여 중복 생성을 방지하여야 함</li>
-<li>동명이인을 가를 수 있도록 <strong>구분 메모(선택)</strong> 를 입력받아야 함</li>
+<li>동명이인을 가를 수 있도록 <strong>구분 메모(선택)</strong> 를 입력받아야 하며, <strong>여러 개를 붙일 수 있어야</strong> 함</li>
 <li>상담 화면에 현재 대상 고객을 항상 표시하여야 함</li>
 </ul>
 </div></div><div class="field"><div class="lab">상세기술</div><div class="val">
 <ul>
-<li><strong>구분 메모 입력란을 이름 아래에 함께 둔다.</strong> 「선택 · 동명이인 구분용」이라고 라벨에 밝히고, 「92년생」 · 「사무실 옆자리」처럼 FA가 알아볼 수 있는 짧은 표기를 받는다. 목록 · 폴더 · 컨텍스트 바에서 이름과 함께 표시해 <strong>고르는 순간 구분이 되게</strong> 한다</li>
+<li><strong>구분 메모 입력란을 이름 아래에 함께 둔다.</strong> 「선택 · 여러 개 붙일 수 있습니다」라고 라벨에 밝히고, 해시태그처럼 <strong>＋ 버튼으로 계속 더하고 ✕로 뺀다</strong> — 「92년생」 · 「강남지점」 · 「소개 · 김철수」. 지점 · 소개자 · 상담 맥락처럼 FA가 나중에 찾을 단서가 여럿이기 때문이다</li>
+<li>메모는 목록 · 폴더 · 컨텍스트 바에서 이름과 함께 표시하고, <strong>메모로 고객을 검색</strong>할 수 있게 한다</li>
 <li><strong>메모에도 식별정보를 담지 않는다.</strong> 입력란 아래에 「주민번호 · 연락처는 받지 않습니다」를 상시 표시한다 — 보험 서비스라 개인정보를 요구할 것으로 예상하는 FA에게 <strong>안 받는다는 사실 자체가 안내</strong>가 된다</li>
 <li>고객 식별자는 이름과 분리해 발급한다(동명이인 · 개명 대응)</li>
 <li>고객 목록 조회는 <strong>언제나 담당 FA 단위로 한정</strong>한다. 담당이 아닌 고객은 검색으로도 나오지 않고, 식별자를 직접 지정해도 조회되지 않는다</li>
@@ -1278,7 +1279,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <div class="field"><div class="lab">정의</div><div class="val"><p>고객의 가입 계약을 보장맵에 등록하는 기능. 상황에 따라 빠른 경로를 우선 제시한다</p>
 </div></div><div class="field"><div class="lab">요구사항</div><div class="val">
 <ul>
-<li>등록 경로를 <strong>최소 4종</strong> 제공하고 <strong>빠른 순으로 정렬</strong>하여 제시하여야 함</li>
+<li>등록 경로를 <strong>빠른 순으로 정렬</strong>하여 제시하고, 아직 열리지 않은 경로(My Data)는 <strong>표시하되 선택 불가</strong>로 두어야 함</li>
 <li>현재 상황에서 사용할 수 없는 경로는 목록에서 제외하여야 함</li>
 <li>등록 후 <strong>다른 상품 추가 등록</strong>을 이어서 유도하여야 함</li>
 </ul>
@@ -1297,28 +1298,25 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <tbody>
 <tr>
 <td>1</td>
-<td><strong>보장분석 리포트 파일 업로드</strong></td>
-<td>계약 전부가 한 번에. FA가 이미 발행받아 가지고 있는 문서다</td>
+<td><strong>My Data 가져오기</strong></td>
+<td><strong>가장 빠름 · 추후 오픈.</strong> 고객 계약이 한 번에 들어온다. 개인인증 · 동의 범위 확인 후 열린다</td>
 </tr>
 <tr>
 <td>2</td>
 <td><strong>대화에서 말한 상품 등록</strong></td>
-<td>이미 말한 상품을 다시 검색하게 하지 않는다</td>
+<td>이미 말한 상품을 다시 검색하게 하지 않는다. <strong>현재 최선</strong></td>
 </tr>
 <tr>
 <td>3</td>
-<td><strong>최근 등록한 상품에서 선택</strong></td>
-<td>인기 상품은 고객마다 겹친다(손보 실적 상위 10개 중 7개가 운전자보험)</td>
-</tr>
-<tr>
-<td>4</td>
 <td>보험사 · 상품명 검색</td>
-<td>확실하지만 느리다. 마지막 수단</td>
+<td>My Data가 열리기 전까지 기본 경로</td>
 </tr>
 </tbody>
 </table></div>
 <ul>
-<li>경로 1은 <strong>보장분석 <em>연동</em>(2차) 없이도 <em>파일</em>로 동작한다</strong></li>
+<li><strong>안 열린 경로도 화면에 두되 잠근다.</strong> 곧 열릴 경로가 있다는 사실 자체가 안내이고, FA가 「왜 하나씩 넣어야 하나」를 납득하는 근거가 된다. 「현 시점 오픈하지 않음」으로 표시하고 고를 수 없게 한다</li>
+<li><strong>「최근 등록한 상품에서 고르기」는 두지 않는다.</strong> 그 목록은 결국 다른 고객에게 등록했던 상품이라, 지금 상담 중인 고객과 무관한 계약을 화면에 끌어온다. 상품명을 아는 상태라면 검색이 더 빠르고 오해도 없다. 최근 등록 이력은 운영 지표(초기 등록 목록 산정)로만 쓴다</li>
+<li>1차에는 대량 등록 경로가 없으므로 보장맵은 <strong>상담하면서 하나씩</strong> 쌓인다. 등록 한 건의 단계 수를 줄이는 것이 그만큼 더 중요하다</li>
 <li>업로드 결과는 <strong>저장 전에 확인 화면</strong>으로 보여준다. 잘못 읽힌 계약이 확인 없이 보장맵에 남으면 안 된다</li>
 <li>전체 선택 상태로 시작하되 개별 해제가 가능해야 한다(해지 계약 · 무관한 계약 제외)</li>
 <li><strong>「계약을 확인한 것」과 「약관이 등록된 것」을 목록에서 구분 표시</strong>한다. 이 구분을 숨기면 보장맵은 채워진 것처럼 보이는데 정작 답을 못 한다</li>
@@ -1465,7 +1463,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <li>스코프 표시는 답변에 붙는 각주가 아니라 <strong>화면에 고정된 바(bar)</strong>다. 스크롤해도 보이고 거기서 바로 바꿀 수 있어야 한다</li>
 </ul>
 <blockquote>
-<p>📄 <strong>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행판</strong> 〔약관 변경〕</p>
+<p>📄 <strong>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행 약관</strong> 〔약관 변경〕</p>
 </blockquote>
 <p>이것이 없으면 FA는 답을 고객에게 옮길 수 없고, 틀렸을 때 <strong>무엇이 틀렸는지도 알 수 없다</strong>
 - 표시 구조: <strong>스코프 바 → 판정 → 담보별 결과 → 근거 조항(면책 우선) → 근거 종류 → 유의 문구</strong>
@@ -1616,7 +1614,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 </div></div><div class="field"><div class="lab">상세기술</div><div class="val">
 <ul>
 <li>「골절이 되었는데 보상될 수 있어요?」는 Micky만으로 답이 나오고 <strong>그 답으로 충분한 경우가 많다.</strong> 매번 약관 선택을 요구하면 도구가 무거워진다</li>
-<li>답변 하단에 분기를 둔다 — <code>[고객 약관 등록하고 확인하기]</code> / <code>[이 답변으로 충분해요]</code>. <strong>두 선택지를 같은 무게로</strong> 둔다. 일반 답변은 실패가 아니다</li>
+<li>답변 하단에 분기를 둔다 — <code>[약관 등록하기]</code> / <code>[이 답변으로 충분해요]</code>. <strong>두 선택지를 같은 무게로</strong> 둔다. 일반 답변은 실패가 아니다. 안내 문구는 「가입한 상품을 선택하면 해당 상품의 약관 기준으로 답합니다」</li>
 <li>이 버튼은 <strong>약관을 고르는 입구이지 고객을 만드는 입구가 아니다.</strong> 고객 없이 약관만 골라 답을 받고 끝낼 수 있다(R14)</li>
 <li><strong>앞 버튼이 IA-FUN-001 스코프 선택기의 입구다.</strong> 여기서 보험사 → 상품 검색 → 판으로 이어진다</li>
 <li>이미 스코프가 확정된 상담에서는 분기를 띄우지 않는다</li>
@@ -2026,7 +2024,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 <ul>
 <li>이 분리를 <strong>코드로 강제</strong>한다</li>
 <li>자체 RAG(Micky)도 외부 LLM API를 쓰는 경우 동일 기준을 적용한다</li>
-<li>파일 업로드(보장분석 리포트)는 파싱 후 원본 보관 여부 · 기간을 정책으로 정한다 <strong>[확정 필요]</strong></li>
+<li>외부에서 가져온 계약 데이터의 원본 보관 여부 · 기간을 정책으로 정한다 <strong>[확정 필요]</strong></li>
 </ul>
 </div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>개인정보 처리방침(서비스분), 전송 항목 정의서, 정보보호계획서, 암호화 · 마스킹 설계서</p>
 </div></div></div><hr />
@@ -2202,7 +2200,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 </div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>개정 감지 절차서, 재색인 대상 선정 규칙, 알림 템플릿</p>
 </div></div></div><hr />
 
-<div class="req second" id="IA-DAT-003"><div class="reqhead"><h3 class="reqid">IA-DAT-003</h3><div class="reqname">보장분석 연동 및 담보 ↔ 조항 매핑</div><span class="chip">데이터</span><span class="chip stage second">2차</span><span class="chip owner">담당 —</span></div>
+<div class="req second" id="IA-DAT-003"><div class="reqhead"><h3 class="reqid">IA-DAT-003</h3><div class="reqname">My Data · 보장분석 연동 및 담보 ↔ 조항 매핑</div><span class="chip">데이터</span><span class="chip stage second">2차</span><span class="chip owner">담당 —</span></div>
 
 <div class="field"><div class="lab">정의</div><div class="val"><p>보장분석 데이터를 구조화해 적재하고, 외부 담보코드와 우리 약관 조항을 잇는 매핑을 관리하는 기능</p>
 </div></div><div class="field"><div class="lab">요구사항</div><div class="val">
@@ -2357,7 +2355,7 @@ R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규
 </tr>
 <tr>
 <td><strong>초기 등록 목록</strong></td>
-<td>회사 부담분(200파일 상당)에 무엇을 넣을지</td>
+<td>첫 시작은 <strong>현재 판매 중인 약관 200개</strong>. 그 구성에 무엇을 넣을지</td>
 <td>실적 목록으로만 채우면 <strong>영업용 약관을 사고 보상 질문은 못 덮는다</strong></td>
 </tr>
 <tr>
