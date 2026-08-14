@@ -1,4 +1,4 @@
-<title>Orca 보상 대화 설계</title>
+<title>약관북 대화 설계</title>
 <style>
   :root {
     --bg: #F6F8F5;
@@ -435,9 +435,9 @@
 </style>
 
 <div class="wrap">
-  <p class="eyebrow">iFA · Orca AI · VELUGA</p>
+  <p class="eyebrow">신규 서비스 · 가칭 약관북 · VELUGA</p>
   <h1>보상 질문은 화면에서<br>이렇게 흘러간다</h1>
-  <p class="lede">되묻기 · 약관 판 특정 · 미등록 요청 · 약관북 누적 · 알림 — 지금까지 로직으로 확정한 규칙을 Orca AI 대화 화면에 얹은 목업입니다. 1차 오픈 대상은 설계사(FA)이며, 대화 내용과 상품명은 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처에서 가져왔습니다. 화면의 고객명은 가상입니다.</p>
+  <p class="lede">되묻기 · 약관 판 특정 · 미등록 요청 · 약관북 누적 · 알림 — 지금까지 로직으로 확정한 규칙을 대화 화면에 얹은 목업입니다. <b>기존 Orca AI가 아니라 시장 리서치 위에 새로 만드는 서비스</b>이며(제품명 미정 · 화면 속 로고는 자리표시), 1차 오픈 대상은 설계사(FA)입니다. 대화 내용과 상품명은 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처에서 가져왔습니다. 화면의 고객명은 가상입니다.</p>
   <p class="meta">근거 코드: <code>src/orca/clarify.py</code> · <code>routing.py</code> · <code>versioning.py</code> — 테스트 101건 통과 기준</p>
 
   <h2>일곱 가지 설계 규칙</h2>
@@ -464,7 +464,7 @@
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:23</span><span>●●● ▲ 27</span></div>
-      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="appbar"><span class="ifa">약관북</span><span class="menu">☰</span></div>
       <div class="chat">
         <div class="msg-user">글라이드패스가 뭔가요?</div>
         <div class="msg-bot">은퇴 시점이 가까워질수록 주식 비중을 줄이고 채권 비중을 늘리는 자산배분 경로를 말합니다. TDF·변액연금의 운용 옵션에서 쓰이는 개념으로…<div class="src">출처 · Micky DATA — 보험 전문지식 <span class="mark">1</span></div></div>
@@ -488,7 +488,7 @@
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:24</span><span>●●● ▲ 27</span></div>
-      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="appbar"><span class="ifa">약관북</span><span class="menu">☰</span></div>
       <div class="chat">
         <div class="msg-user">음주운전 사고인데 보험금 나오나요?</div>
         <div class="msg-bot">상품에 따라 면책 범위가 다릅니다. 어느 보험사 상품일까요? <span class="mark">1</span></div>
@@ -546,7 +546,7 @@
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:26</span><span>●●● ▲ 26</span></div>
-      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="appbar"><span class="ifa">약관북</span><span class="menu">☰</span></div>
       <div class="ctxbar">기준 <span class="pill">참좋은운전자상해보험 · 2판 (2021.04)</span> <span class="x">변경 ✕</span> <span class="mark">1</span></div>
       <div class="chat">
         <div class="msg-user">그럼 무면허는요?</div>
@@ -577,7 +577,7 @@
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:31</span><span>●●● ▲ 26</span></div>
-      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="appbar"><span class="ifa">약관북</span><span class="menu">☰</span></div>
       <div class="chat">
         <div class="msg-user">옛날든든보험 골절 진단금 나오나요?</div>
         <div class="msg-bot">옛날든든보험(△△화재)은 아직 약관이 등록되어 있지 않습니다. 언제 가입한 계약인지 알려주시면 해당 약관을 확보 요청으로 남기겠습니다. <span class="mark">1</span></div>
@@ -591,7 +591,7 @@
           <p>옛날든든보험 1판 (2016.01 시행) · 등록이 끝나면 알려드리겠습니다. 확인되지 않은 내용으로 답하지 않습니다.</p>
         </div>
         <div class="push">
-          <div class="app"><span class="dot"></span> ORCA AI · 3일 후</div>
+          <div class="app"><span class="dot"></span> 약관북 · 3일 후</div>
           <b>요청하신 약관이 등록되었습니다</b>
           옛날든든보험 1판 (2016.01 시행) · △△화재
           <div class="q">"골절 진단금 나오나요?" <span class="mark">4</span></div>
@@ -617,7 +617,7 @@
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:35</span><span>●●● ▲ 26</span></div>
-      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="appbar"><span class="ifa">약관북</span><span class="menu">☰</span></div>
       <div class="chat">
         <div class="msg-user">내맘같은어린이보험 골절 진단금 나오나요?</div>
         <div class="card" style="margin-top:2px;">
@@ -653,7 +653,7 @@
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:41</span><span>●●● ▲ 25</span></div>
-      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="appbar"><span class="ifa">약관북</span><span class="menu">☰</span></div>
       <div class="ctxbar" style="justify-content:space-between;"><b style="font-size:13px;color:#1A211C;">📁 약관북</b><span class="cdate">폴더 12 · 약관 37건</span></div>
       <div class="inputbar" style="margin:10px 14px 8px;">고객명 · 상품명 검색 <span class="mark">2</span><span class="go">🔍</span></div>
       <div class="clist">
@@ -692,7 +692,7 @@
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:42</span><span>●●● ▲ 25</span></div>
-      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="appbar"><span class="ifa">약관북</span><span class="menu">☰</span></div>
       <div class="ctxbar"><span class="x">‹</span> 📁 <span class="pill">차○희 · 약관 4건</span></div>
       <div class="clist">
         <div class="crow">
@@ -734,7 +734,7 @@
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:33</span><span>●●● ▲ 25</span></div>
-      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="appbar"><span class="ifa">약관북</span><span class="menu">☰</span></div>
       <div class="chat">
         <div class="msg-user">이 고객 골절 진단금 얼마 나와요?</div>
         <div class="msg-bot">금액은 계약의 가입금액에 따라 달라져서 약관만으로는 확인할 수 없습니다. <span class="mark">1</span><br><br>대신 <b>지급 대상에 해당하는지</b>는 확인해 드릴 수 있어요. 어떤 상황인지 알려주시겠어요?</div>

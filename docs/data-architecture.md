@@ -5,7 +5,9 @@
 
 ## 이번 작업 범위
 
-대상 서비스는 기존 **Orca AI** (iFA 모바일 앱 내 `AI` 탭).
+대상은 **신규 서비스**다(제품명 미정, 코드명 `orca`는 작업용일 뿐이다).
+기존 Orca AI(iFA Ai Link)의 확장이 아니며, 시장 분석(`docs/market.md`) 위에서 새로 만든다.
+기존 Orca AI · 모홈 화면은 UI · 데이터 구조의 참고 레퍼런스로만 쓴다.
 
 이번에 연결하는 소스는 **Micky DATA · VELUGA DATA 2종뿐이다.** 둘 다 검색형이므로
 이번 범위에서는 API형(My DATA / Cloud DATA) 경로를 구현하지 않는다.
