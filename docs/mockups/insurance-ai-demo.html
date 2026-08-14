@@ -137,6 +137,61 @@
   .row .rs { display: block; font-size: 11px; color: var(--faint); margin-top: 1px; }
   .row .go { font-size: 11.5px; color: var(--deep); font-weight: 600; flex: none; }
 
+  .search {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 9px;
+    border: 1.5px solid var(--line); border-radius: 9px; padding: 8px 11px;
+  }
+  .search:focus-within { border-color: var(--green); }
+  .search span { color: var(--faint); font-size: 12px; }
+  .search input {
+    flex: 1; border: none; outline: none; font-family: inherit;
+    font-size: 13px; color: var(--ink); background: none;
+  }
+  .none { padding: 14px 15px 16px; font-size: 12.5px; color: var(--faint); border-top: 1px solid var(--line2); }
+
+  /* 선택 패널 — 한 자리에서 단계를 바꿔 낀다 */
+  .picker {
+    align-self: stretch; border: 1.5px solid var(--green); border-radius: 14px;
+    background: #FFF; overflow: hidden; box-shadow: 0 2px 10px rgba(20,160,90,.09);
+  }
+  .crumb {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    padding: 10px 15px; background: var(--soft); border-bottom: 1px solid var(--edge);
+    font-size: 11.5px;
+  }
+  .ctitle { font-weight: 700; color: var(--deep); margin-right: 4px; }
+  .cstep { color: var(--faint); padding: 2px 0; }
+  .cstep.cur { color: var(--deep); font-weight: 700; }
+  .cstep.done {
+    color: var(--ink); font-weight: 600; cursor: pointer;
+    border-bottom: 1px dashed var(--edge);
+  }
+  .cstep.done:hover { color: var(--deep); }
+  .carrow { color: var(--faint); }
+  .pbody { padding: 14px 15px 15px; }
+  .pq { font-size: 13.5px; margin-bottom: 11px; color: var(--ink); }
+  .mini { font-size: 11px; color: var(--faint); font-weight: 400; }
+  .pchips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .plist { max-height: 232px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
+  .plist .row:first-child { border-top: none; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+    gap: 6px; max-height: 220px; overflow-y: auto;
+  }
+  .gcell {
+    border: 1px solid var(--line); background: #FFF; border-radius: 8px;
+    padding: 9px 8px; font-size: 12.5px; color: var(--body); cursor: pointer;
+    font-family: inherit; text-align: center; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .gcell:hover { border-color: var(--green); color: var(--deep); background: var(--soft); }
+  .gcell .mini {
+    background: var(--soft); color: var(--deep); border-radius: 999px;
+    padding: 0 5px; margin-left: 5px; font-size: 10px; font-weight: 700;
+  }
+  .gcell.empty { color: var(--faint); border-style: dashed; }
+
   .verdict { border-radius: 13px; padding: 13px 16px; align-self: flex-start; max-width: min(94%, 620px); }
   .verdict.pay { background: var(--soft); border: 1px solid var(--edge); }
   .verdict.no { background: var(--redSoft); border: 1px solid var(--redEdge); }
@@ -216,7 +271,7 @@
 </style>
 
 <div class="page">
-  <p class="lede"><b>Insurance AI 프로토타입</b> — 실제로 눌러 보실 수 있습니다. 질문하면 약관을 골라 답합니다. 화면 속 약관 · 조항은 시연용 예시입니다.</p>
+  <p class="lede"><b>Insurance AI 프로토타입</b> — 실제로 눌러 보실 수 있습니다. 보험사 30곳 · 상품 22개 · 조항 31건이 들어 있는 시연용 데이터입니다.</p>
 
   <div class="app">
     <div class="side">
@@ -268,23 +323,72 @@
 /* ──────────────────────────────────────────────────────────
    시연용 데이터. 실제로는 상품 마스터와 벤더 색인에서 온다.
    ────────────────────────────────────────────────────────── */
-const INSURERS = ['DB손해보험', 'KB손해보험', '삼성화재', '현대해상', '메리츠화재', '하나손해보험'];
+const NONLIFE = ['삼성화재','DB손해보험','현대해상','KB손해보험','메리츠화재','한화손해보험',
+  '롯데손해보험','흥국화재','MG손해보험','농협손해보험','하나손해보험','캐롯손해보험','AXA손해보험','흥국생명'];
+const LIFE = ['삼성생명','한화생명','교보생명','신한라이프','NH농협생명','미래에셋생명',
+  'KB라이프','동양생명','흥국생명','ABL생명','메트라이프','라이나생명','푸본현대생명','하나생명','iM라이프','처브라이프'];
+const INSURERS = NONLIFE.concat(LIFE);
 
 const PRODUCTS = [
+  /* DB손해보험 */
   { id:'db-good',   insurer:'DB손해보험', name:'무배당 프로미라이프 참좋은동행보험', line:'장기',
     editions:[['db-good-1803','2018.03'],['db-good-2109','2021.09'],['db-good-2301','2023.01']] },
   { id:'db-good2',  insurer:'DB손해보험', name:'무배당 프로미라이프 참좋은동행보험Ⅱ', line:'장기',
     editions:[['db-good2-2004','2020.04'],['db-good2-2207','2022.07']] },
   { id:'db-driver', insurer:'DB손해보험', name:'참좋은운전자상해보험', line:'장기',
     editions:[['db-driver-1901','2019.01'],['db-driver-2104','2021.04']] },
-  { id:'db-silson', insurer:'DB손해보험', name:'무배당 프로미라이프 실손의료비보장보험', line:'장기',
-    generations:true,
+  { id:'db-silson', insurer:'DB손해보험', name:'무배당 프로미라이프 실손의료비보장보험', line:'장기', generations:true,
     editions:[['db-silson-g1','1세대'],['db-silson-g2','2세대'],['db-silson-g3','3세대 (착한실손)'],['db-silson-g4','4세대']] },
+  { id:'db-bravo',  insurer:'DB손해보험', name:'브라보라이프보험0808', line:'장기',
+    editions:[['db-bravo-0808','2008.08']] },
+  { id:'db-child',  insurer:'DB손해보험', name:'무배당 아이러브건강보험', line:'장기',
+    editions:[['db-child-2106','2021.06']] },
+
+  /* KB손해보험 */
   { id:'kb-driver', insurer:'KB손해보험', name:'KB다이렉트플러스운전자보험', line:'장기',
     editions:[['kb-driver-2411','2024.11']] },
+  { id:'kb-fire',   insurer:'KB손해보험', name:'KB다이렉트주택화재보험', line:'일반',
+    editions:[['kb-fire-2501','2025.01']] },
+  { id:'kb-health', insurer:'KB손해보험', name:'KB 3.6.9 건강보험', line:'장기',
+    editions:[['kb-health-2203','2022.03'],['kb-health-2405','2024.05']] },
+
+  /* 삼성화재 */
   { id:'sam-child', insurer:'삼성화재', name:'무배당 삼성화재 마이핏 어린이보험', line:'장기',
     editions:[['sam-child-2005','2020.05'],['sam-child-2302','2023.02']] },
+  { id:'sam-driver',insurer:'삼성화재', name:'무배당 삼성화재 운전자보험 애니카', line:'장기',
+    editions:[['sam-driver-2208','2022.08']] },
+  { id:'sam-silson',insurer:'삼성화재', name:'무배당 삼성화재 실손의료비보험', line:'장기', generations:true,
+    editions:[['sam-silson-g3','3세대 (착한실손)'],['sam-silson-g4','4세대']] },
+
+  /* 현대해상 */
+  { id:'hd-child',  insurer:'현대해상', name:'굿앤굿어린이CI보험', line:'장기',
+    editions:[['hd-child-1907','2019.07'],['hd-child-2210','2022.10']] },
+  { id:'hd-driver', insurer:'현대해상', name:'하이카운전자상해보험', line:'장기',
+    editions:[['hd-driver-2301','2023.01']] },
+
+  /* 메리츠화재 */
+  { id:'mz-health', insurer:'메리츠화재', name:'내맘같은 건강보험', line:'장기',
+    editions:[['mz-health-2202','2022.02'],['mz-health-2409','2024.09']] },
+  { id:'mz-child',  insurer:'메리츠화재', name:'내맘같은 어린이보험', line:'장기',
+    editions:[['mz-child-1904','2019.04']] },
+
+  /* 하나손해보험 */
+  { id:'hn-health', insurer:'하나손해보험', name:'무배당 더블플러스건강보험(3종)', line:'장기',
+    editions:[['hn-health-2001','2020.01']] },
+
+  /* 생명보험 */
+  { id:'sl-jong',   insurer:'삼성생명', name:'무배당 삼성생명 종신보험 １', line:'종신',
+    editions:[['sl-jong-2103','2021.03']] },
+  { id:'sl-cancer', insurer:'삼성생명', name:'무배당 삼성생명 통합암보험', line:'질병',
+    editions:[['sl-cancer-2205','2022.05']] },
+  { id:'hw-life',   insurer:'한화생명', name:'무배당 한화생명 시그니처 암보험', line:'질병',
+    editions:[['hw-life-2308','2023.08']] },
+  { id:'kb-jong',   insurer:'교보생명', name:'무배당 교보New더든든한종신보험', line:'종신',
+    editions:[['kb-jong-2011','2020.11']] },
+  { id:'mt-cancer', insurer:'메트라이프', name:'무배당 360°암보험(갱신형)', line:'질병',
+    editions:[['mt-cancer-2102','2021.02']] },
 ];
+
 
 /* 조항. edition별로 다르다 — 같은 상품이라도 시점이 다르면 답이 달라진다. */
 const CLAUSES = [
@@ -338,6 +442,24 @@ const CLAUSES = [
     text:'비급여는 특약으로 분리되며 자기부담금 30%를 공제하고 보상합니다.' },
   { ed:'db-silson-g2', kind:'pay', ref:'제3조 제1항', benefit:'입원의료비', keys:['실손','통원','입원','치료비'],
     text:'입원의료비는 자기부담금 10%를 공제한 금액을 보상합니다. (2세대 기준)' },
+  { ed:'mz-child-1904', kind:'pay', ref:'제3조 제1항', benefit:'골절진단비', keys:['골절'],
+    text:'피보험자가 상해로 골절 진단을 받은 경우 골절진단비를 지급합니다.' },
+  { ed:'mz-child-1904', kind:'ex',  ref:'제5조 제1항 제3호', benefit:'공통', keys:['고의','자해'],
+    text:'피보험자의 고의로 인한 손해는 보상하지 않습니다.' },
+  { ed:'db-bravo-0808', kind:'pay', ref:'제4조 제1항', benefit:'상해사망·후유장해', keys:['상해','사망','장해'],
+    text:'피보험자가 상해의 직접결과로써 사망하거나 후유장해가 남은 경우 보험가입금액을 지급합니다.' },
+  { ed:'db-bravo-0808', kind:'ex',  ref:'제6조 제1항 제2호', benefit:'공통', keys:['음주','무면허'],
+    text:'무면허운전 중 발생한 손해는 보상하지 않습니다. (2008년 약관 기준)' },
+  { ed:'sam-driver-2208', kind:'pay', ref:'제5조 제1항', benefit:'교통사고처리지원금', keys:['형사','합의','벌금'],
+    text:'자동차사고로 타인에게 상해를 입혀 형사합의금을 지급한 경우 보상합니다.' },
+  { ed:'sam-driver-2208', kind:'ex',  ref:'제7조 제1항 제5호', benefit:'공통', keys:['음주','무면허'],
+    text:'음주운전 또는 무면허운전 중 발생한 사고는 보상하지 않습니다.' },
+  { ed:'mt-cancer-2102', kind:'pay', ref:'제3조 제1항', benefit:'암진단비', keys:['암','진단'],
+    text:'피보험자가 보험기간 중 암으로 진단확정된 경우 암진단비를 지급합니다.' },
+  { ed:'mt-cancer-2102', kind:'wait', ref:'제10조 제1항', benefit:'암담보', keys:['암','진단','대기'],
+    text:'암 보장은 계약일부터 90일이 지난 날의 다음날부터 시작합니다.' },
+  { ed:'mt-cancer-2102', kind:'cut', ref:'제11조 제2항', benefit:'암진단비', keys:['암','진단'],
+    text:'계약일부터 1년 미만에 진단확정된 경우 보험가입금액의 50%를 지급합니다.' },
 ];
 
 /* 일반지식(Micky). 약관을 고르지 않아도 답할 수 있는 범위. */
@@ -426,67 +548,163 @@ function renderScope() {
 }
 
 /* ── 선택 대화 ──────────────────────────────────── */
+/* 선택은 패널 하나에서 끝난다.
+   말풍선을 쌓으면 스크롤이 길어지고 무엇을 고르는 중인지 흐려진다.
+   한 자리에서 단계를 바꿔 끼우고, 고른 것은 위에 발자국으로 남긴다. */
 function askInsurer(lead) {
-  say(lead || '가입한 상품 기준으로 확인하려면 <b>어느 보험사</b>인가요?');
-  const items = INSURERS.map(name => [esc(name), () => { me(name); askProduct(name); }]);
-  items.push(['🔍 직접 입력', () => {
-    say('보험사 이름을 입력창에 쳐 주세요.');
-    S.pending = { type: 'insurer' };
-  }, 'ghost']);
-  chipRow(items);
+  if (lead) say(lead);
+  openPicker();
 }
 
-function askProduct(insurer, prefill) {
-  const pool = PRODUCTS.filter(p => p.insurer === insurer);
-  if (!pool.length) {
-    say(`${esc(insurer)} 상품은 아직 등록돼 있지 않습니다. 확보 요청으로 남겨 두겠습니다.`);
-    return;
+function openPicker() {
+  document.querySelectorAll('.picker').forEach(n => n.remove());
+  const P = { kind:null, insurer:null, product:null };
+  const box = el('div', 'picker');
+  const crumb = el('div', 'crumb');
+  const body = el('div', 'pbody');
+  box.appendChild(crumb); box.appendChild(body);
+  push(box);
+
+  const steps = () => [
+    { key:'kind', label:'업권', value:P.kind },
+    { key:'insurer', label:'보험사', value:P.insurer },
+    { key:'product', label:'상품', value:P.product && P.product.name },
+    { key:'edition', label:'가입 시점', value:null },
+  ];
+
+  function drawCrumb() {
+    crumb.innerHTML = '';
+    crumb.appendChild(el('span', 'ctitle', '약관 고르기'));
+    const st = steps();
+    st.forEach((x, i) => {
+      const done = x.value != null;
+      const cur = !done && st.slice(0, i).every(y => y.value != null);
+      const c = el('span', 'cstep' + (done ? ' done' : cur ? ' cur' : ''));
+      c.textContent = done ? x.value : x.label;
+      if (done) { c.title = '다시 고르기'; c.onclick = () => rewind(x.key); }
+      crumb.appendChild(c);
+      if (i < 3) crumb.appendChild(el('span', 'carrow', '›'));
+    });
   }
-  say('상품명을 입력창에 쳐 주세요. <span style="color:var(--faint)">약어도 됩니다 — 「참좋은」 · 「운전자」 · 「실손」</span>');
-  S.pending = { type: 'product', insurer };
-  showProducts(insurer, pool);
+
+  function rewind(key) {
+    if (key === 'kind') { P.kind = P.insurer = P.product = null; stepKind(); }
+    else if (key === 'insurer') { P.insurer = P.product = null; stepInsurer(); }
+    else if (key === 'product') { P.product = null; stepProduct(); }
+  }
+
+  function head(text) { body.innerHTML = ''; body.appendChild(el('div', 'pq', text)); drawCrumb(); }
+
+  function searchBox(ph, oninput, focus) {
+    const sb = el('div', 'search');
+    sb.innerHTML = '<span>🔍</span>';
+    const inp = el('input'); inp.placeholder = ph; inp.autocomplete = 'off';
+    inp.oninput = () => oninput(inp.value.trim());
+    sb.appendChild(inp);
+    if (focus) setTimeout(() => inp.focus(), 60);
+    return sb;
+  }
+
+  function stepKind() {
+    head('보험사가 서른 곳이 넘습니다. <b>손해보험</b>과 <b>생명보험</b> 중 어느 쪽인가요?');
+    const row = el('div', 'pchips');
+    [['손해보험', NONLIFE], ['생명보험', LIFE]].forEach(([k, list]) => {
+      const b = el('button', 'chip', `${k} <span class="mini">${list.length}곳</span>`);
+      b.onclick = () => { P.kind = k; stepInsurer(); };
+      row.appendChild(b);
+    });
+    body.appendChild(row);
+  }
+
+  function stepInsurer() {
+    const list = P.kind === '생명보험' ? LIFE : NONLIFE;
+    head('보험사를 고르세요. <span class="mini">이름을 쳐서 좁힐 수 있습니다</span>');
+    body.appendChild(searchBox('보험사명', q => draw(q ? list.filter(n => matchName(n, q)) : list)));
+    const grid = el('div', 'grid'); body.appendChild(grid);
+    function draw(items) {
+      grid.innerHTML = '';
+      if (!items.length) { grid.appendChild(el('div', 'none', '그 이름으로는 못 찾았습니다.')); return; }
+      items.forEach(name => {
+        const n = PRODUCTS.filter(p => p.insurer === name).length;
+        const b = el('button', 'gcell' + (n ? '' : ' empty'),
+          esc(name) + (n ? `<span class="mini">${n}</span>` : ''));
+        b.onclick = () => { P.insurer = name; stepProduct(); };
+        grid.appendChild(b);
+      });
+    }
+    draw(list);
+  }
+
+  function stepProduct() {
+    const pool = PRODUCTS.filter(p => p.insurer === P.insurer);
+    if (!pool.length) {
+      head(`<b>${esc(P.insurer)}</b> 상품은 아직 등록돼 있지 않습니다. 확보 요청으로 남겨 두겠습니다.`);
+      const r = el('div', 'pchips');
+      const b = el('button', 'chip', '다른 보험사 고르기');
+      b.onclick = () => { P.insurer = null; stepInsurer(); };
+      r.appendChild(b); body.appendChild(r);
+      return;
+    }
+    head('<b>상품명을 쳐서 찾으세요.</b> <span class="mini">약어도 됩니다 — 참좋은 · 운전자 · 실손</span>');
+    body.appendChild(searchBox('상품명 · 약어', q => draw(q ? pool.filter(p => matchName(p.name, q)) : pool), true));
+    const listBox = el('div', 'plist'); body.appendChild(listBox);
+    function draw(items) {
+      listBox.innerHTML = '';
+      if (!items.length) { listBox.appendChild(el('div', 'none', '그 이름으로는 못 찾았습니다. 다르게 쳐 보세요.')); return; }
+      items.forEach(p => {
+        const r = el('button', 'row');
+        r.innerHTML = `<span class="rm"><span class="rn">${esc(p.name)}</span>
+          <span class="rs">${p.line} · 약관 ${p.editions.length}건</span></span><span class="go">선택</span>`;
+        r.onclick = () => { P.product = p; stepEdition(); };
+        listBox.appendChild(r);
+      });
+    }
+    draw(pool);
+  }
+
+  function stepEdition() {
+    const pr = P.product;
+    if (pr.editions.length === 1) { finish(pr, pr.editions[0]); return; }
+    head(pr.generations
+      ? '실손의료보험은 <b>세대</b>마다 보장이 다릅니다. 갱신 · 전환으로 바뀌므로 <b>지금 적용 중인 세대</b>를 고르세요.'
+      : `약관이 ${pr.editions.length}번 개정됐습니다. <b>보상은 가입 시점의 약관</b>을 따릅니다. 언제 가입한 계약인가요?`);
+    const row = el('div', 'pchips');
+    pr.editions.forEach(ed => {
+      const b = el('button', 'chip', esc(ed[1]));
+      b.onclick = () => finish(pr, ed);
+      row.appendChild(b);
+    });
+    body.appendChild(row);
+  }
+
+  function finish(product, ed) {
+    box.remove();
+    me(`${product.insurer} · ${product.name} · ${ed[1]}`);
+    lockScope(product, ed);
+  }
+
+  stepKind();
 }
 
-function showProducts(insurer, pool) {
-  const card = el('div', 'card');
-  card.appendChild(el('div', 'ch', `${esc(insurer)} · 등록된 상품 ${pool.length}건`));
-  pool.forEach(p => {
-    const r = el('button', 'row');
-    r.innerHTML = `<span class="rm"><span class="rn">${esc(p.name)}</span>
-      <span class="rs">${p.line} · 약관 ${p.editions.length}건</span></span><span class="go">선택</span>`;
-    r.onclick = () => { card.remove(); me(p.name); S.pending = null; askEdition(p); };
-    card.appendChild(r);
-  });
-  return push(card);
-}
-
-function askEdition(product) {
-  if (product.editions.length === 1) {
-    lockScope(product, product.editions[0]);
-    return;
-  }
-  if (product.generations) {
-    say('실손의료보험은 <b>세대</b>에 따라 보장이 달라집니다. 갱신 · 전환으로 세대가 바뀌므로 <b>지금 적용 중인 세대</b>를 골라 주세요.');
-  } else {
-    say(`이 상품은 약관이 ${product.editions.length}번 개정됐습니다. <b>보상은 가입 시점의 약관</b>을 따릅니다. 언제 가입한 계약인가요?`);
-  }
-  chipRow(product.editions.map(([id, label]) => [esc(label), () => { me(label); lockScope(product, [id, label]); }]));
+/* 「참좋은」 · 「운전자」처럼 부분만 쳐도 잡히게 한다 */
+function matchName(name, q) {
+  const flat = name.replace(/[\s()·]/g, '');
+  const key = q.replace(/[\s()·]/g, '');
+  return flat.includes(key) || name.includes(q);
 }
 
 function lockScope(product, ed) {
-  S.scope = { insurer: product.insurer, product, edition: ed[0], edLabel: ed[1] };
+  S.scope = { insurer:product.insurer, product, edition:ed[0], edLabel:ed[1] };
   S.customer = null;
   renderScope();
   const box = el('div', 'verdict pay');
   box.innerHTML = `<div class="vhead"><span class="vtag pay">확정</span><b>이제 이 약관 안에서만 답합니다</b></div>
-    <p>${esc(scopeLabel(S.scope))}<br>다른 상품 · 다른 시점 약관의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>`;
+    <p>다른 상품 · 다른 시점 약관의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>`;
   push(box);
-  const acts = [['이어서 질문하기', () => {
-      if (S.lastQuestion) { me(S.lastQuestion); answerInScope(S.lastQuestion); }
-      else say('무엇을 확인해 드릴까요? 입력창에 물어보세요.');
-    }, 'on']];
-  acts.push(['이 고객 약관으로 저장', () => saveToCustomer()]);
-  chipRow(acts);
+  chipRow([['이어서 질문하기', () => {
+    if (S.lastQuestion) { me(S.lastQuestion); answerInScope(S.lastQuestion); }
+    else say('무엇을 확인해 드릴까요? 입력창에 물어보세요.');
+  }, 'on']]);
 }
 
 /* ── 고객 ───────────────────────────────────────── */
@@ -564,7 +782,7 @@ function renderFolders() {
   let total = 0;
   if (!S.customers.length) {
     box.appendChild(el('div', null,
-      '<span style="font-size:11px;color:var(--faint);display:block;padding:4px 10px;line-height:1.5">아직 없습니다.<br>약관을 고른 뒤 「이 고객 약관으로 저장」을 누르면 쌓입니다.</span>'));
+      '<span style="font-size:11px;color:var(--faint);display:block;padding:4px 10px;line-height:1.5">아직 없습니다.<br>약관을 고른 뒤 상단 「고객 저장」을 누르면 쌓입니다.</span>'));
   }
   S.customers.forEach(c => {
     total += c.terms.length;
@@ -679,23 +897,13 @@ function handle(text) {
   /* 선택 대기 중이면 그 답으로 받는다 */
   if (S.pending && S.pending.type === 'insurer') {
     me(q);
-    const found = INSURERS.find(i => i.includes(q) || q.includes(i.replace('손해보험', '손보')));
+    const found = INSURERS.find(i => matchName(i, q));
     S.pending = null;
-    if (found) askProduct(found);
-    else say(`「${esc(q)}」는 등록된 보험사 목록에 없습니다. 목록에서 골라 주세요.`) && askInsurer('다시 골라 주세요.');
+    document.querySelectorAll('.card').forEach(c => { if (c.querySelector('.grid')) c.remove(); });
+    if (found) { askProduct(found); }
+    else { say(`「${esc(q)}」는 등록된 보험사 목록에 없습니다.`); askInsurer('다시 골라 주세요.'); }
     return;
   }
-  if (S.pending && S.pending.type === 'product') {
-    me(q);
-    const pool = PRODUCTS.filter(p => p.insurer === S.pending.insurer);
-    const matched = pool.filter(p => p.name.includes(q) || q.split('').every(ch => p.name.includes(ch)) ||
-      p.name.replace(/[\s()]/g, '').includes(q));
-    if (matched.length === 1) { S.pending = null; say(`「${esc(matched[0].name)}」 맞으시죠?`); askEdition(matched[0]); }
-    else if (matched.length > 1) { say(`${matched.length}건이 잡힙니다. 어느 상품인가요?`); showProducts(S.pending.insurer, matched); }
-    else say('그 이름으로는 못 찾았습니다. 아래 목록에서 골라 주세요.') && showProducts(S.pending.insurer, pool);
-    return;
-  }
-
   me(q);
   S.lastQuestion = q;
 
@@ -741,7 +949,7 @@ $('input').addEventListener('keydown', e => {
 $('btnNew').onclick = reset;
 $('navChat').onclick = () => { S.customer = null; renderScope(); renderFolders(); };
 $('navBook').onclick = () => {
-  if (!S.customers.length) { say('약관북이 비어 있습니다. 약관을 고른 뒤 「이 고객 약관으로 저장」을 눌러 보세요.'); return; }
+  if (!S.customers.length) { say('약관북이 비어 있습니다. 약관을 고른 뒤 상단 「고객 저장」을 눌러 보세요.'); return; }
   say('고객 폴더는 왼쪽 목록에서 열 수 있습니다.');
 };
 $('btnNewCustomer').onclick = () => newCustomerForm(false);

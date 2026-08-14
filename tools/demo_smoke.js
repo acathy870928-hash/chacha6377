@@ -14,8 +14,9 @@ const { chromium } = require('./node_modules/playwright-core');
 
   // B. 2018.03 약관 → 음주 (구판 문구)
   await pg.fill('#input','음주운전 사고인데 보험금 나오나요?'); await pg.click('#btnSend'); await pg.waitForTimeout(200);
-  await click('약관 등록하기'); await click('DB손해보험'); await pg.waitForTimeout(150);
-  await click('무배당 프로미라이프 참좋은동행보험'); await pg.waitForTimeout(150);
+  await click('약관 등록하기'); await click('손해보험'); await pg.waitForTimeout(180);
+  await pg.locator('.gcell:has-text("DB손해보험")').first().click(); await pg.waitForTimeout(180);
+  await pg.locator('.plist .row:has-text("참좋은동행보험")').first().click(); await pg.waitForTimeout(180);
   await click('2018.03'); await pg.waitForTimeout(200);
   await click('이어서 질문하기'); await pg.waitForTimeout(250);
   const oldTxt = await pg.locator('.verdict').last().innerText();
