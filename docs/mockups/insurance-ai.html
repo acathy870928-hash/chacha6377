@@ -310,6 +310,18 @@
   td code, .why code, .note code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; background: var(--code-bg); border-radius: 5px; padding: 2px 6px; white-space: nowrap; }
   td.d { color: var(--muted); }
 
+  .v2banner {
+    border: 2px solid var(--accent); background: #F3FAF6; border-radius: 14px;
+    padding: 22px 26px; margin: 30px 0 6px;
+  }
+  .v2banner .v2tag {
+    display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px; letter-spacing: .14em; background: #14A05A; color: #FFF;
+    border-radius: 999px; padding: 3px 12px; margin-bottom: 10px; font-weight: 700;
+  }
+  .v2banner b.head { display: block; font-size: 17px; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .v2banner p { margin: 0; font-size: 14px; color: var(--muted); max-width: 74ch; }
+  .v2banner p b { color: var(--ink); }
   .flag { border: 1px solid #EADFC4; background: var(--warn-soft); border-radius: 12px; padding: 16px 18px; margin-top: 26px; }
   .flag b { color: var(--warn); }
   .flag p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink); }
@@ -322,6 +334,17 @@
     .app { grid-template-columns: 1fr; }
     .side { min-height: 0; }
     .cards { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    body { background: #FFF; }
+    .wrap { max-width: none; padding: 0; }
+    .app, .note, .rule, .tablewrap, .v2banner, .flag { break-inside: avoid; }
+    .app { grid-template-columns: 250px 1fr !important; }
+    .side { min-height: 420px !important; }
+    h2, h3, .flow-tag { break-after: avoid; }
+    .flow { border-top: none; }
   }
 </style>
 
@@ -344,7 +367,7 @@
       <div>
         <div class="sidehead"><span>최근 상담</span><span>🗂</span></div>
         <div class="sidesearch">고객명 · 상담 제목 검색</div>
-        <div class="thread on"><b>차○희 고객 · 골절 진단금</b><span>내맘같은어린이보험 2019.04 판</span></div>
+        <div class="thread on"><b>차승희 고객 · 골절 진단금</b><span>내맘같은어린이보험 2019.04 판</span></div>
       </div>
       <div class="sidefoot">
         <div class="linkbox">
@@ -353,7 +376,7 @@
           <div class="linkrow"><span>Medicode</span><span class="dot off">● 연결 필요</span></div>
         </div>
         <div class="acct" style="margin-top:12px;">
-          <span><b>차○희</b><span>설계사 계정</span></span>
+          <span><b>차승희</b><span>설계사 계정</span></span>
           <span style="color:#8B978F;">⚙ ↪</span>
         </div>
       </div>
@@ -363,7 +386,7 @@
       <div class="hero">
         <span class="spark">✦</span>
         <div class="kicker">고객 계약을 이해하는 보험 상담</div>
-        <h3>무엇을 확인해 드릴까요? <span class="mark">1</span></h3>
+        <h3>무엇을 확인해 드릴까요?</h3>
         <p>약관의 까다로운 조항부터 고객 보장의 빈틈까지,<br>확인된 정보에만 근거해 정확하게 안내해 드립니다.</p>
         <div class="cards">
           <div class="card2"><div class="lab">약관 확인 <span class="mark">2</span></div><div class="q">음주운전 사고도 보험금이 지급되나요?</div><span class="arrow">→</span></div>
@@ -377,34 +400,12 @@
     </div>
   </div>
 
-  <div class="notes">
-    <div class="note"><span class="mark">1</span><p>「어떤 보험 고민이 있으신가요?」 → 「무엇을 확인해 드릴까요?」<small>FA는 고민을 상담받으러 오는 것이 아니라 <b>확인하러</b> 온다. 「나를 이해하는」 · 「내 보장의 빈틈」도 각각 「고객 계약을 이해하는」 · 「고객 보장의 빈틈」으로. 1인칭이 남아 있으면 FA가 자기 보험을 묻는 화면으로 읽힌다.</small></p></div>
-    <div class="note"><span class="mark">2</span><p>카드는 <b>유형은 유지하고 질문만 실무형으로</b>.<small>원안의 「보험기간과 납입기간 차이」는 FA가 이미 아는 내용이라 첫 화면을 낭비한다. 네 유형(약관 · 보장 점검 · 인수 · 청구)은 그대로 두고, 각 유형에서 FA가 실제로 막히는 질문으로 바꿨다. 라우팅 매핑은 그대로다.</small></p></div>
-    <div class="note"><span class="mark">3</span><p>「전문가 확인이 필요합니다」는 FA에게 쓸 수 없다.<small><b>FA가 그 전문가다.</b> 원안 문구를 그대로 두면 「그래서 누구한테 확인하라는 건가」가 된다. 확인처를 사람이 아니라 <b>약관 원문과 보상 심사</b>로 바꾼다 — 실제로 지급을 확정하는 두 곳이다.</small></p></div>
-    <div class="note"><span class="mark">4</span><p>최근 상담에 <b>고객명과 판</b>을 남긴다.<small>FA는 여러 고객을 오가므로 「내 보험의 보장 내용을 점검…」 같은 제목으로는 되짚을 수 없다. 「차○희 고객 · 골절 진단금 / 내맘같은어린이보험 2019.04 판」처럼 <b>누구의 어느 약관 기준이었는지</b>가 제목에 있어야 한다.</small></p></div>
-    <div class="note"><span class="mark">5</span><p>카드 4개가 라우팅 유형과 그대로 맞물린다.<small>「약관 확인」→<code>coverage</code>·<code>benefit_term</code> · 「고객 보장 점검」→보장분석 기반 <code>coverage</code> · 「인수·고지」→<code>underwriting</code> · 「보험금 청구」→<code>procedure</code>. <b>진입 카드가 곧 라우팅 표의 사용자 언어판</b>이다.</small></p></div>
-    <div class="note"><span class="mark">6</span><p>서비스 연결에 <b>보장분석이 빠져 있다</b>.<small>VFA · Medicode와 같은 자리에 보장분석 연동이 들어가야 한다. 연결 여부가 곧 되묻기 유무를 가르므로, 사용자가 상태를 볼 수 있어야 한다. → 아래 제안</small></p></div>
-  </div>
-
-  <h2>카피 대조표</h2>
-  <p class="h2-sub">레이아웃은 손대지 않았습니다. 바뀐 것은 문장뿐이며, 기준은 하나입니다 — <b>말하는 사람은 FA이고 대상은 고객 계약이다.</b></p>
-  <div class="tablewrap">
-    <table>
-      <thead><tr><th>위치</th><th>원안 (1인칭)</th><th>FA 기준</th></tr></thead>
-      <tbody>
-        <tr><td class="d">키커</td><td class="d">나를 이해하는 보험 상담</td><td>고객 계약을 이해하는 보험 상담</td></tr>
-        <tr><td class="d">헤드라인</td><td class="d">어떤 보험 고민이 있으신가요?</td><td>무엇을 확인해 드릴까요?</td></tr>
-        <tr><td class="d">서브</td><td class="d">…<b>내 보장</b>의 빈틈까지, 차분하게</td><td>…<b>고객 보장</b>의 빈틈까지, 정확하게</td></tr>
-        <tr><td class="d">카드 1</td><td class="d">약관 쉽게 보기 / 보험기간과 납입기간 차이</td><td>약관 확인 / 음주운전 사고도 지급되나요?</td></tr>
-        <tr><td class="d">카드 2</td><td class="d">내 보험 점검 / 오래된 보험은…</td><td>고객 보장 점검 / 오래된 계약은 어떤 담보를…</td></tr>
-        <tr><td class="d">카드 3</td><td class="d">가입 전 확인 / 계약 전 알릴 의무</td><td>인수 · 고지 / 고혈압이 있어도 가입되나요?</td></tr>
-        <tr><td class="d">카드 4</td><td class="d">보험금 청구 / 여러 보험사에 청구하면</td><td>보험금 청구 / 여러 계약에 걸치면 중복 지급되나요?</td></tr>
-        <tr><td class="d">입력창</td><td class="d">보험에 관해 무엇이든 물어보세요</td><td>고객 계약이나 약관에 관해 물어보세요</td></tr>
-        <tr><td class="d">하단 고지</td><td class="d">…약관과 <b>전문가</b> 확인이 필요합니다</td><td>지급 여부는 <b>약관 원문과 보상 심사</b>로 확정됩니다</td></tr>
-        <tr><td class="d">계정</td><td class="d">보험 상담 계정</td><td>설계사 계정</td></tr>
-        <tr><td class="d">최근 상담</td><td class="d">내 보험의 보장 내용을 점검…</td><td>차○희 고객 · 골절 진단금 (상품 · 판 병기)</td></tr>
-      </tbody>
-    </table>
+  <div class="v2banner">
+    <span class="v2tag">V2에서 전개</span>
+    <b class="head">보장분석 연결 상태가 답변 품질을 가른다</b>
+    <p>연결되면 상품 · 계약년월 · 가입담보가 들어와 <b>되묻기 0회</b>로 간다. 연결 안 되면 되묻기 경로로 빠진다.
+    VFA · Medicode와 같은 자리에 연결 상태를 노출해 <b>연결 유인</b>을 만든다.
+    v1은 계단식 선택(FLOW B)으로 열고, 이 연동은 <b>v2에서 전개할 예정</b>이다.</p>
   </div>
 
   <h2>제안 1 — 사이드바에 두 줄을 더한다</h2>
@@ -418,14 +419,17 @@
       </div>
       <div class="newbtn">＋ 새로운 보험 상담</div>
       <div>
-        <div class="navitem on">💬 상담<span class="cnt"></span></div>
-        <div class="navitem">📁 약관북 <span class="cnt">12</span><span class="mark">1</span></div>
+        <div class="navitem">💬 상담<span class="cnt"></span></div>
+        <div class="navitem on">📁 약관북 <span class="cnt">12</span><span class="mark">1</span></div>
       </div>
       <div>
-        <div class="sidehead"><span>최근 상담</span><span>🗂</span></div>
-        <div class="sidesearch">상담 제목 검색</div>
-        <div class="thread on"><b>차○희 · 골절 진단금</b><span>내맘같은어린이보험 2019.04 판</span></div>
-        <div class="thread"><b>김○수 · 음주운전 면책</b><span>참좋은운전자상해보험 2판</span></div>
+        <div class="sidehead"><span>고객 폴더</span><span>＋</span></div>
+        <div class="sidesearch">고객명 · 상품명 검색</div>
+        <div class="thread on"><b>📁 차승희</b><span>약관 4건 · 8/12 상담</span></div>
+        <div class="thread"><b>📁 김철수</b><span>약관 3건 · 8/09 상담</span></div>
+        <div class="thread"><b>📁 서영희</b><span>약관 2건 · 8/05 상담</span></div>
+        <div class="thread"><b>📁 박민수</b><span>약관 2건 · 7/28 상담</span></div>
+        <div class="thread"><b>📁 이영진</b><span>약관 1건 · 7/21 상담</span></div>
       </div>
       <div class="sidefoot">
         <div class="linkbox">
@@ -435,7 +439,7 @@
           <div class="linkrow"><span>Medicode</span><span class="dot off">● 연결 필요</span></div>
         </div>
         <div class="acct" style="margin-top:12px;">
-          <span><b>차○희</b><span>보험 상담 계정</span></span>
+          <span><b>박지현</b><span>설계사 계정</span></span>
           <span style="color:#8B978F;">⚙ ↪</span>
         </div>
       </div>
@@ -443,7 +447,7 @@
     <div class="main">
       <div class="topbar"><span class="beta">BETA</span></div>
       <div class="thread-area">
-        <div class="ctx">📁 <span class="pill">차○희 · 약관 4건</span><span class="chg">고객 변경 ✕</span></div>
+        <div class="ctx">📁 <span class="pill">차승희 · 약관 4건</span> 질문은 <b>이 고객 약관 안에서만</b> 찾습니다<span class="chg">고객 변경 ✕</span></div>
         <div class="folder">
           <div class="frow"><span class="fm"><span class="fn">내맘같은어린이보험</span><span class="fs">○○화재 · 2019.04 시행판</span></span><span class="tag ok">상담 중 저장</span></div>
           <div class="frow"><span class="fm"><span class="fn">KB다이렉트플러스운전자보험</span><span class="fs">KB손보 · 2024.11 가입</span></span><span class="tag ok">보장분석</span></div>
@@ -451,14 +455,15 @@
           <div class="frow"><span class="fm"><span class="fn">무배당더블플러스건강보험</span><span class="fs">하나손보 · 2020.01 가입</span></span><span class="tag ok">보장분석</span></div>
         </div>
       </div>
-      <div class="composer"><span class="plus">＋</span> 이 폴더의 약관으로 물어보세요 <span class="send">↑</span></div>
+      <div class="composer"><span class="plus">＋</span> 차승희 고객 약관 4건에서 찾습니다 — 「골절되면 어느 계약에서 나와요?」 <span class="send">↑</span></div>
     </div>
   </div>
 
   <div class="notes">
+    <div class="note"><span class="mark">📁</span><p><b>폴더를 열면 질문 범위가 그 고객으로 잠긴다.</b><small>차승희 폴더에서 물으면 차승희의 약관 4건 안에서만 찾는다 — 다른 고객 계약이나 미등록 약관의 조항은 점수가 높아도 쓰지 않는다. 담보가 여러 계약에 걸치면 걸리는 계약을 <b>모두</b> 보여줘 청구 누락을 잡는다. 판이 미확정인 계약은 검색에서 빼되 「미확정 N건 제외」로 밝힌다.</small></p></div>
     <div class="note"><span class="mark">1</span><p>약관북은 상담과 나란한 최상위 메뉴다.<small>「최근 상담」은 대화 이력이고, 약관북은 <b>고객별로 정리된 약관</b>이다. 성격이 달라 같은 목록에 섞으면 안 된다. 폴더를 열고 그 안에서 물으면 되묻기가 사라진다.</small></p></div>
-    <div class="note"><span class="mark">2</span><p>보장분석 연결 상태가 답변 품질을 가른다.<small>연결되면 상품 · 계약년월 · 가입담보가 들어와 되묻기 0회로 간다. 연결 안 되면 되묻기 경로로 빠진다. VFA · Medicode와 같은 자리에 상태를 노출해 <b>연결 유인</b>을 만든다.</small></p></div>
-    <div class="note"><span class="mark">3</span><p>상담 제목에 상품 · 판을 남긴다.<small>「차○희 · 골절 진단금 / 내맘같은어린이보험 2019.04 판」처럼 어떤 기준으로 답했는지가 이력에 남아야 나중에 되짚을 수 있다.</small></p></div>
+    <div class="note"><span class="mark">2</span><p>보장분석 연결 상태가 답변 품질을 가른다.<small>연결되면 상품 · 계약년월 · 가입담보가 들어와 되묻기 0회로 간다. 연결 안 되면 되묻기 경로로 빠진다. VFA · Medicode와 같은 자리에 상태를 노출해 <b>연결 유인</b>을 만든다. <b>(v2에서 전개 예정)</b></small></p></div>
+    <div class="note"><span class="mark">3</span><p>상담 제목에 상품 · 판을 남긴다.<small>「차승희 · 골절 진단금 / 내맘같은어린이보험 2019.04 판」처럼 어떤 기준으로 답했는지가 이력에 남아야 나중에 되짚을 수 있다.</small></p></div>
   </div>
 
   <h2>제안 2 — 상담 화면에서 도는 흐름</h2>
@@ -533,6 +538,7 @@
           <div class="scopebar">📄 <span><b>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행판</b></span><span class="chg">약관 변경</span></div>
           <div class="ok-card"><b>이 약관 1권 안에서만 찾습니다 <span class="mark">4</span></b>
             <p>다른 상품 · 다른 판의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>
+            <div class="chips" style="margin-top:10px;"><span class="chip on">약관 선택 완료</span><span class="chip">고객 등록 후 이 약관 등록하기 <span class="mark">5</span></span></div>
           </div>
         </div>
         <div class="composer"><span class="plus">＋</span> 이제 물어보세요 — 「계단에서 굴러 골절됐는데 보장돼요?」 <span class="send">↑</span></div>
@@ -543,6 +549,7 @@
       <div class="note"><span class="mark">2</span><p>판까지 정해져야 잠긴다.<small>상품까지만으로는 검색을 걸지 않는다. 보상은 <b>계약 시점의 판</b>이 적용되므로 판이 다르면 답이 달라진다. 판이 6개를 넘으면 칩 대신 연 · 월 입력만 받는다.</small></p></div>
       <div class="note"><span class="mark">3</span><p>검색은 보조이지 대체가 아니다.<small>「참좋은동행」처럼 약어로 찾을 수 있게 하되 <b>선택은 목록에서</b> 한다. 자유 입력만 받으면 표기가 흔들려 같은 약관 요청이 여러 건으로 흩어진다.</small></p></div>
       <div class="note"><span class="mark">4</span><p><b>되묻는 게 아니라 미리 고르는 것이다.</b><small>질문이 들어오는 순간 이미 1권으로 좁혀져 있으면 「찾기」 문제 자체가 사라진다. 2차에서 계약이 연동되면 이 화면은 <b>클릭 0회</b>가 된다.</small></p></div>
+      <div class="note"><span class="mark">5</span><p>선택을 끝내는 길이 둘이다.<small>「약관 선택 완료」는 그대로 질문으로 간다. <b>「고객 등록 후 이 약관 등록하기」</b>는 고객 만들기(FLOW C)로 이어져 이 약관이 그 고객의 약관북 · 보장맵에 쌓인다. 다음 상담에선 폴더에서 열어 이 화면을 건너뛴다.</small></p></div>
       <div class="note"><span class="mark">✓</span><p>공통 조항 질문은 이 화면을 띄우지 않는다.<small>「골절진단비가 뭔가요」는 모든 상품 공통이라 그냥 답한다. 상품마다 다른 조항일 때만 선택을 요구한다 — 매번 강요하면 도구가 무거워진다.</small></p></div>
     </div>
   </section>
@@ -562,9 +569,9 @@
           <div class="ctx">📁 <span class="pill">새 고객 만들기</span><span class="chg">닫기 ✕</span></div>
           <div class="reg">
             <div class="regstep"><span class="stepno on">1</span> 고객 이름 <span class="fs" style="color:#77837C;">— 필수</span></div>
-            <div class="sidesearch" style="margin:8px 0 4px;">김○수</div>
+            <div class="sidesearch" style="margin:8px 0 4px;">김철수</div>
             <div class="dupwarn"><b>같은 이름의 담당 고객이 1명 있습니다 <span class="mark">1</span></b>
-              <div class="frow" style="border:none;padding:6px 0 0;"><span class="fm"><span class="fn">김○수</span><span class="fs">85년생 · 약관 3건 · 8/12 상담</span></span><span class="chip" style="padding:4px 11px;">이 고객으로 열기</span></div>
+              <div class="frow" style="border:none;padding:6px 0 0;"><span class="fm"><span class="fn">김철수</span><span class="fs">85년생 · 약관 3건 · 8/12 상담</span></span><span class="chip" style="padding:4px 11px;">이 고객으로 열기</span></div>
             </div>
             <div class="regstep" style="margin-top:12px;"><span class="stepno">2</span> 구분 메모 <span class="fs" style="color:#77837C;">— 선택. 동명이인 구분용</span></div>
             <div class="sidesearch" style="margin:8px 0 4px;">92년생</div>
@@ -594,7 +601,7 @@
       </div>
       <div class="main">
         <div class="thread-area">
-          <div class="ctx">📁 <span class="pill">차○희 고객 · 약관 등록</span><span class="chg">닫기 ✕</span></div>
+          <div class="ctx">📁 <span class="pill">차승희 고객 · 약관 등록</span><span class="chg">닫기 ✕</span></div>
           <div class="methods">
             <div class="method best">
               <div class="mtop"><b>📄 보장분석 리포트 올리기</b><span class="badge">가장 빠름</span></div>
@@ -673,7 +680,7 @@
       </div>
       <div class="main">
         <div class="thread-area">
-          <div class="ctx">📁 <span class="pill">차○희 고객 · 약관 등록</span><span class="chg">닫기 ✕</span></div>
+          <div class="ctx">📁 <span class="pill">차승희 고객 · 약관 등록</span><span class="chg">닫기 ✕</span></div>
           <div class="reg">
             <div class="regstep"><span class="stepno done">1</span> 보험사 <b>DB손보</b> <span class="chg2">변경</span></div>
             <div class="regstep"><span class="stepno on">2</span> 상품 검색 <span class="mark">1</span></div>
@@ -683,7 +690,7 @@
             <div class="frow"><span class="fm"><span class="fn">브라보라이프보험0612</span><span class="fs">약관 준비중 <span class="mark">2</span></span></span><span class="chip dim" style="padding:4px 11px;">확보 요청</span></div>
             <div class="regstep" style="margin-top:12px;"><span class="stepno">3</span> 가입 시점 <span class="fs" style="color:#77837C;">— 판이 여럿이면 물어봅니다</span></div>
           </div>
-          <div class="ok-card"><b>브라보라이프보험0808 등록했습니다 <span class="mark">3</span></b><p>차○희 고객 보장맵 · 계약 2건 · 담보 21개</p>
+          <div class="ok-card"><b>브라보라이프보험0808 등록했습니다 <span class="mark">3</span></b><p>차승희 고객 보장맵 · 계약 2건 · 담보 21개</p>
             <div class="chips" style="margin-top:9px;"><span class="chip">＋ 다른 상품 더 등록</span><span class="chip on">보장맵 보기</span></div>
           </div>
         </div>
@@ -709,7 +716,7 @@
       </div>
       <div class="main">
         <div class="thread-area">
-          <div class="ctx">🗺 <span class="pill">차○희 보장맵</span> 계약 2건 · 담보 21개 · 확인 60% <span class="chg">＋ 약관 추가</span></div>
+          <div class="ctx">🗺 <span class="pill">차승희 보장맵</span> 계약 2건 · 담보 21개 · 확인 60% <span class="chg">＋ 약관 추가</span></div>
           <div class="mapgrp">
             <div class="mapname">DB손보 · 브라보라이프보험0808 <span class="fs" style="color:#77837C;">2009.03 가입 · 2008.08 시행판</span></div>
             <div class="brow"><span>골절진단비(치아제외)</span><span class="tag ok">가입 30만원</span></div>
@@ -758,7 +765,7 @@
       </div>
       <div class="main">
         <div class="thread-area">
-          <div class="ctx">고객 <span class="pill">차○희</span> · 보장분석 2026.05.21 기준 <span class="chg">변경 ✕</span></div>
+          <div class="ctx">고객 <span class="pill">차승희</span> · 보장분석 2026.05.21 기준 <span class="chg">변경 ✕</span></div>
           <div class="scopebar">📄 <span><b>DB손해보험 · 브라보라이프보험0808 · 2009.03 시행판</b></span><span class="chg">약관 변경</span></div>
           <div class="u">계단에서 넘어져 발목 골절인데 얼마 받을 수 있어요?</div>
           <div class="ans">
@@ -778,7 +785,7 @@
             <div class="src">2개 약관 · KB손보 2024.10 시행판 · DB손보 2008.08 시행판</div>
             <p class="cav enroll">약관상 담보 기준이며 <b>실제 지급은 보상 심사로 확정</b>됩니다. 동일 사고에 중복지급 제한이 적용될 수 있고, 확인이 필요한 건은 합계에 넣지 않았습니다. <span class="mark">4</span></p>
           </div>
-          <div class="ok-card"><b>이 상담을 차○희 약관북에 저장했습니다 <span class="mark">5</span></b><p>내맘같은어린이보험 외 2건 · 다음 상담에서 바로 열립니다</p></div>
+          <div class="ok-card"><b>이 상담을 차승희 약관북에 저장했습니다 <span class="mark">5</span></b><p>내맘같은어린이보험 외 2건 · 다음 상담에서 바로 열립니다</p></div>
         </div>
         <div class="composer"><span class="plus">＋</span> 이어서 물어보세요 <span class="send">↑</span></div>
       </div>
@@ -848,7 +855,7 @@
       </div>
       <div class="main">
         <div class="thread-area">
-          <div class="ctx">고객 <span class="pill">차○희</span> <span class="chg">변경 ✕</span></div>
+          <div class="ctx">고객 <span class="pill">차승희</span> <span class="chg">변경 ✕</span></div>
           <div class="u">옛날든든보험 골절 진단금 나오나요?</div>
           <div class="quote">
             <b>옛날든든보험 · 1판 (2016.01 시행)</b>
@@ -856,7 +863,7 @@
             <div class="amt"><span>등록 비용</span><b>확인 후 안내</b></div>
           </div>
           <div class="chips"><span class="chip on">확보 요청하기</span><span class="chip">취소</span></div>
-          <div class="ok-card"><b>확보 요청을 접수했습니다 <span class="mark">2</span></b><p>차○희 약관북에 「확보 요청 중」으로 표시됩니다 · 등록이 끝나면 알려드립니다</p></div>
+          <div class="ok-card"><b>확보 요청을 접수했습니다 <span class="mark">2</span></b><p>차승희 약관북에 「확보 요청 중」으로 표시됩니다 · 등록이 끝나면 알려드립니다</p></div>
         </div>
         <div class="composer"><span class="plus">＋</span> 이어서 물어보세요 <span class="send">↑</span></div>
       </div>
@@ -887,6 +894,7 @@
     <div class="rule"><span class="no">R14</span><b>확정 전에는 찾지 않는다</b><p>약관 1권으로 좁혀지기 전에는 검색을 걸지 않는다. 100권을 섞어놓고 닮은 것을 찾으면 아무거나 집어온다.</p></div>
     <div class="rule"><span class="no">R15</span><b>어느 약관으로 답했는지 항상 보인다</b><p>답변 화면에 보험사 · 상품 · 판을 고정 표시한다. 보이지 않으면 FA가 고객에게 옮길 수 없고, 틀려도 알아챌 수 없다.</p></div>
     <div class="rule"><span class="no">R16</span><b>스코프 밖은 점수가 높아도 버린다</b><p>남는 게 없으면 순위를 낮춰 채우지 않고 「해당 조항 없음」으로 끝낸다. 검색은 언제나 1등을 내놓는다.</p></div>
+    <div class="rule"><span class="no">R17</span><b>고객 폴더는 그 고객 약관으로만 답한다</b><p>폴더를 열고 물으면 그 고객이 등록한 약관 집합이 곧 검색 범위다. 남의 계약 조항이 섞일 자리가 없다.</p></div>
   </div>
 
   <h2>화면 ↔ 코드 매핑</h2>

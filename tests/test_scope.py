@@ -146,3 +146,50 @@ class TestAnswerBasis:
         # 담보 데이터로 답한 것과 약관 원문으로 답한 것을 섞으면
         # 외부 데이터가 틀렸을 때 책임 범위를 가릴 수 없다.
         assert len({AnswerBasis.TERMS, AnswerBasis.COVERAGE_DATA, AnswerBasis.GENERAL}) == 3
+
+
+class TestCustomerScope:
+    def _customer(self, extra=()):
+        from orca.scope import CustomerScope
+
+        return CustomerScope(
+            customer_id="fa-1-0001",
+            customer_name="차승희",
+            scopes=(_scope(), _scope(product_id="kb-driver", edition_id="ed-2411")) + extra,
+        )
+
+    def test_고객_약관_집합_안에서만_찾는다(self):
+        from orca.scope import confine_to_customer
+
+        hits = [
+            _hit(score=0.9),
+            _hit(score=0.8, product_key="kb-driver", edition_id="ed-2411"),
+            _hit(score=0.99, product_key="hana-health"),  # 이 고객 약관이 아니다
+        ]
+        result = confine_to_customer(hits, self._customer())
+
+        assert {h.product_key for h in result.kept} == {"db-good-journey", "kb-driver"}
+        assert len(result.out_of_scope) == 1
+
+    def test_담보가_여러_계약에_걸치면_함께_확인된다(self):
+        # 폴더 질문의 효용 — 청구 누락을 잡는다.
+        from orca.scope import confine_to_customer
+
+        hits = [
+            _hit(score=0.9, clause_ref="제5조"),
+            _hit(score=0.7, clause_ref="제12조", product_key="kb-driver", edition_id="ed-2411"),
+        ]
+        assert len(confine_to_customer(hits, self._customer()).kept) == 2
+
+    def test_판_미확정_약관은_검색에서_빠지고_라벨에_밝힌다(self):
+        customer = self._customer(extra=(_scope(product_id="hana-health", edition_id=""),))
+        assert len(customer.locked) == 2
+        assert len(customer.unresolved) == 1
+        assert customer.label == "차승희 고객 · 약관 2건 (미확정 1건 제외)"
+
+    def test_확정_약관이_하나도_없으면_잠기지_않는다(self):
+        from orca.scope import CustomerScope, ScopeVerdict, confine_to_customer
+
+        empty = CustomerScope("fa-1-0002", "김철수", scopes=(_scope(edition_id=""),))
+        assert not empty.is_locked
+        assert confine_to_customer([_hit()], empty).verdict is ScopeVerdict.NOT_LOCKED

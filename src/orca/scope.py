@@ -326,3 +326,84 @@ BASIS_LABELS = {
     AnswerBasis.COVERAGE_DATA: "보장 데이터(외부)",
     AnswerBasis.GENERAL: "일반지식",
 }
+
+
+@dataclass(frozen=True)
+class CustomerScope:
+    """고객 폴더 스코프 — **그 고객의 약관들 안에서만** 찾는다.
+
+    약관북에서 고객 폴더를 열고 질문하면, 검색 범위가 그 고객이 등록한
+    약관 집합으로 잠긴다. 단일 스코프(`TermsScope`)가 「한 권」이라면
+    이것은 「한 고객의 책장」이다 — 남의 계약 조항이 섞일 자리가 없고,
+    담보가 여러 계약에 걸치면 걸리는 계약을 모두 확인할 수 있다.
+    """
+
+    customer_id: str
+    customer_name: str
+    scopes: tuple[TermsScope, ...] = ()
+
+    @property
+    def locked(self) -> tuple[TermsScope, ...]:
+        """판까지 확정된 약관들. 검색은 이 안에서만 돈다."""
+        return tuple(sc for sc in self.scopes if sc.is_locked)
+
+    @property
+    def unresolved(self) -> tuple[TermsScope, ...]:
+        """판이 아직 정해지지 않은 약관들.
+
+        조용히 빼고 답하면 「그 계약은 확인 안 됐다」는 사실이 사라진다.
+        답변에 「미확정 N건 제외」로 밝힌다.
+        """
+        return tuple(sc for sc in self.scopes if not sc.is_locked)
+
+    @property
+    def keys(self) -> frozenset[tuple[str, str, str]]:
+        return frozenset(sc.key for sc in self.locked)
+
+    @property
+    def is_locked(self) -> bool:
+        return bool(self.locked)
+
+    @property
+    def label(self) -> str:
+        base = f"{self.customer_name} 고객 · 약관 {len(self.locked)}건"
+        if self.unresolved:
+            base += f" (미확정 {len(self.unresolved)}건 제외)"
+        return base
+
+
+def confine_to_customer(
+    hits: list[Retrieved] | tuple[Retrieved, ...],
+    customer: CustomerScope,
+    *,
+    score_floor: float = DEFAULT_SCORE_FLOOR,
+) -> ScopedResult:
+    """검색 결과를 고객의 약관 집합 안으로 가둔다.
+
+    규칙은 `confine()`과 같다 — 집합 밖은 점수가 높아도 버리고,
+    남는 것이 없으면 「해당 조항 없음」으로 끝낸다. 다른 고객의 계약이나
+    이 고객이 등록하지 않은 약관의 조항은 근거로 쓰지 않는다.
+    """
+    if not customer.is_locked:
+        return ScopedResult(verdict=ScopeVerdict.NOT_LOCKED)
+
+    allowed = customer.keys
+    kept: list[Retrieved] = []
+    out_of_scope: list[Retrieved] = []
+    below_floor: list[Retrieved] = []
+
+    for hit in hits:
+        if hit.key not in allowed:
+            out_of_scope.append(hit)
+        elif hit.score < score_floor:
+            below_floor.append(hit)
+        else:
+            kept.append(hit)
+
+    return ScopedResult(
+        kept=tuple(sorted(kept, key=lambda h: h.score, reverse=True)),
+        out_of_scope=tuple(out_of_scope),
+        below_floor=tuple(below_floor),
+        verdict=ScopeVerdict.FOUND if kept else ScopeVerdict.NO_CLAUSE,
+        scope=customer.locked[0] if len(customer.locked) == 1 else TermsScope(),
+    )

@@ -70,6 +70,7 @@ from .scope import (
     DEFAULT_SCORE_FLOOR,
     LINE_LABELS,
     AnswerBasis,
+    CustomerScope,
     InsuranceLine,
     Retrieved,
     ScopeLevel,
@@ -78,6 +79,7 @@ from .scope import (
     ScopeVerdict,
     TermsScope,
     confine,
+    confine_to_customer,
     require_locked,
 )
 from .registration import (
@@ -207,6 +209,8 @@ __all__ = [
     "ScopedResult",
     "TermsScope",
     "confine",
+    "confine_to_customer",
+    "CustomerScope",
     "require_locked",
     "BASIS_LABELS",
     "DEFAULT_SCORE_FLOOR",
