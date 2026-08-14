@@ -39,6 +39,16 @@ from .clarify import (
     plan_turn,
     resolve_paid_request,
 )
+from .payout import (
+    ClaimVerdict,
+    ClauseFinding,
+    ClauseKind,
+    PayoutEstimate,
+    PayoutSummary,
+    estimate_from_matches,
+    judge,
+    summarize,
+)
 from .pricing import (
     UNPRICED,
     CostEstimate,
@@ -88,6 +98,9 @@ __all__ = [
     "BenefitMatch",
     "BenefitScope",
     "CoverageProfile",
+    "ClaimVerdict",
+    "ClauseFinding",
+    "ClauseKind",
     "CatalogEntry",
     "Classification",
     "ConversationContext",
@@ -106,6 +119,8 @@ __all__ = [
     "InMemoryProductCatalog",
     "NextAction",
     "Option",
+    "PayoutEstimate",
+    "PayoutSummary",
     "PolicyEdition",
     "Product",
     "ProductCatalog",
@@ -125,6 +140,8 @@ __all__ = [
     "apply_contract_date",
     "build_queries",
     "classify",
+    "estimate_from_matches",
+    "judge",
     "estimate_by_contract",
     "estimate_by_product",
     "normalize_benefit_name",
@@ -139,4 +156,5 @@ __all__ = [
     "scope_for",
     "select_within_budget",
     "strip_pii",
+    "summarize",
 ]

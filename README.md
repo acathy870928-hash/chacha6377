@@ -4,6 +4,14 @@
 기존 Orca AI(iFA Ai Link)의 확장이 아니며, 시장 리서치 위에서 새로 만든다.
 파이썬 패키지명 `orca`는 작업 초기 코드명이며 제품명이 아니다.
 
+## 무엇을 대체하는가
+
+FA가 **선배 설계사 · 지점장에게 확인하던 것**을 대체한다.
+24시간, 같은 기준으로, 조항 근거와 함께 답한다. 제품 정의는 `docs/product.md`.
+
+시작 범위는 **Micky(보험 일반지식) + 약관** 두 소스뿐이며,
+보장분석은 초개인화(「얼마 받을 수 있어요」) 단계에서 붙는다.
+
 ## 무엇이 다른가
 
 약관을 검색해 주는 AI는 이미 있다(모홈 AI 등, `docs/market.md`).
@@ -30,11 +38,12 @@ src/orca/          로직 (외부 의존성 없음, 테스트로 검증)
   pricing.py         등록 비용 (과금 단위 = 약관 파일 수)
   vendor_query.py    벤더 질의 — 개인정보 분리
   customers.py       FA별 담당 고객 (접근 통제)
+  payout.py          지급 판정 (면책 우선) · 예상 수령액
   seed.py            초기 등록 목록 (실적 기반)
 data/              상품 목록 시드 (손보 91 실적 + 생보 29 지정)
-docs/              설계 문서 — plan.md(기획) · market.md(시장) 부터 읽기
+docs/              설계 문서 — product.md(제품 정의) · plan.md · market.md 부터 읽기
 docs/mockups/      UX 목업 (insurance-ai.html — 진입 화면 + 흐름 3종)
-tests/             259건
+tests/             277건
 ```
 
 ## 실행
