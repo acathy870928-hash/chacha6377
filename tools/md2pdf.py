@@ -5,14 +5,18 @@
 """
 
 import io
+import os
 import re
 import subprocess
 import sys
+import tempfile
 
 import markdown
 
 SRC = "/home/user/chacha6377/docs/requirements.md"
-HTML = "/tmp/claude-0/-home-user-chacha6377/ca7f6080-cf3a-5093-8a0d-eb3bfdb80785/scratchpad/requirements.html"
+# 중간 산출물이라 세션마다 달라지는 자리에 두지 않는다. 경로를 박아두면
+# 다음 세션에서 그 디렉터리가 없어 변환이 통째로 실패한다.
+HTML = os.path.join(tempfile.gettempdir(), "requirements.html")
 OUT = "/home/user/chacha6377/docs/Insurance_AI_요구사항정의서_v1.pdf"
 
 CSS = """

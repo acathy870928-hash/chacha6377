@@ -1,4 +1,4 @@
-const { chromium } = require('./node_modules/playwright-core');
+const { chromium } = require('playwright-core');
 (async () => {
   const b = await chromium.launch({ executablePath:'/opt/pw-browsers/chromium', args:['--no-sandbox'] });
   const pg = await b.newPage({ viewport:{ width:1240, height:920 }, deviceScaleFactor:2 });

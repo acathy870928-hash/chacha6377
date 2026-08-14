@@ -1,3 +1,7 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# 스모크 테스트 실행물 (playwright-core는 --no-save로 깐다)
+node_modules/
+d6.png
