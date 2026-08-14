@@ -1,0 +1,544 @@
+<title>Insurance AI 상담 설계</title>
+<style>
+  :root {
+    --bg: #F7F9F8;
+    --surface: #FFFFFF;
+    --ink: #16211C;
+    --muted: #5C6B64;
+    --faint: #8B978F;
+    --line: #E3E9E5;
+    --accent: #14A05A;
+    --accent-deep: #0B7C44;
+    --accent-soft: #E8F6EE;
+    --warn: #9A7420;
+    --warn-soft: #FBF5E4;
+    --danger: #BE4A3C;
+    --danger-soft: #FBF0ED;
+    --code-bg: #EEF3F0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101714; --surface: #171F1B; --ink: #E6EDE9; --muted: #9AA8A1;
+      --faint: #7C8A83; --line: #28322D; --accent: #35C77D; --accent-deep: #52D793;
+      --accent-soft: #172C21; --warn: #D6AC5C; --warn-soft: #2A2417;
+      --danger: #E08070; --danger-soft: #2C1E1B; --code-bg: #1E2723;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101714; --surface: #171F1B; --ink: #E6EDE9; --muted: #9AA8A1;
+    --faint: #7C8A83; --line: #28322D; --accent: #35C77D; --accent-deep: #52D793;
+    --accent-soft: #172C21; --warn: #D6AC5C; --warn-soft: #2A2417;
+    --danger: #E08070; --danger-soft: #2C1E1B; --code-bg: #1E2723;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  .eyebrow {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px; letter-spacing: 0.14em; color: var(--accent-deep);
+    text-transform: uppercase; margin: 0 0 12px;
+  }
+  h1 {
+    font-size: clamp(28px, 4.2vw, 40px); font-weight: 800; letter-spacing: -0.02em;
+    line-height: 1.24; margin: 0 0 16px; text-wrap: balance;
+  }
+  .lede { max-width: 66ch; color: var(--muted); font-size: 16px; margin: 0; }
+  .meta {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px; color: var(--faint); margin-top: 20px;
+  }
+  .meta code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; }
+
+  h2 { font-size: 21px; font-weight: 750; letter-spacing: -0.01em; margin: 76px 0 8px; text-wrap: balance; }
+  .h2-sub { color: var(--muted); font-size: 14.5px; margin: 0 0 28px; max-width: 68ch; }
+
+  /* ── 데스크톱 앱 프레임 ─────────────────── */
+  .app {
+    display: grid; grid-template-columns: 232px minmax(0, 1fr);
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 10px 34px rgba(12, 42, 26, 0.07);
+    color: #16211C;
+  }
+  .app, .app * { color-scheme: light; }
+  .side {
+    background: #FBFCFB; border-right: 1px solid #E9EEEB;
+    padding: 16px 14px; display: flex; flex-direction: column; gap: 16px; min-height: 480px;
+  }
+  .brand { display: flex; gap: 9px; align-items: center; }
+  .brand .logo {
+    width: 32px; height: 32px; border-radius: 9px; flex: none;
+    background: #14A05A; color: #FFF; font-weight: 800; font-size: 12.5px;
+    display: inline-flex; align-items: center; justify-content: center; letter-spacing: -0.02em;
+  }
+  .brand b { display: block; font-size: 14px; letter-spacing: -0.01em; color: #16211C; }
+  .brand span { display: block; font-size: 10.5px; color: #8B978F; }
+  .newbtn {
+    background: #14A05A; color: #FFF; border-radius: 9px;
+    padding: 10px 12px; font-size: 13px; font-weight: 650; text-align: center;
+  }
+  .sidehead {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11.5px; color: #6C7A73; font-weight: 600; margin-bottom: 2px;
+  }
+  .sidesearch {
+    background: #F1F4F2; border-radius: 8px; padding: 7px 10px;
+    font-size: 11.5px; color: #98A29B; margin-bottom: 8px;
+  }
+  .thread { padding: 7px 8px; border-radius: 8px; font-size: 12px; }
+  .thread.on { background: #EDF3EF; }
+  .thread b { display: block; font-weight: 600; color: #16211C; font-size: 12.5px; }
+  .thread span { display: block; color: #8B978F; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .navitem {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: #2C3A33;
+  }
+  .navitem.on { background: #E8F6EE; color: #0B7C44; }
+  .navitem .cnt { font-size: 11px; color: #8B978F; font-weight: 500; }
+  .sidefoot { margin-top: auto; border-top: 1px solid #E9EEEB; padding-top: 12px; }
+  .linkbox { border: 1px solid #E9EEEB; border-radius: 10px; padding: 10px; }
+  .linkbox .lh { font-size: 11.5px; font-weight: 650; color: #2C3A33; margin-bottom: 8px; }
+  .linkrow { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 3px 0; }
+  .dot { font-size: 10.5px; }
+  .dot.off { color: #C6892A; }
+  .dot.ok { color: #14A05A; }
+  .acct { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+  .acct b { display: block; font-size: 12.5px; }
+  .acct span { display: block; font-size: 10.5px; color: #8B978F; }
+
+  .main { padding: 20px 28px 22px; display: flex; flex-direction: column; min-height: 480px; background: #FFF; }
+  .topbar { display: flex; justify-content: flex-end; gap: 8px; }
+  .beta { background: #EDF3EF; color: #4A5B52; font-size: 10px; font-weight: 700; border-radius: 5px; padding: 3px 7px; letter-spacing: 0.06em; }
+
+  .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 12px 0 20px; }
+  .spark {
+    width: 46px; height: 46px; border-radius: 13px; background: #E8F6EE;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 19px; margin-bottom: 16px;
+  }
+  .hero .kicker { color: #0B7C44; font-size: 12.5px; font-weight: 650; margin-bottom: 6px; }
+  .hero h3 { font-size: 27px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 10px; color: #16211C; }
+  .hero p { margin: 0; color: #6C7A73; font-size: 13px; line-height: 1.7; }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; width: 100%; max-width: 700px; }
+  .card2 {
+    border: 1px solid #E3E9E5; border-radius: 11px; padding: 13px 15px;
+    text-align: left; position: relative;
+  }
+  .card2 .lab { font-size: 11.5px; font-weight: 700; color: #0B7C44; margin-bottom: 5px; }
+  .card2 .q { font-size: 13px; color: #2C3A33; padding-right: 18px; }
+  .card2 .arrow { position: absolute; right: 13px; bottom: 12px; color: #A9B4AE; font-size: 12px; }
+
+  .composer {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid #DCE3DF; border-radius: 11px; padding: 11px 12px 11px 14px;
+    color: #98A29B; font-size: 13px; background: #FFF;
+  }
+  .composer .plus { color: #8B978F; font-size: 15px; }
+  .composer .send {
+    margin-left: auto; width: 27px; height: 27px; border-radius: 8px; flex: none;
+    background: #14A05A; color: #FFF; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .disclaimer { text-align: center; font-size: 10.5px; color: #A2ADA7; margin-top: 10px; }
+
+  /* ── 대화 ─────────────────────────────── */
+  .thread-area { flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 6px 0 16px; overflow: hidden; }
+  .ctx {
+    display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+    background: #F6F9F7; border: 1px solid #E9EEEB; border-radius: 10px;
+    padding: 8px 11px; font-size: 11.5px; color: #4A5B52;
+  }
+  .ctx .pill { background: #E8F6EE; color: #0B7C44; border-radius: 999px; padding: 3px 10px; font-weight: 650; }
+  .ctx .chg { color: #8B978F; margin-left: auto; }
+  .u {
+    align-self: flex-end; max-width: 74%; background: #14A05A; color: #FFF;
+    border-radius: 13px 13px 4px 13px; padding: 9px 13px; font-size: 13px;
+  }
+  .a {
+    align-self: flex-start; max-width: 88%; background: #F3F6F4; color: #16211C;
+    border-radius: 13px 13px 13px 4px; padding: 9px 13px; font-size: 13px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    border: 1.5px solid #DCE3DF; background: #FFF; border-radius: 999px;
+    padding: 6px 13px; font-size: 12px; color: #2C3A33; white-space: nowrap;
+  }
+  .chip.on { background: #14A05A; border-color: #14A05A; color: #FFF; font-weight: 600; }
+  .chip.dim { border-style: dashed; color: #98A29B; }
+  .chip.dim em { font-style: normal; font-size: 10px; color: #9A7420; background: #FBF5E4; border-radius: 999px; padding: 1px 6px; margin-left: 5px; }
+
+  .ans { border: 1px solid #E3E9E5; border-radius: 12px; padding: 13px 15px; align-self: stretch; font-size: 13px; background: #FFF; }
+  .ans .sum { margin: 0 0 10px; }
+  .bene { border: 1px solid #E9EEEB; border-radius: 9px; background: #FAFCFB; padding: 9px 11px; margin: 10px 0; }
+  .bene .bh { font-size: 10.5px; font-weight: 650; color: #6C7A73; margin-bottom: 6px; }
+  .brow { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; padding: 4px 0; border-top: 1px solid #EEF2F0; }
+  .brow:first-of-type { border-top: none; }
+  .tag { font-size: 10.5px; font-weight: 650; border-radius: 999px; padding: 2px 8px; flex: none; }
+  .tag.ok { background: #E8F6EE; color: #0B7C44; }
+  .tag.no { background: #FBF0ED; color: #A9422F; }
+  .tag.wait { background: #FBF5E4; color: #9A7420; }
+  details summary { cursor: pointer; font-size: 12px; font-weight: 650; color: #0B7C44; list-style: none; }
+  details summary::before { content: "▸ "; }
+  details[open] summary::before { content: "▾ "; }
+  details summary:focus-visible { outline: 2px solid #14A05A; outline-offset: 2px; border-radius: 4px; }
+  .cl { border-left: 3px solid #14A05A; background: #F6FAF8; border-radius: 0 7px 7px 0; padding: 8px 11px; margin: 8px 0; font-size: 12.5px; }
+  .cl.exc { border-left-color: #BE4A3C; background: #FCF6F4; }
+  .cl b { display: block; font-size: 10px; letter-spacing: 0.07em; color: #0B7C44; margin-bottom: 3px; }
+  .cl.exc b { color: #A9422F; }
+  .cl .loc { color: #77837C; font-size: 11.5px; }
+  .src { font-size: 11px; color: #77837C; margin-top: 10px; padding-top: 9px; border-top: 1px dashed #E3E9E5; font-variant-numeric: tabular-nums; }
+  .cav { font-size: 11px; color: #A2ADA7; margin: 6px 0 0; }
+  .cav.enroll { color: #8A7128; background: #FBF5E4; border-radius: 7px; padding: 7px 9px; margin-top: 9px; }
+  .cav.enroll b { color: #6B5A2E; }
+  .quote { border: 1px solid #EADFC4; background: #FCF8EE; border-radius: 12px; padding: 11px 13px; font-size: 12.5px; align-self: stretch; }
+  .quote b { display: block; color: #6B5A2E; margin-bottom: 4px; }
+  .quote p { margin: 0; color: #4A5B52; }
+  .quote .amt { display: flex; justify-content: space-between; align-items: baseline; margin-top: 9px; padding-top: 9px; border-top: 1px solid #EFE5CE; }
+  .quote .amt span { color: #77837C; font-size: 11.5px; }
+  .quote .amt b { margin: 0; font-size: 13px; color: #8A7128; }
+  .ok-card { border: 1px solid #CFE9DB; background: #F3FAF6; border-radius: 12px; padding: 11px 13px; font-size: 12.5px; align-self: stretch; }
+  .ok-card b { color: #0B7C44; display: block; margin-bottom: 3px; }
+  .ok-card p { margin: 0; color: #4A5B52; }
+
+  .folder { display: flex; flex-direction: column; }
+  .frow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #F0F3F1; font-size: 13px; }
+  .frow .fm { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .frow .fn { font-weight: 600; }
+  .frow .fs { font-size: 11.5px; color: #77837C; font-variant-numeric: tabular-nums; }
+
+  /* ── 주석 ─────────────────────────────── */
+  .flow { padding: 34px 0 40px; border-top: 1px solid var(--line); }
+  .flow-tag { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; color: var(--accent-deep); }
+  .flow h3 { font-size: 18px; font-weight: 750; margin: 6px 0 4px; letter-spacing: -0.01em; }
+  .flow .why { color: var(--muted); font-size: 14px; margin: 0 0 22px; max-width: 70ch; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+  .note { display: flex; gap: 11px; font-size: 13.5px; }
+  .note p { margin: 0; }
+  .note p small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 3px; line-height: 1.55; }
+  .mark {
+    flex: none; width: 19px; height: 19px; border-radius: 50%; background: var(--accent);
+    color: #FFF; font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; margin-top: 2px;
+  }
+
+  .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 13px; margin-top: 26px; }
+  .rule { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 17px; }
+  .rule .no { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--accent-deep); letter-spacing: 0.1em; display: block; margin-bottom: 9px; }
+  .rule b { display: block; font-size: 14px; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .rule p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 11px 15px; border-top: 1px solid var(--line); vertical-align: top; }
+  thead th { border-top: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+  td code, .why code, .note code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; background: var(--code-bg); border-radius: 5px; padding: 2px 6px; white-space: nowrap; }
+  td.d { color: var(--muted); }
+
+  .flag { border: 1px solid #EADFC4; background: var(--warn-soft); border-radius: 12px; padding: 16px 18px; margin-top: 26px; }
+  .flag b { color: var(--warn); }
+  .flag p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink); }
+  .flag ul { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; color: var(--muted); }
+
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+  footer code { background: var(--code-bg); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .side { min-height: 0; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Insurance AI · BETA</p>
+  <h1>첫 화면에서 답까지,<br>한 화면 안에서 끝난다</h1>
+  <p class="lede">데스크톱 상담 화면 기준 설계입니다. 진입 화면은 확정안을 그대로 두고, 그 안에서 되묻기 · 약관 판 특정 · 미등록 확보 · 약관북 누적이 어떻게 도는지 이어서 그렸습니다. 상품명과 대화는 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처 기준이며, 고객명은 가상입니다.</p>
+  <p class="meta">근거 코드: <code>src/orca/clarify.py</code> · <code>routing.py</code> · <code>versioning.py</code> · <code>coverage.py</code> · <code>links.py</code> — 테스트 259건</p>
+
+  <h2>진입 화면 — 확정안</h2>
+  <p class="h2-sub">받은 디자인 그대로입니다. 여기서 읽어야 할 것은 <b>추천 카드 4개가 곧 질문 유형</b>이라는 점, 그리고 왼쪽 사이드바가 <b>상담 이력 · 외부 연동 · 계정</b> 세 층으로 나뉜다는 점입니다.</p>
+
+  <div class="app">
+    <div class="side">
+      <div class="brand">
+        <span class="logo">IA</span>
+        <span><b>Insurance AI</b><span>Better decisions, clearly.</span></span>
+      </div>
+      <div class="newbtn">＋ 새로운 보험 상담</div>
+      <div>
+        <div class="sidehead"><span>최근 상담</span><span>🗂</span></div>
+        <div class="sidesearch">상담 제목 검색</div>
+        <div class="thread on"><b>내 보험의 보장 내용을 점검…</b><span>내 보험의 보장 내용을 점검하려면…</span></div>
+      </div>
+      <div class="sidefoot">
+        <div class="linkbox">
+          <div class="lh">서비스 연결 <span style="float:right;color:#8B978F;">🔗</span></div>
+          <div class="linkrow"><span>VFA</span><span class="dot off">● 연결 필요</span></div>
+          <div class="linkrow"><span>Medicode</span><span class="dot off">● 연결 필요</span></div>
+        </div>
+        <div class="acct" style="margin-top:12px;">
+          <span><b>차○희</b><span>보험 상담 계정</span></span>
+          <span style="color:#8B978F;">⚙ ↪</span>
+        </div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar"><span class="beta">BETA</span></div>
+      <div class="hero">
+        <span class="spark">✦</span>
+        <div class="kicker">나를 이해하는 보험 상담</div>
+        <h3>어떤 보험 고민이 있으신가요?</h3>
+        <p>약관의 어려운 표현부터 내 보장의 빈틈까지,<br>확인 가능한 정보에 근거해 차분하게 안내해 드립니다.</p>
+        <div class="cards">
+          <div class="card2"><div class="lab">약관 쉽게 보기</div><div class="q">보험기간과 납입기간은 어떻게 다른가요?</div><span class="arrow">→</span></div>
+          <div class="card2"><div class="lab">내 보험 점검</div><div class="q">오래된 보험은 어떤 부분을 점검해야 하나요?</div><span class="arrow">→</span></div>
+          <div class="card2"><div class="lab">가입 전 확인</div><div class="q">계약 전 알릴 의무는 무엇인가요?</div><span class="arrow">→</span></div>
+          <div class="card2"><div class="lab">보험금 청구</div><div class="q">여러 보험사에 청구하면 어떻게 지급되나요?</div><span class="arrow">→</span></div>
+        </div>
+      </div>
+      <div class="composer"><span class="plus">＋</span> 보험에 관해 무엇이든 물어보세요 <span class="send">↑</span></div>
+      <p class="disclaimer">AI 답변은 참고용이며 보험 가입·해지 등 중요한 결정 전에는 약관과 전문가 확인이 필요합니다.</p>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="note"><span class="mark">1</span><p>카드 4개가 라우팅 유형과 그대로 맞물린다.<small>「약관 쉽게 보기」→<code>benefit_term</code>(판 특정 불필요) · 「내 보험 점검」→보장분석 기반 <code>coverage</code> · 「가입 전 확인」→<code>underwriting</code> · 「보험금 청구」→<code>procedure</code>. 우연이 아니라 <b>진입 카드가 곧 라우팅 표의 사용자 언어판</b>이다.</small></p></div>
+    <div class="note"><span class="mark">2</span><p>「여러 보험사에 청구하면」 카드는 중복지급 질문이다.<small>계약이 여러 건 걸리는 상황을 진입 화면이 이미 인정하고 있다. 답변에서 걸리는 담보를 전 계약에서 찾아야 하는 이유(<code>BenefitScope.ENUMERATE</code>)와 같은 문제다.</small></p></div>
+    <div class="note"><span class="mark">3</span><p>하단 고지가 설계 원칙과 일치한다.<small>「참고용 · 약관과 전문가 확인 필요」는 우리가 코드로 강제한 단정 회피 · 가입 담보 확인 안내와 같은 방향이다. 답변 카드 안의 유의 문구는 이 고지의 구체화다.</small></p></div>
+    <div class="note"><span class="mark">4</span><p>서비스 연결에 <b>보장분석이 빠져 있다</b>.<small>VFA · Medicode와 같은 자리에 보장분석 연동이 들어가야 한다. 연결 여부가 곧 되묻기 유무를 가르므로, 사용자가 상태를 볼 수 있어야 한다. → 아래 제안</small></p></div>
+  </div>
+
+  <h2>제안 1 — 사이드바에 두 줄을 더한다</h2>
+  <p class="h2-sub">진입 화면은 그대로 두되, 사이드바에 <b>약관북</b>과 <b>보장분석 연결</b>이 필요합니다. 둘 다 「상담이 쌓여 자산이 되는」 구조의 입구입니다.</p>
+
+  <div class="app">
+    <div class="side">
+      <div class="brand">
+        <span class="logo">IA</span>
+        <span><b>Insurance AI</b><span>Better decisions, clearly.</span></span>
+      </div>
+      <div class="newbtn">＋ 새로운 보험 상담</div>
+      <div>
+        <div class="navitem on">💬 상담<span class="cnt"></span></div>
+        <div class="navitem">📁 약관북 <span class="cnt">12</span><span class="mark">1</span></div>
+      </div>
+      <div>
+        <div class="sidehead"><span>최근 상담</span><span>🗂</span></div>
+        <div class="sidesearch">상담 제목 검색</div>
+        <div class="thread on"><b>차○희 · 골절 진단금</b><span>내맘같은어린이보험 2019.04 판</span></div>
+        <div class="thread"><b>김○수 · 음주운전 면책</b><span>참좋은운전자상해보험 2판</span></div>
+      </div>
+      <div class="sidefoot">
+        <div class="linkbox">
+          <div class="lh">서비스 연결 <span style="float:right;color:#8B978F;">🔗</span></div>
+          <div class="linkrow"><span>보장분석</span><span class="dot ok">● 연결됨</span><span class="mark">2</span></div>
+          <div class="linkrow"><span>VFA</span><span class="dot off">● 연결 필요</span></div>
+          <div class="linkrow"><span>Medicode</span><span class="dot off">● 연결 필요</span></div>
+        </div>
+        <div class="acct" style="margin-top:12px;">
+          <span><b>차○희</b><span>보험 상담 계정</span></span>
+          <span style="color:#8B978F;">⚙ ↪</span>
+        </div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar"><span class="beta">BETA</span></div>
+      <div class="thread-area">
+        <div class="ctx">📁 <span class="pill">차○희 · 약관 4건</span><span class="chg">고객 변경 ✕</span></div>
+        <div class="folder">
+          <div class="frow"><span class="fm"><span class="fn">내맘같은어린이보험</span><span class="fs">○○화재 · 2019.04 시행판</span></span><span class="tag ok">상담 중 저장</span></div>
+          <div class="frow"><span class="fm"><span class="fn">KB다이렉트플러스운전자보험</span><span class="fs">KB손보 · 2024.11 가입</span></span><span class="tag ok">보장분석</span></div>
+          <div class="frow"><span class="fm"><span class="fn">브라보라이프보험0808</span><span class="fs">DB손보 · 2009.03 가입</span></span><span class="tag wait">확보 요청 중</span></div>
+          <div class="frow"><span class="fm"><span class="fn">무배당더블플러스건강보험</span><span class="fs">하나손보 · 2020.01 가입</span></span><span class="tag ok">보장분석</span></div>
+        </div>
+      </div>
+      <div class="composer"><span class="plus">＋</span> 이 폴더의 약관으로 물어보세요 <span class="send">↑</span></div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="note"><span class="mark">1</span><p>약관북은 상담과 나란한 최상위 메뉴다.<small>「최근 상담」은 대화 이력이고, 약관북은 <b>고객별로 정리된 약관</b>이다. 성격이 달라 같은 목록에 섞으면 안 된다. 폴더를 열고 그 안에서 물으면 되묻기가 사라진다.</small></p></div>
+    <div class="note"><span class="mark">2</span><p>보장분석 연결 상태가 답변 품질을 가른다.<small>연결되면 상품 · 계약년월 · 가입담보가 들어와 되묻기 0회로 간다. 연결 안 되면 되묻기 경로로 빠진다. VFA · Medicode와 같은 자리에 상태를 노출해 <b>연결 유인</b>을 만든다.</small></p></div>
+    <div class="note"><span class="mark">3</span><p>상담 제목에 상품 · 판을 남긴다.<small>「차○희 · 골절 진단금 / 내맘같은어린이보험 2019.04 판」처럼 어떤 기준으로 답했는지가 이력에 남아야 나중에 되짚을 수 있다.</small></p></div>
+  </div>
+
+  <h2>제안 2 — 상담 화면에서 도는 흐름</h2>
+  <p class="h2-sub">진입 화면에서 질문을 던진 뒤가 본론입니다. 상태 기계 그대로이며, 화면만 데스크톱으로 바뀝니다.</p>
+
+  <section class="flow">
+    <span class="flow-tag">FLOW A — 보장분석 연결됨</span>
+    <h3>되묻기 0회로 답한다</h3>
+    <p class="why">계약 · 가입담보 · 계약년월이 이미 있으므로 상품도 시점도 묻지 않는다. 걸리는 담보를 전 계약에서 찾아 청구 누락을 막는다 — <code>SEARCH</code></p>
+    <div class="app">
+      <div class="side">
+        <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
+        <div class="newbtn">＋ 새로운 보험 상담</div>
+        <div><div class="navitem">💬 상담</div><div class="navitem">📁 약관북 <span class="cnt">12</span></div></div>
+        <div class="sidefoot">
+          <div class="linkbox"><div class="lh">서비스 연결</div>
+            <div class="linkrow"><span>보장분석</span><span class="dot ok">● 연결됨</span></div>
+            <div class="linkrow"><span>VFA</span><span class="dot off">● 연결 필요</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="main">
+        <div class="thread-area">
+          <div class="ctx">고객 <span class="pill">차○희</span> · 보장분석 2026.05.21 기준 <span class="chg">변경 ✕</span></div>
+          <div class="u">계단에서 넘어져 발목 골절인데 뭐 받을 수 있어요?</div>
+          <div class="ans">
+            <p class="sum">골절 사고에 걸리는 담보가 <b>두 계약에 나뉘어</b> 있습니다. <span class="mark">1</span></p>
+            <div class="bene">
+              <div class="bh">가입된 담보</div>
+              <div class="brow"><span>골절진단비(치아파절포함)(연간1회한) · 10만원<br><span class="fs" style="color:#77837C;">KB다이렉트플러스운전자보험 · 2024.11</span></span><span class="tag ok">지급 대상</span></div>
+              <div class="brow"><span>5대골절진단비 · 20만원<br><span class="fs" style="color:#77837C;">KB다이렉트플러스운전자보험 · 2024.11</span></span><span class="tag ok">부위 확인 필요</span></div>
+              <div class="brow"><span>골절진단비(치아제외) · 30만원<br><span class="fs" style="color:#77837C;">브라보라이프보험0808 · 2009.03</span></span><span class="tag ok">지급 대상</span></div>
+            </div>
+            <details open><summary>근거 조항</summary>
+              <div class="cl"><b>지급사유</b>제3조 — 보험기간 중 상해의 직접결과로써 골절로 진단확정된 경우… <span class="loc">브라보라이프 2009.03판 제3조</span></div>
+            </details>
+            <div class="src">2개 약관 · KB손보 2024.10 시행판 · DB손보 2008.08 시행판</div>
+            <p class="cav enroll">약관상 담보 기준입니다. 실제 지급은 <b>가입한 담보와 심사</b>에 따르며, 동일 사고 중복지급 제한이 있을 수 있습니다. <span class="mark">2</span></p>
+          </div>
+          <div class="ok-card"><b>이 상담을 차○희 약관북에 저장했습니다 <span class="mark">3</span></b><p>내맘같은어린이보험 외 2건 · 다음 상담에서 바로 열립니다</p></div>
+        </div>
+        <div class="composer"><span class="plus">＋</span> 이어서 물어보세요 <span class="send">↑</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p>계약이 여러 건 걸리면 전부 보여준다.<small>진입 화면의 「여러 보험사에 청구하면」 카드가 가리키는 상황이다. 하나만 답하면 FA가 청구를 놓친다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>중복지급 제한을 함께 밝힌다.<small>가입금액 합계(60만원)를 지급액처럼 보이게 두지 않는다. 보장분석 리포트도 「동일 사고 중복지급 제한」을 명시한다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>답변이 곧 약관북 적립이다.<small>고객이 이미 정해져 있으므로 「어느 고객 건?」을 되묻지 않고 바로 저장한다. 되묻는 건 고객 컨텍스트가 없을 때뿐이다.</small></p></div>
+    </div>
+  </section>
+
+  <section class="flow">
+    <span class="flow-tag">FLOW B — 보장분석 없음</span>
+    <h3>되묻기로 판을 특정한다</h3>
+    <p class="why">연결 전이거나 보유 계약 밖 상품이면 이 경로다. 보험사 → 상품 → 가입 시점 순으로 좁힌다 — <code>ASK_INSURER → ASK_PRODUCT → ASK_CONTRACT_DATE</code></p>
+    <div class="app">
+      <div class="side">
+        <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
+        <div class="newbtn">＋ 새로운 보험 상담</div>
+        <div><div class="navitem">💬 상담</div><div class="navitem">📁 약관북 <span class="cnt">12</span></div></div>
+        <div class="sidefoot"><div class="linkbox"><div class="lh">서비스 연결</div>
+          <div class="linkrow"><span>보장분석</span><span class="dot off">● 연결 필요</span></div></div></div>
+      </div>
+      <div class="main">
+        <div class="thread-area">
+          <div class="u">음주운전 사고인데 보험금 나오나요?</div>
+          <div class="a">상품에 따라 면책 범위가 다릅니다. 어느 보험사 상품일까요? <span class="mark">1</span></div>
+          <div class="chips"><span class="chip">삼성화재</span><span class="chip on">DB손보</span><span class="chip">KB손보</span><span class="chip">현대해상</span><span class="chip">더보기 +8</span></div>
+          <div class="a">어느 상품일까요?</div>
+          <div class="chips"><span class="chip on">참좋은운전자상해보험</span><span class="chip">청춘어람플러스 종합보험</span><span class="chip dim">옛날든든보험 <em>약관 준비중</em></span></div>
+          <div class="a">약관이 세 차례 개정되었습니다. 보상은 가입 시점의 약관을 따릅니다. 언제 가입한 계약인가요? <span class="mark">2</span></div>
+          <div class="chips"><span class="chip">2019.01 이후</span><span class="chip on">2021.04 이후</span><span class="chip">2023.04 이후</span></div>
+          <div class="ans">
+            <p class="sum">음주운전 중 사고는 이 약관의 대부분 담보에서 <b>지급되지 않습니다</b>.</p>
+            <details open><summary>근거 조항</summary>
+              <div class="cl"><b>지급사유</b>제3조 1항 — 피보험자가 보험기간 중 상해의 직접결과로써…</div>
+              <div class="cl exc"><b>면책</b>제5조 1항 6호 — 피보험자가 음주운전 또는 무면허운전을 하는 동안 발생한 손해… <span class="mark">3</span></div>
+            </details>
+            <div class="src">참좋은운전자상해보험 2판 (2021.04.01 시행) · DB손보</div>
+            <p class="cav">실제 지급 여부는 사실관계 확인과 보상 심사에 따라 결정됩니다.</p>
+          </div>
+        </div>
+        <div class="composer"><span class="plus">＋</span> 이어서 물어보세요 <span class="send">↑</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p>후보가 많으면 보험사부터.<small>상품 목록이 수천 건이 되면 칩 8개로는 못 좁힌다. 한 번 고른 보험사는 세션에 남는다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>판이 6개 이하일 때만 칩.<small>실손처럼 판이 150개를 넘으면 칩 없이 「몇 년 몇 월에 가입한 계약인가요?」로 받는다. 시행일이 대개 매월 1일이라 연·월만으로 확정된다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>지급사유와 면책은 한 쌍.<small>지급사유만 보여주면 면책에 걸리는 건을 「나온다」고 오해하게 만든다.</small></p></div>
+    </div>
+  </section>
+
+  <section class="flow">
+    <span class="flow-tag">FLOW C — 미등록 약관</span>
+    <h3>없으면 없다고 하고, 확보를 제안한다</h3>
+    <p class="why">약관이 등록돼 있지 않으면 추측하지 않는다. 상품 · 판을 확정한 뒤 확보 요청으로 넘긴다 — <code>CONFIRM_PAID_REQUEST → TERMS_NOT_REGISTERED</code></p>
+    <div class="app">
+      <div class="side">
+        <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
+        <div class="newbtn">＋ 새로운 보험 상담</div>
+        <div><div class="navitem">💬 상담</div><div class="navitem">📁 약관북 <span class="cnt">12</span></div></div>
+        <div class="sidefoot"><div class="linkbox"><div class="lh">서비스 연결</div>
+          <div class="linkrow"><span>보장분석</span><span class="dot ok">● 연결됨</span></div></div></div>
+      </div>
+      <div class="main">
+        <div class="thread-area">
+          <div class="ctx">고객 <span class="pill">차○희</span> <span class="chg">변경 ✕</span></div>
+          <div class="u">옛날든든보험 골절 진단금 나오나요?</div>
+          <div class="quote">
+            <b>옛날든든보험 · 1판 (2016.01 시행)</b>
+            <p>이 약관은 등록되어 있지 않아 확인할 수 없습니다. 확보에는 등록 비용이 발생할 수 있습니다. 요청을 남기시면 비용과 진행 여부를 확인해 안내드리겠습니다. <span class="mark">1</span></p>
+            <div class="amt"><span>등록 비용</span><b>확인 후 안내</b></div>
+          </div>
+          <div class="chips"><span class="chip on">확보 요청하기</span><span class="chip">취소</span></div>
+          <div class="ok-card"><b>확보 요청을 접수했습니다 <span class="mark">2</span></b><p>차○희 약관북에 「확보 요청 중」으로 표시됩니다 · 등록이 끝나면 알려드립니다</p></div>
+        </div>
+        <div class="composer"><span class="plus">＋</span> 이어서 물어보세요 <span class="send">↑</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p>단가 미확정이라 금액 대신 요청 의사만.<small>금액 없이 「비용이 발생합니다, 요청하시겠어요?」로 받으면 백지 동의가 된다. 단가가 정해지면 <code>TermsPricing</code> 주입만으로 「요청하기 (30,000원)」 형태로 바뀐다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>요청도 약관북에 남는다.<small>비어 있는 자리로 남아 있어야 등록 후 그 자리에 채워진다. 등록 완료 알림에는 원 질문을 실어 맥락을 복구한다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>보유 계약이어도 약관은 별개다.<small>보장분석은 계약을 알려줄 뿐 약관을 주지 않는다. 계약이 특정돼도 약관이 미등록이면 검색이 아니라 이 경로로 온다.</small></p></div>
+    </div>
+  </section>
+
+  <h2>설계 규칙</h2>
+  <p class="h2-sub">화면 요소는 전부 아래에서 나옵니다. 규칙이 바뀌면 화면도 바뀝니다.</p>
+  <div class="rules">
+    <div class="rule"><span class="no">R1</span><b>되묻기는 걸러낸 뒤에만</b><p>보장분석이 있거나 판이 하나뿐이거나 세션에 이미 있으면 묻지 않는다.</p></div>
+    <div class="rule"><span class="no">R2</span><b>고르게 하고, 치게 하지 않는다</b><p>상품명 자유 입력은 표기가 흔들려 검색이 깨진다. 후보는 칩으로. 많으면 보험사부터.</p></div>
+    <div class="rule"><span class="no">R3</span><b>준비중 상품도 보여준다</b><p>약관이 없어도 목록에는 나온다. 골라도 헛걸음이 아니라 확보 요청으로 이어진다.</p></div>
+    <div class="rule"><span class="no">R4</span><b>임의로 판을 고르지 않는다</b><p>시점이 확정되지 않으면 최신 판으로 답하지 않는다. 일반론이면 일반론이라고 밝힌다.</p></div>
+    <div class="rule"><span class="no">R5</span><b>지급사유와 면책은 한 쌍</b><p>지급사유만 보여주면 면책 건을 「나온다」고 오해하게 만든다.</p></div>
+    <div class="rule"><span class="no">R6</span><b>비용은 먼저 밝히고 동의를 받는다</b><p>단가 미확정인 지금은 요청 의사만 받고 금액은 확인 후 안내한다.</p></div>
+    <div class="rule"><span class="no">R7</span><b>약관의 담보 ≠ 가입한 담보</b><p>약관에는 가입 가능한 담보가 전부 있다. 지급 답변은 가입 여부를 함께 확인한다.</p></div>
+    <div class="rule"><span class="no">R8</span><b>금액은 지어내지 않는다</b><p>보장분석이 있으면 가입금액을 보여주되 지급액이 아님을 밝힌다. 없으면 답하지 않는다.</p></div>
+  </div>
+
+  <h2>화면 ↔ 코드 매핑</h2>
+  <p class="h2-sub"><code>plan_turn()</code>이 돌려주는 <code>NextAction</code>마다 그릴 컴포넌트가 하나씩 정해져 있습니다. 응답을 받는 함수도 함께 적었습니다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>NextAction</th><th>화면</th><th>응답 처리</th></tr></thead>
+      <tbody>
+        <tr><td><code>ASK_INSURER</code></td><td class="d">보험사 칩 + 더보기</td><td class="d"><code>apply_choice()</code></td></tr>
+        <tr><td><code>ASK_PRODUCT</code></td><td class="d">상품 칩 (준비중은 대시 테두리)</td><td class="d"><code>apply_choice()</code></td></tr>
+        <tr><td><code>ASK_CONTRACT_DATE</code></td><td class="d">판 ≤6개는 칩 / 초과는 연·월 입력만</td><td class="d"><code>apply_choice()</code> · <code>apply_contract_date()</code></td></tr>
+        <tr><td><code>ASK_EXACT_DATE</code></td><td class="d">걸친 판 2~3개만 좁혀 제시</td><td class="d"><code>apply_choice()</code></td></tr>
+        <tr><td><code>SEARCH</code></td><td class="d">답변 카드 (담보 목록 → 조항 → 출처 → 유의)</td><td class="d">—</td></tr>
+        <tr><td><code>SHOW_ENROLLMENT</code></td><td class="d">가입금액 표 + 「지급액 아님」 고지</td><td class="d">—</td></tr>
+        <tr><td><code>NOT_ENROLLED</code></td><td class="d">미가입 안내 + 증권 확인 권유</td><td class="d">—</td></tr>
+        <tr><td><code>CONFIRM_PAID_REQUEST</code></td><td class="d">견적 카드 + [요청] / [취소]</td><td class="d"><code>resolve_paid_request()</code></td></tr>
+        <tr><td><code>TERMS_NOT_REGISTERED</code></td><td class="d">접수 카드 · 약관북에 「확보 요청 중」</td><td class="d">—</td></tr>
+        <tr><td><code>REQUEST_CANCELLED</code></td><td class="d">접수 안 됨 · 비용 없음 확인</td><td class="d">—</td></tr>
+        <tr><td><code>ANSWER_GENERAL</code></td><td class="d">「일반론」 배너 + 답변</td><td class="d">—</td></tr>
+        <tr><td><code>NO_TERMS_AVAILABLE</code></td><td class="d">자료 없음 · 추측 금지 문구</td><td class="d">—</td></tr>
+        <tr><td><code>OUT_OF_SCOPE</code></td><td class="d">경계 안내 + 가능한 질문 유도</td><td class="d">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flag">
+    <b>확인이 필요한 것 — 화면 화법이 「내 보험」입니다</b>
+    <p>「나를 이해하는 보험 상담」 · 「내 보장의 빈틈」 · 「보험 상담 계정」은 <b>본인 계약을 보는 사람의 말투</b>입니다. 그런데 1차 오픈 대상은 설계사(FA)로 정해져 있습니다. 셋 중 무엇인지에 따라 되묻기 · 약관북 · 유료 확보가 전부 달라집니다.</p>
+    <ul>
+      <li><b>FA가 자기 화면으로 쓴다</b> → 화법을 「고객님 보장」 기준으로 바꿔야 합니다. 지금 설계 그대로 갑니다.</li>
+      <li><b>FA가 고객에게 보여주며 쓴다</b> → 화법은 그대로 두되, 조항 원문 · 면책 표현의 노출 수위를 조절해야 합니다.</li>
+      <li><b>고객이 직접 쓴다</b> → 되묻기가 막히고(고객은 상품·가입시점을 모름), 유료 확보는 성립하지 않으며, 약관북은 폴더가 아니라 「내 약관」 한 개가 됩니다. 보장분석 연결이 선택이 아니라 필수가 됩니다.</li>
+    </ul>
+  </div>
+
+  <footer>
+    화면 속 고객명 · 대화는 가상이며 상품명은 시드 데이터 기준입니다. 조항 번호와 문구는 약관 등록 후 벤더 반환값으로 대체됩니다.<br>
+    설계 근거: <code>docs/plan.md</code> · <code>docs/market.md</code> · <code>docs/clarification-flow.md</code> · <code>docs/coverage-analysis.md</code> · <code>docs/privacy.md</code>
+  </footer>
+</div>
