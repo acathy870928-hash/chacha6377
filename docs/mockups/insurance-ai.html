@@ -538,11 +538,12 @@
               <div class="frow" style="padding:8px 4px;border-bottom:none;"><span class="fm"><span class="fn">참좋은운전자상해보험</span><span class="fs">장기 · 판 2개 <span class="mark">3</span></span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
             </div>
             <div class="rung now"><span class="rlab">가입 시점</span><span class="rchips"><span class="chip">2018.03</span><span class="chip on">2021.09</span><span class="chip">2023.01</span><span class="chip dim">직접 입력</span></span></div>
+            <p class="cav" style="margin:2px 0 0;">실손의료보험이면 판 대신 <b>세대</b>를 고릅니다 — 1세대 / 2세대 / 3세대(착한실손) / 4세대 <span class="mark">6</span></p>
           </div>
           <div class="scopebar">📄 <span><b>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행판</b></span><span class="chg">약관 변경</span></div>
           <div class="ok-card"><b>이 약관 1권 안에서만 찾습니다 <span class="mark">4</span></b>
             <p>다른 상품 · 다른 판의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>
-            <div class="chips" style="margin-top:10px;"><span class="chip on">약관 선택 완료</span><span class="chip">고객 등록 후 이 약관 등록하기 <span class="mark">5</span></span></div>
+            <div class="chips" style="margin-top:10px;"><span class="chip on">약관 선택 완료 <span style="font-weight:400;opacity:.8;">— 바로 질문</span></span><span class="chip">고객 등록 후 이 약관 등록하기 <span class="mark">5</span></span></div>
           </div>
         </div>
         <div class="composer"><span class="plus">＋</span> 이제 물어보세요 — 「계단에서 굴러 골절됐는데 보장돼요?」 <span class="send">↑</span></div>
@@ -553,7 +554,8 @@
       <div class="note"><span class="mark">2</span><p><b>보종은 묻지 않는다. 상품 검색으로 바로 간다.</b><small>보종을 한 단계 더 두면 FA가 「내 계약이 장기인가 통합인가」를 멈춰서 생각하게 된다. 상품명은 이미 알고 있으므로 <b>치면 매칭되는 편이 빠르다.</b> 보종은 검색 결과에 꼬리표로만 붙인다.</small></p></div>
       <div class="note"><span class="mark">3</span><p>이름이 겹치는 상품을 함께 보여준다.<small>「참좋은동행」과 「참좋은동행Ⅱ」, 「참좋은운전자상해」는 다른 약관이다. 한 건만 자동 선택하지 않고 <b>후보를 나란히 놓아 FA가 고르게</b> 한다. 판 개수를 함께 보여줘 다음 단계를 예고한다.</small></p></div>
       <div class="note"><span class="mark">4</span><p>판까지 정해져야 잠긴다.<small>상품까지만으로는 검색을 걸지 않는다. 보상은 <b>계약 시점의 판</b>이 적용되므로 판이 다르면 답이 달라진다. 판이 6개를 넘으면 칩 대신 연 · 월 입력만 받는다.</small></p></div>
-      <div class="note"><span class="mark">5</span><p>선택을 끝내는 길이 둘이다.<small>「약관 선택 완료」는 그대로 질문으로 간다. <b>「고객 등록 후 이 약관 등록하기」</b>는 고객 만들기(FLOW C)로 이어져 이 약관이 그 고객의 약관북 · 보장맵에 쌓인다. 다음 상담에선 폴더에서 열어 이 화면을 건너뛴다.</small></p></div>
+      <div class="note"><span class="mark">5</span><p><b>고객을 만들지 않아도 여기서 끝난다.</b><small>「약관 선택 완료」가 <b>기본값</b>이다 — 그대로 질문으로 가고 고객 등록이 없다. 「고객 등록 후 이 약관 등록하기」는 <b>이어서 상담할 고객일 때만</b> 고른다. 순서를 바꾸면 한 건만 물어보려던 FA가 등록 화면에서 이탈한다.</small></p></div>
+      <div class="note"><span class="mark">6</span><p><b>실손은 판이 아니라 세대로 고른다.</b><small>실손은 판이 150개를 넘지만 보상 판정의 갈래는 <b>1~4세대 표준약관</b>이 정한다. 판을 늘어놓는 대신 세대 넷을 칩으로 주면 끝난다. 등록도 세대 대표 판만 사면 되므로 <b>파일 수 대비 효율이 가장 좋다.</b> 다만 갱신 · 전환으로 세대가 바뀌므로 「가입 시점」이 아니라 「지금 적용 중인 세대」를 물어야 한다.</small></p></div>
       <div class="note"><span class="mark">✓</span><p>공통 조항 질문은 이 화면을 띄우지 않는다.<small>「골절진단비가 뭔가요」는 모든 상품 공통이라 그냥 답한다. 상품마다 다른 조항일 때만 선택을 요구한다 — 매번 강요하면 도구가 무거워진다.</small></p></div>
     </div>
   </section>
@@ -561,7 +563,7 @@
   <section class="flow">
     <span class="flow-tag">FLOW C — 고객 만들기</span>
     <h3>이름 하나면 시작된다</h3>
-    <p class="why">상담을 시작하려면 「누구 기준인가」만 정해지면 된다. 생년 · 연락처는 <b>요구하지 않는다</b> — 없어도 기능이 돌고, 받으면 보관 · 파기 책임만 늘어난다 — <code>CustomerDirectory.add()</code></p>
+    <p class="why"><b>상담의 전제가 아니라 선택이다.</b> 자료를 쌓고 싶을 때만 만든다. 만들 때는 「누구 기준인가」만 정해지면 된다. 생년 · 연락처는 <b>요구하지 않는다</b> — 없어도 기능이 돌고, 받으면 보관 · 파기 책임만 늘어난다 — <code>CustomerDirectory.add()</code></p>
     <div class="app">
       <div class="side">
         <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
@@ -807,7 +809,7 @@
   <section class="flow">
     <span class="flow-tag">FLOW I — 되묻기 (아무것도 없을 때)</span>
     <h3>되묻기로 판을 특정한다</h3>
-    <p class="why">연결 전이거나 보유 계약 밖 상품이면 이 경로다. 보험사 → 상품 → 가입 시점 순으로 좁힌다 — <code>ASK_INSURER → ASK_PRODUCT → ASK_CONTRACT_DATE</code></p>
+    <p class="why"><b>고객을 만들지 않고 그냥 묻는 경로다.</b> 한 건만 확인하고 끝낼 때 쓰며, 대부분의 상담이 여기서 끝난다. 보험사 → 상품 → 가입 시점 순으로 좁힌다 — <code>ASK_INSURER → ASK_PRODUCT → ASK_CONTRACT_DATE</code></p>
     <div class="app">
       <div class="side">
         <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
@@ -901,6 +903,7 @@
     <div class="rule"><span class="no">R16</span><b>스코프 밖은 점수가 높아도 버린다</b><p>남는 게 없으면 순위를 낮춰 채우지 않고 「해당 조항 없음」으로 끝낸다. 검색은 언제나 1등을 내놓는다.</p></div>
     <div class="rule"><span class="no">R17</span><b>고객 폴더는 그 고객 약관으로만 답한다</b><p>폴더를 열고 물으면 그 고객이 등록한 약관 집합이 곧 검색 범위다. 남의 계약 조항이 섞일 자리가 없다.</p></div>
     <div class="rule"><span class="no">R18</span><b>답할 수 있는 범위를 숫자로 밝힌다</b><p>계약 4건을 등록해도 약관이 2건뿐이면 「지금 답할 수 있는 건 2건」이라고 쓴다. 등록 수를 답변 가능 수로 읽게 두지 않는다.</p></div>
+    <div class="rule"><span class="no">R19</span><b>고객을 만들지 않아도 물을 수 있다</b><p>대부분은 한 건 확인하러 온다. 등록을 앞세우면 그 한 번이 사라진다. 약관 선택만으로 답변 · 근거 조항 · 면책 판정이 다 나온다.</p></div>
   </div>
 
   <h2>화면 ↔ 코드 매핑</h2>
