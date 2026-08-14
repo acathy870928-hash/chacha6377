@@ -23,7 +23,7 @@ def _link(customer_id="c1", name="차○희", advisor="fa-1", product="내맘같
         product_name=product,
         edition_label=kw.pop("edition_label", "2019.04 시행"),
         contract_year=year,
-        linked_on=date(2026, 8, 13),
+        linked_on=kw.pop("linked_on", date(2026, 8, 13)),
         **kw,
     )
 
@@ -87,6 +87,70 @@ class TestReuse:
         key = ledger.links[0].terms_key
         assert ledger.is_linked("c1", key)
         assert not ledger.is_linked("c2", key)
+
+
+class TestTermsBook:
+    """약관북 — 첫 화면(질문창)과 별도 메뉴. 고객 = 폴더."""
+
+    def test_고객별_폴더로_묶인다(self, ledger):
+        ledger.link(_link(customer_id="c1", name="차○희"))
+        ledger.link(_link(customer_id="c1", name="차○희", product="든든운전자보험", year=2022))
+        ledger.link(_link(customer_id="c2", name="김○수"))
+
+        folders = ledger.folders("fa-1")
+        assert len(folders) == 2
+        assert {f.customer_name for f in folders} == {"차○희", "김○수"}
+
+    def test_폴더에_약관_수가_보인다(self, ledger):
+        ledger.link(_link(customer_id="c1"))
+        ledger.link(_link(customer_id="c1", product="든든운전자보험", year=2022))
+        assert ledger.folders("fa-1")[0].count == 2
+
+    def test_최근에_추가된_폴더가_위로_온다(self, ledger):
+        ledger.link(_link(customer_id="c1", name="차○희", linked_on=date(2026, 8, 1)))
+        ledger.link(_link(customer_id="c2", name="김○수", linked_on=date(2026, 8, 12)))
+        assert [f.customer_name for f in ledger.folders("fa-1")] == ["김○수", "차○희"]
+
+    def test_폴더_안도_최근순이다(self, ledger):
+        ledger.link(_link(product="옛날건", year=2015, linked_on=date(2026, 7, 1)))
+        ledger.link(_link(product="최근건", year=2024, linked_on=date(2026, 8, 12)))
+        folder = ledger.folders("fa-1")[0]
+        assert [t.product_name for t in folder.terms] == ["최근건", "옛날건"]
+
+    def test_폴더에_보험사가_요약된다(self, ledger):
+        ledger.link(_link(insurer="○○화재"))
+        ledger.link(_link(insurer="KB손보", product="운전자보험", year=2024))
+        assert set(ledger.folders("fa-1")[0].insurers) == {"○○화재", "KB손보"}
+
+    def test_담당_밖_폴더는_열리지_않는다(self, ledger):
+        ledger.link(_link(customer_id="c9", advisor="fa-2"))
+        assert ledger.folders("fa-1") == []
+        assert ledger.folder("fa-1", "c9") is None
+
+    def test_폴더를_연다(self, ledger):
+        ledger.link(_link(customer_id="c1", name="차○희"))
+        folder = ledger.folder("fa-1", "c1")
+        assert folder.customer_name == "차○희"
+        assert folder.terms[0].product_name == "내맘같은어린이보험"
+
+
+class TestFolderSearch:
+    def test_고객명으로_찾는다(self, ledger):
+        ledger.link(_link(customer_id="c1", name="차○희"))
+        ledger.link(_link(customer_id="c2", name="김○수"))
+        assert [f.customer_name for f in ledger.search_folders("fa-1", "차")] == ["차○희"]
+
+    def test_상품명으로도_찾는다(self, ledger):
+        # 「그 어린이보험 어디 있더라」로 찾는 경우.
+        ledger.link(_link(customer_id="c1", name="차○희"))
+        ledger.link(_link(customer_id="c2", name="김○수", product="든든운전자보험", year=2022))
+        found = ledger.search_folders("fa-1", "어린이")
+        assert [f.customer_name for f in found] == ["차○희"]
+
+    def test_빈_검색어는_전체_폴더(self, ledger):
+        ledger.link(_link(customer_id="c1"))
+        ledger.link(_link(customer_id="c2", name="김○수"))
+        assert len(ledger.search_folders("fa-1", "")) == 2
 
 
 class TestLabel:

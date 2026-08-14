@@ -10,7 +10,7 @@
 """
 
 from .benefits import ENROLLMENT_CAVEAT, ENUMERATE_HINT, BenefitScope, scope_for
-from .links import CustomerTermsLink, LinkSource, TermsLedger
+from .links import CustomerTermsLink, LinkSource, TermsFolder, TermsLedger
 from .customers import (
     CustomerCategory,
     CustomerDirectory,
@@ -93,6 +93,7 @@ __all__ = [
     "CustomerSummary",
     "CustomerTermsLink",
     "LinkSource",
+    "TermsFolder",
     "TermsLedger",
     "EditionResolution",
     "EnrolledBenefit",

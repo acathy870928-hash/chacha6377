@@ -69,9 +69,44 @@ class CustomerTermsLink:
         return self.product_name
 
 
+@dataclass(frozen=True)
+class TermsFolder:
+    """약관북의 고객 폴더 하나.
+
+    첫 화면은 질문창이고, 약관북은 **별도 메뉴**다.
+    상담 중 쌓인 약관이 고객별 폴더로 정리돼 여기서 다시 열린다.
+    """
+
+    customer_id: str
+    customer_name: str
+    terms: tuple[CustomerTermsLink, ...] = ()
+
+    @property
+    def count(self) -> int:
+        return len(self.terms)
+
+    @property
+    def updated_on(self) -> date | None:
+        """가장 최근에 약관이 추가된 날. 폴더 정렬 기준."""
+        dates = [t.linked_on for t in self.terms if t.linked_on]
+        return max(dates) if dates else None
+
+    @property
+    def insurers(self) -> tuple[str, ...]:
+        """폴더에 든 보험사들. 폴더 요약에 쓴다."""
+        seen: list[str] = []
+        for term in self.terms:
+            if term.insurer and term.insurer not in seen:
+                seen.append(term.insurer)
+        return tuple(seen)
+
+
 @dataclass
 class TermsLedger:
-    """연결 장부. 고객별 · 약관별 양방향으로 조회한다."""
+    """연결 장부. 고객별 · 약관별 양방향으로 조회한다.
+
+    화면에서는 **약관북**으로 보인다. 고객 = 폴더, 연결된 약관 = 폴더 안의 항목.
+    """
 
     links: list[CustomerTermsLink] = field(default_factory=list)
 
@@ -115,3 +150,49 @@ class TermsLedger:
         return any(
             ln.customer_id == customer_id and ln.terms_key == terms_key for ln in self.links
         )
+
+    def folders(self, advisor_id: str) -> list[TermsFolder]:
+        """약관북 폴더 목록. **최근에 약관이 추가된 고객이 위로 온다.**
+
+        상담이 이어지는 고객이 위에 있어야 다시 여는 동작이 빨라진다.
+        """
+        grouped: dict[str, list[CustomerTermsLink]] = {}
+        names: dict[str, str] = {}
+        for link in self.for_advisor(advisor_id):
+            grouped.setdefault(link.customer_id, []).append(link)
+            names[link.customer_id] = link.customer_name
+
+        folders = [
+            TermsFolder(
+                customer_id=customer_id,
+                customer_name=names[customer_id],
+                terms=tuple(sorted(items, key=lambda t: t.linked_on or date.min, reverse=True)),
+            )
+            for customer_id, items in grouped.items()
+        ]
+        folders.sort(
+            key=lambda f: (-(f.updated_on or date.min).toordinal(), f.customer_name)
+        )
+        return folders
+
+    def folder(self, advisor_id: str, customer_id: str) -> TermsFolder | None:
+        """폴더 하나를 연다. 담당이 아니면 None이다."""
+        return next(
+            (f for f in self.folders(advisor_id) if f.customer_id == customer_id),
+            None,
+        )
+
+    def search_folders(self, advisor_id: str, keyword: str) -> list[TermsFolder]:
+        """고객명 또는 상품명으로 폴더를 찾는다.
+
+        FA는 「누구 폴더」로도 찾지만 「그 어린이보험 어디 있더라」로도 찾는다.
+        """
+        needle = keyword.strip()
+        if not needle:
+            return self.folders(advisor_id)
+        return [
+            folder
+            for folder in self.folders(advisor_id)
+            if needle in folder.customer_name
+            or any(needle in term.product_name for term in folder.terms)
+        ]

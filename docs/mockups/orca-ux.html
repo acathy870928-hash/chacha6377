@@ -437,7 +437,7 @@
 <div class="wrap">
   <p class="eyebrow">iFA · Orca AI · VELUGA</p>
   <h1>보상 질문은 화면에서<br>이렇게 흘러간다</h1>
-  <p class="lede">되묻기 · 약관 판 특정 · 미등록 요청 · 고객 연결 누적 · 알림 — 지금까지 로직으로 확정한 규칙을 Orca AI 대화 화면에 얹은 목업입니다. 1차 오픈 대상은 설계사(FA)이며, 대화 내용과 상품명은 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처에서 가져왔습니다. 화면의 고객명은 가상입니다.</p>
+  <p class="lede">되묻기 · 약관 판 특정 · 미등록 요청 · 약관북 누적 · 알림 — 지금까지 로직으로 확정한 규칙을 Orca AI 대화 화면에 얹은 목업입니다. 1차 오픈 대상은 설계사(FA)이며, 대화 내용과 상품명은 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처에서 가져왔습니다. 화면의 고객명은 가상입니다.</p>
   <p class="meta">근거 코드: <code>src/orca/clarify.py</code> · <code>routing.py</code> · <code>versioning.py</code> — 테스트 101건 통과 기준</p>
 
   <h2>일곱 가지 설계 규칙</h2>
@@ -453,7 +453,7 @@
   </div>
 
   <h2>대화 플로우</h2>
-  <p class="h2-sub">일곱 장면이면 전체 상태 기계가 다 나옵니다. 초록 번호가 화면과 설명을 잇습니다.</p>
+  <p class="h2-sub">여덟 장면이면 전체 상태 기계가 다 나옵니다. 초록 번호가 화면과 설명을 잇습니다.</p>
 
   <!-- FLOW 1 -->
   <section class="flow">
@@ -644,19 +644,57 @@
     </div>
   </section>
 
-  <!-- FLOW 4.6 — 누적 결과 -->
+  <!-- FLOW 6 — 약관북 -->
   <section class="flow">
     <div class="flow-head">
-      <span class="flow-tag">FLOW 06 — 다음 상담</span>
-      <h3>쌓인 약관이 그 고객의 자료가 된다</h3>
-      <p class="why">보장분석이 위에서 한 번에 채우는 방식이라면, 이 장부는 아래에서 하나씩 쌓는 방식이다. 도달점은 같다 — 고객 → 계약 → 약관 판</p>
+      <span class="flow-tag">FLOW 06 — 약관북</span>
+      <h3>고객별 폴더로 정리된다</h3>
+      <p class="why">첫 화면은 질문창 그대로 두고, <b>약관북은 별도 메뉴</b>다. 상담 중 쌓인 약관이 고객 폴더로 모여, 다음에 폴더를 열어 바로 물어본다 — <code>TermsLedger.folders()</code></p>
     </div>
     <div class="phone"><div class="screen">
       <div class="statusbar"><span>8:41</span><span>●●● ▲ 25</span></div>
       <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
-      <div class="ctxbar">고객 <span class="pill">차○희</span> <span class="x">변경 ✕</span></div>
+      <div class="ctxbar" style="justify-content:space-between;"><b style="font-size:13px;color:#1A211C;">📁 약관북</b><span class="cdate">폴더 12 · 약관 37건</span></div>
+      <div class="inputbar" style="margin:10px 14px 8px;">고객명 · 상품명 검색 <span class="mark">2</span><span class="go">🔍</span></div>
       <div class="clist">
-        <div class="bhead" style="padding:10px 2px 2px;">저장된 약관 4건 <span class="mark">1</span></div>
+        <div class="crow sel">
+          <div class="cmain"><span class="cname">📁 차○희</span><span class="cmeta">약관 4건 · ○○화재, KB손보 외</span></div>
+          <div class="cside"><span class="cdate">8/13 추가</span></div>
+        </div>
+        <div class="crow">
+          <div class="cmain"><span class="cname">📁 김○수</span><span class="cmeta">약관 3건 · 삼성화재, DB손보</span></div>
+          <div class="cside"><span class="cdate">8/12 추가</span></div>
+        </div>
+        <div class="crow">
+          <div class="cmain"><span class="cname">📁 박○영</span><span class="cmeta">약관 6건 · 현대해상 외 3사</span></div>
+          <div class="cside"><span class="cdate">8/9 추가</span></div>
+        </div>
+        <div class="crow">
+          <div class="cmain"><span class="cname">📁 최○민</span><span class="cmeta">약관 1건 · 하나손보</span></div>
+          <div class="cside"><span class="cdate">8/5 추가</span></div>
+        </div>
+      </div>
+      <div class="inputbar">질문을 입력해주세요. <span class="go">↑</span></div>
+    </div></div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p>최근에 약관이 추가된 폴더가 위로.<small>상담이 이어지는 고객이 위에 있어야 다시 여는 동작이 빨라진다. 폴더에는 약관 수와 보험사가 요약돼 열기 전에 내용이 보인다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>고객명뿐 아니라 <b>상품명으로도 찾는다</b>.<small>FA는 「차○희 폴더」로도 찾지만 「그 어린이보험 어디 있더라」로도 찾는다. 두 경로를 모두 연다(<code>search_folders</code>).</small></p></div>
+      <div class="note"><span class="mark">✓</span><p>담당 고객 폴더만 보인다.<small>폴더 목록 · 검색 · 열기 전부 담당 FA로 한정된다. 개인 계약 정보이므로 접근 통제가 이 화면에 걸린다.</small></p></div>
+    </div>
+  </section>
+
+  <!-- FLOW 7 — 폴더 열기 -->
+  <section class="flow">
+    <div class="flow-head">
+      <span class="flow-tag">FLOW 07 — 폴더 열기</span>
+      <h3>폴더를 열면 되묻기가 없다</h3>
+      <p class="why">판까지 정해진 약관이 이미 그 고객에 붙어 있다. 보장분석이 위에서 한 번에 채우는 방식이라면 약관북은 아래에서 하나씩 쌓는 방식이고, 도달점은 같다.</p>
+    </div>
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>8:42</span><span>●●● ▲ 25</span></div>
+      <div class="appbar"><span class="ifa">iFA</span><span class="menu">☰</span></div>
+      <div class="ctxbar"><span class="x">‹</span> 📁 <span class="pill">차○희 · 약관 4건</span></div>
+      <div class="clist">
         <div class="crow">
           <div class="cmain"><span class="cname">내맘같은어린이보험</span><span class="cmeta">○○화재 · 2019.04 시행판</span></div>
           <div class="cside"><span class="cbadge ok">상담 중 저장</span></div>
@@ -676,21 +714,21 @@
       </div>
       <div class="chat" style="padding-top:6px;">
         <div class="msg-user">이 고객 무릎 수술했는데 뭐 받을 수 있어요?</div>
-        <div class="msg-bot">저장된 약관 4건에서 확인했습니다. 수술비 담보가 걸리는 계약이 두 건 있습니다. <span class="mark">2</span></div>
+        <div class="msg-bot">폴더의 약관 4건에서 확인했습니다. 수술비 담보가 걸리는 계약이 두 건 있습니다. <span class="mark">2</span></div>
       </div>
       <div class="inputbar">질문을 입력해주세요. <span class="go">↑</span></div>
     </div></div>
     <div class="notes">
-      <div class="note"><span class="mark">1</span><p>출처가 달라도 한 곳에 모인다.<small>상담 중 지정 · 보장분석 자동 · 유료 확보 — 경로는 달라도 결국 「이 고객의 약관 목록」이 된다. 보장분석이 없는 고객도 상담을 반복하면 목록이 채워진다.</small></p></div>
-      <div class="note"><span class="mark">2</span><p>되묻기가 사라진다.<small>상품도 시점도 묻지 않는다. 이미 판까지 정해진 약관이 그 고객에 붙어 있기 때문이다. <b>쓸수록 빨라지는 구조</b>가 FA가 도구를 계속 쓰는 이유가 된다.</small></p></div>
-      <div class="note"><span class="mark">✓</span><p>비용도 자산으로 남는다.<small>유료로 확보한 약관이 어느 고객 때문이었는지 남으므로, 그 고객 상담에서 반복해 쓰인다. 같은 약관을 쓰는 고객 수(<code>customer_count</code>)가 그 등록의 값어치다.</small></p></div>
+      <div class="note"><span class="mark">1</span><p>출처가 달라도 한 폴더에 모인다.<small><b>상담 중 저장</b> · <b>보장분석</b> · <b>확보 요청</b> — 경로는 달라도 결국 「이 고객의 약관」이 된다. 보장분석이 없는 고객도 상담을 반복하면 폴더가 채워진다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>폴더 안에서 물으면 되묻기가 없다.<small>상품도 시점도 묻지 않는다. 판까지 정해진 약관이 이미 붙어 있기 때문이다. <b>쓸수록 빨라지는 구조</b>가 FA가 계속 쓰는 이유가 된다.</small></p></div>
+      <div class="note"><span class="mark">✓</span><p>비용이 자산으로 남는다.<small>유료로 확보한 약관이 어느 고객 폴더에 들어갔는지 남는다. 같은 약관이 몇 명의 폴더에 있는지(<code>customer_count</code>)가 그 등록의 값어치다.</small></p></div>
     </div>
   </section>
 
-  <!-- FLOW 5 -->
+  <!-- FLOW 8 -->
   <section class="flow">
     <div class="flow-head">
-      <span class="flow-tag">FLOW 07 — 경계선</span>
+      <span class="flow-tag">FLOW 08 — 경계선</span>
       <h3>금액은 지어내지 않는다</h3>
       <p class="why">가입금액·수수료는 계약 정보(Cloud DATA, 범위 밖). 약관이 답할 수 있는 데까지만 — <code>OUT_OF_SCOPE</code></p>
     </div>
