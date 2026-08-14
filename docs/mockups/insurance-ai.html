@@ -447,7 +447,7 @@
     <div class="main">
       <div class="topbar"><span class="beta">BETA</span></div>
       <div class="thread-area">
-        <div class="ctx">📁 <span class="pill">차승희 · 약관 4건</span> 질문은 <b>이 고객 약관 안에서만</b> 찾습니다<span class="chg">고객 변경 ✕</span></div>
+        <div class="ctx">📁 <span class="pill">차승희 · 약관 4건</span> <b>확보된 4건 안에서만</b> 답합니다<span class="chg">고객 변경 ✕</span></div>
         <div class="folder">
           <div class="frow"><span class="fm"><span class="fn">내맘같은어린이보험</span><span class="fs">○○화재 · 2019.04 시행판</span></span><span class="tag ok">상담 중 저장</span></div>
           <div class="frow"><span class="fm"><span class="fn">KB다이렉트플러스운전자보험</span><span class="fs">KB손보 · 2024.11 가입</span></span><span class="tag ok">보장분석</span></div>
@@ -518,7 +518,7 @@
   <section class="flow">
     <span class="flow-tag">FLOW B — 약관 스코프 확정</span>
     <h3>찾기 전에 한 권으로 좁힌다</h3>
-    <p class="why">약관은 서로 <b>80~90%가 똑같은 책들</b>이다. 100권을 섞어놓고 「닮은 것」을 찾게 하면 아무거나 집어온다. 그래서 <b>질문을 받기 전에 약관 1권을 확정</b>한다 — <code>TermsScope</code> · <code>require_locked()</code></p>
+    <p class="why">약관은 서로 <b>80~90%가 똑같은 책들</b>이다. 100권을 섞어놓고 「닮은 것」을 찾게 하면 아무거나 집어온다. 그래서 <b>질문을 받기 전에 약관 1권을 확정</b>한다. 보험사와 상품만 고르면 되고, 보종은 묻지 않는다 — <code>TermsScope</code> · <code>require_locked()</code></p>
     <div class="app">
       <div class="side">
         <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
@@ -527,14 +527,18 @@
       </div>
       <div class="main">
         <div class="thread-area">
-          <div class="ctx">📄 <span class="pill">어느 약관으로 볼까요</span> 클릭 2~3번이면 끝납니다<span class="chg">닫기 ✕</span></div>
+          <div class="ctx">📄 <span class="pill">어느 약관으로 볼까요</span> 보험사 → 상품 검색 → 가입 시점<span class="chg">닫기 ✕</span></div>
           <div class="ladder">
             <div class="rung done"><span class="rlab">보험사</span><span class="rval">DB손해보험</span><span class="chg2">변경</span></div>
-            <div class="rung done"><span class="rlab">보종 <span class="mark">1</span></span><span class="rval">장기</span><span class="rchips"><span class="chip">자동차</span><span class="chip">일반</span><span class="chip">통합</span></span></div>
-            <div class="rung now"><span class="rlab">상품</span><span class="rval">무배당 프로미라이프 참좋은동행보험</span><span class="rchips"><span class="chip on">선택됨</span></span></div>
-            <div class="rung now"><span class="rlab">가입 시점 <span class="mark">2</span></span><span class="rchips"><span class="chip">2018.03</span><span class="chip on">2021.09</span><span class="chip">2023.01</span><span class="chip dim">직접 입력</span></span></div>
+            <div class="rung now" style="flex-direction:column;align-items:stretch;gap:7px;">
+              <div style="display:flex;align-items:center;gap:9px;"><span class="rlab">상품 <span class="mark">2</span></span><span class="rval">검색해서 고릅니다</span></div>
+              <div class="sidesearch" style="margin:0;">🔍 참좋은동행</div>
+              <div class="frow" style="padding:8px 4px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험</span><span class="fs">장기 · 판 3개</span></span><span class="chip on" style="padding:4px 11px;">선택됨</span></div>
+              <div class="frow" style="padding:8px 4px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험Ⅱ</span><span class="fs">장기 · 판 5개</span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
+              <div class="frow" style="padding:8px 4px;border-bottom:none;"><span class="fm"><span class="fn">참좋은운전자상해보험</span><span class="fs">장기 · 판 2개 <span class="mark">3</span></span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
+            </div>
+            <div class="rung now"><span class="rlab">가입 시점</span><span class="rchips"><span class="chip">2018.03</span><span class="chip on">2021.09</span><span class="chip">2023.01</span><span class="chip dim">직접 입력</span></span></div>
           </div>
-          <div class="sidesearch" style="margin-top:2px;">🔍 참좋은동행 <span style="color:#98A29B;">— 약어로도 찾습니다 <span class="mark">3</span></span></div>
           <div class="scopebar">📄 <span><b>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행판</b></span><span class="chg">약관 변경</span></div>
           <div class="ok-card"><b>이 약관 1권 안에서만 찾습니다 <span class="mark">4</span></b>
             <p>다른 상품 · 다른 판의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>
@@ -545,10 +549,10 @@
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="mark">1</span><p><b>보종 한 단계가 목록을 크게 줄인다.</b><small>상품이 수백 개인 보험사에서 장기 · 자동차 · 일반 · 통합 · 퇴직연금으로 한 번 가르면 고를 것이 확 준다. FA는 자기 계약의 보종을 이미 알고 있어 <b>묻는 비용이 거의 없다</b>.</small></p></div>
-      <div class="note"><span class="mark">2</span><p>판까지 정해져야 잠긴다.<small>상품까지만으로는 검색을 걸지 않는다. 보상은 <b>계약 시점의 판</b>이 적용되므로 판이 다르면 답이 달라진다. 판이 6개를 넘으면 칩 대신 연 · 월 입력만 받는다.</small></p></div>
-      <div class="note"><span class="mark">3</span><p>검색은 보조이지 대체가 아니다.<small>「참좋은동행」처럼 약어로 찾을 수 있게 하되 <b>선택은 목록에서</b> 한다. 자유 입력만 받으면 표기가 흔들려 같은 약관 요청이 여러 건으로 흩어진다.</small></p></div>
-      <div class="note"><span class="mark">4</span><p><b>되묻는 게 아니라 미리 고르는 것이다.</b><small>질문이 들어오는 순간 이미 1권으로 좁혀져 있으면 「찾기」 문제 자체가 사라진다. 2차에서 계약이 연동되면 이 화면은 <b>클릭 0회</b>가 된다.</small></p></div>
+      <div class="note"><span class="mark">1</span><p><b>보험사는 치거나 눌러서 고른다.</b><small>이름을 알면 그대로 치고, 모르면 눌러 목록에서 고른다. 어느 쪽이든 <b>목록에 있는 값으로만 확정</b>된다 — 자유 입력만 받으면 「디비손보」 · 「DB손해」로 표기가 흔들려 같은 약관이 갈라진다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p><b>보종은 묻지 않는다. 상품 검색으로 바로 간다.</b><small>보종을 한 단계 더 두면 FA가 「내 계약이 장기인가 통합인가」를 멈춰서 생각하게 된다. 상품명은 이미 알고 있으므로 <b>치면 매칭되는 편이 빠르다.</b> 보종은 검색 결과에 꼬리표로만 붙인다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>이름이 겹치는 상품을 함께 보여준다.<small>「참좋은동행」과 「참좋은동행Ⅱ」, 「참좋은운전자상해」는 다른 약관이다. 한 건만 자동 선택하지 않고 <b>후보를 나란히 놓아 FA가 고르게</b> 한다. 판 개수를 함께 보여줘 다음 단계를 예고한다.</small></p></div>
+      <div class="note"><span class="mark">4</span><p>판까지 정해져야 잠긴다.<small>상품까지만으로는 검색을 걸지 않는다. 보상은 <b>계약 시점의 판</b>이 적용되므로 판이 다르면 답이 달라진다. 판이 6개를 넘으면 칩 대신 연 · 월 입력만 받는다.</small></p></div>
       <div class="note"><span class="mark">5</span><p>선택을 끝내는 길이 둘이다.<small>「약관 선택 완료」는 그대로 질문으로 간다. <b>「고객 등록 후 이 약관 등록하기」</b>는 고객 만들기(FLOW C)로 이어져 이 약관이 그 고객의 약관북 · 보장맵에 쌓인다. 다음 상담에선 폴더에서 열어 이 화면을 건너뛴다.</small></p></div>
       <div class="note"><span class="mark">✓</span><p>공통 조항 질문은 이 화면을 띄우지 않는다.<small>「골절진단비가 뭔가요」는 모든 상품 공통이라 그냥 답한다. 상품마다 다른 조항일 때만 선택을 요구한다 — 매번 강요하면 도구가 무거워진다.</small></p></div>
     </div>
@@ -653,9 +657,10 @@
             <div class="frow" style="opacity:.55;"><span class="fm"><span class="fn">☐ 라이프플래닛e정기보험Ⅱ</span><span class="fs">교보라이프플래닛 · 2018.03 가입</span></span><span class="tag ok">약관 있음</span></div>
             <div class="frow" style="opacity:.55;"><span class="fm"><span class="fn">☐ KB다이렉트주택화재보험</span><span class="fs">KB손보 · 2025.01 가입</span></span><span class="tag ok">약관 있음</span></div>
           </div>
-          <div class="ok-card"><b>계약 4건 · 약관 확보 필요 2건 <span class="mark">3</span></b>
-            <p>체크한 계약만 등록됩니다. 약관이 없는 2건은 확보 요청으로 이어집니다.</p>
-            <div class="chips" style="margin-top:9px;"><span class="chip on">보장맵에 등록</span><span class="chip">취소</span></div>
+          <div class="ok-card"><b>계약 4건 등록 · <span style="color:#9A7420;">지금 답할 수 있는 건 약관 2건</span> <span class="mark">3</span></b>
+            <p>보장맵에는 계약 4건이 모두 올라가지만, <b>질문에 답할 수 있는 것은 약관이 확보된 2건뿐</b>입니다.
+            나머지 2건은 확보 요청으로 이어지며, 확보되면 알려드립니다.</p>
+            <div class="chips" style="margin-top:9px;"><span class="chip on">보장맵에 등록</span><span class="chip">확보 요청도 함께 접수</span><span class="chip">취소</span></div>
           </div>
         </div>
         <div class="composer"><span class="plus">＋</span> 등록 후 바로 물어볼 수 있어요 <span class="send">↑</span></div>
@@ -664,7 +669,7 @@
     <div class="notes">
       <div class="note"><span class="mark">1</span><p>전부 체크된 채로 시작하되 <b>끌 수 있게</b> 한다.<small>대부분은 다 넣는 것이 맞으므로 기본은 전체 선택이다. 다만 해지했거나 이 상담과 무관한 계약을 뺄 수 있어야 한다. 자동으로 다 넣고 끝내지 않는다.</small></p></div>
       <div class="note"><span class="mark">2</span><p><b>계약을 안 것과 약관이 있는 것은 다르다.</b><small>리포트는 계약만 알려준다. 약관은 벤더에 등록돼 있어야 답할 수 있다. 이 구분을 목록에서 바로 보여주지 않으면 보장맵이 채워진 것처럼 보이는데 정작 답은 못 한다.</small></p></div>
-      <div class="note"><span class="mark">3</span><p>요약에 확보 필요 건수를 함께 쓴다.<small>「계약 4건」만 쓰면 4건 다 쓸 수 있는 줄 안다. 등록 직후 확보 요청 흐름(FLOW J)으로 자연스럽게 이어진다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p><b>등록된 계약 수와 답할 수 있는 수를 나눠 쓴다.</b><small>「계약 4건」만 쓰면 4건 다 물어볼 수 있는 줄 안다. <b>「지금 답할 수 있는 건 약관 2건」</b>처럼 <b>지금 가능한 범위</b>를 숫자로 못박아야, FA가 나머지 2건을 물었다가 「없다」는 답을 받고 도구를 불신하는 일이 없다. 등록 직후 확보 요청 흐름(FLOW J)으로 이어진다.</small></p></div>
     </div>
   </section>
 
@@ -895,6 +900,7 @@
     <div class="rule"><span class="no">R15</span><b>어느 약관으로 답했는지 항상 보인다</b><p>답변 화면에 보험사 · 상품 · 판을 고정 표시한다. 보이지 않으면 FA가 고객에게 옮길 수 없고, 틀려도 알아챌 수 없다.</p></div>
     <div class="rule"><span class="no">R16</span><b>스코프 밖은 점수가 높아도 버린다</b><p>남는 게 없으면 순위를 낮춰 채우지 않고 「해당 조항 없음」으로 끝낸다. 검색은 언제나 1등을 내놓는다.</p></div>
     <div class="rule"><span class="no">R17</span><b>고객 폴더는 그 고객 약관으로만 답한다</b><p>폴더를 열고 물으면 그 고객이 등록한 약관 집합이 곧 검색 범위다. 남의 계약 조항이 섞일 자리가 없다.</p></div>
+    <div class="rule"><span class="no">R18</span><b>답할 수 있는 범위를 숫자로 밝힌다</b><p>계약 4건을 등록해도 약관이 2건뿐이면 「지금 답할 수 있는 건 2건」이라고 쓴다. 등록 수를 답변 가능 수로 읽게 두지 않는다.</p></div>
   </div>
 
   <h2>화면 ↔ 코드 매핑</h2>

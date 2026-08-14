@@ -47,12 +47,13 @@ def _hit(score=0.8, **kw) -> Retrieved:
 
 
 class TestLevel:
-    def test_단계는_보험사_보종_상품_판_순이다(self):
+    def test_단계는_보험사_상품_판_순이다(self):
+        # 보종은 선택 단계가 아니다 — 상품 마스터의 분류 속성일 뿐이다.
         assert TermsScope().level is ScopeLevel.NONE
         assert TermsScope(insurer="DB손해보험").level is ScopeLevel.INSURER
         assert TermsScope(
             insurer="DB손해보험", line=InsuranceLine.LONG_TERM
-        ).level is ScopeLevel.LINE
+        ).level is ScopeLevel.INSURER
         assert _scope(edition_id="").level is ScopeLevel.PRODUCT
         assert _scope().level is ScopeLevel.EDITION
 
@@ -63,7 +64,7 @@ class TestLevel:
 
     def test_다음에_고를_것을_알려준다(self):
         assert TermsScope().next_step == "보험사"
-        assert TermsScope(insurer="DB손해보험").next_step == "보종"
+        assert TermsScope(insurer="DB손해보험").next_step == "상품"
         assert _scope(edition_id="").next_step == "가입 시점(판)"
         assert _scope().next_step is None
 
@@ -82,7 +83,7 @@ class TestRequireLocked:
             require_locked(_scope(edition_id=""))
 
     def test_다음_단계를_예외에_담는다(self):
-        with pytest.raises(ScopeNotLocked, match="보종"):
+        with pytest.raises(ScopeNotLocked, match="상품"):
             require_locked(TermsScope(insurer="DB손해보험"))
 
     def test_잠겼으면_통과한다(self):

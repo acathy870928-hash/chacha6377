@@ -51,9 +51,9 @@
 
 1단계를 화면으로 풀 때, 「AI가 되묻는다」보다 **「사용자가 미리 고른다」**가 낫다.
 질문이 들어오는 순간 이미 1권으로 좁혀져 있으면 「찾기」 문제 자체가 사라진다.
-FA는 보험사 · 보종 · 상품을 이미 알고 있으므로 클릭 두세 번이면 끝난다.
+보험사는 쳐도 되고 누르면 목록이 나열되며, 상품은 검색창에 치면 매칭된다.
 
-    설계사   보험사 → 보종 → 상품명 → (판)     클릭 2~3회
+    설계사   보험사 → 상품 검색 → (판)          클릭 · 타이핑 2~3번
     고객     계약 연동 → 증권 선택              클릭 0회 (2차)
 
 되묻기(`clarify.py`)는 이 선택을 건너뛰고 바로 물었을 때의 **보완 경로**이지
@@ -67,10 +67,10 @@ from enum import Enum
 
 
 class InsuranceLine(Enum):
-    """보종. 보험사 다음, 상품명 앞에 오는 단계다.
+    """보종. **선택 단계가 아니라 상품 마스터의 분류 속성이다.**
 
-    상품 목록이 수백 개인 보험사에서 이 한 단계가 목록을 크게 줄인다.
-    FA는 자기 계약의 보종을 알고 있으므로 묻는 비용이 거의 없다.
+    v1 화면에서는 보험사 → 상품 검색으로 바로 가고 보종을 묻지 않는다.
+    상품 검색 결과에 붙는 꼬리표와 목록 필터로만 쓴다.
     """
 
     LONG_TERM = "long_term"
@@ -103,17 +103,15 @@ class ScopeLevel(Enum):
 
     NONE = 0
     INSURER = 1
-    LINE = 2
-    PRODUCT = 3
-    EDITION = 4
+    PRODUCT = 2
+    EDITION = 3
     """판까지 확정됐다. **여기서만 검색을 건다.**"""
 
 
 #: 각 단계에서 다음에 고를 것.
 _NEXT_STEP = {
     ScopeLevel.NONE: "보험사",
-    ScopeLevel.INSURER: "보종",
-    ScopeLevel.LINE: "상품",
+    ScopeLevel.INSURER: "상품",
     ScopeLevel.PRODUCT: "가입 시점(판)",
 }
 
@@ -136,6 +134,7 @@ class TermsScope:
 
     insurer: str = ""
     line: InsuranceLine | None = None
+    """보종. 선택 단계가 아니라 상품에 붙는 분류 속성이다. 스코프 수준에 영향이 없다."""
     product_name: str = ""
     product_id: str = ""
     edition_id: str = ""
@@ -151,8 +150,6 @@ class TermsScope:
             return ScopeLevel.EDITION
         if self.product_id or self.product_name:
             return ScopeLevel.PRODUCT
-        if self.line is not None:
-            return ScopeLevel.LINE
         if self.insurer:
             return ScopeLevel.INSURER
         return ScopeLevel.NONE
