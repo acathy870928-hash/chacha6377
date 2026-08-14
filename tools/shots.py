@@ -42,12 +42,19 @@ SHOTS = [
     ('coverage', '보장맵</span> 계약 2건'),
     ('ask',      '음주운전 사고인데 보험금 나오나요?'),
 ]
+# 슬라이드에서 글자가 읽히려면 사이드바를 빼고 본문만 크게 실어야 한다.
+MAIN_ONLY = '<style>.side{display:none!important}.app{grid-template-columns:1fr!important}</style>'
+
 for name, marker in SHOTS:
-    frag = head + '<div class="wrap" style="padding:0;max-width:none;">' + block_at(marker) + '</div></body></html>'
-    fp = f'{OUT}/app_{name}.html'
-    io.open(fp, 'w', encoding='utf-8').write(frag)
-    subprocess.run(['/opt/pw-browsers/chromium', '--headless', '--disable-gpu', '--no-sandbox',
-                    '--hide-scrollbars', '--force-device-scale-factor=2',
-                    '--window-size=1180,1100', f'--screenshot={OUT}/app_{name}.png', f'file://{fp}'],
-                   capture_output=True)
-    print(f'{name:9s}', trim(f'{OUT}/app_{name}.png'))
+    body = block_at(marker)
+    for suffix, extra, width in (('', '', 1180), ('_main', MAIN_ONLY, 950)):
+        frag = (head + extra + '<div class="wrap" style="padding:0;max-width:none;">'
+                + body + '</div></body></html>')
+        fp = f'{OUT}/app_{name}{suffix}.html'
+        io.open(fp, 'w', encoding='utf-8').write(frag)
+        subprocess.run(['/opt/pw-browsers/chromium', '--headless', '--disable-gpu', '--no-sandbox',
+                        '--hide-scrollbars', '--force-device-scale-factor=2',
+                        f'--window-size={width},1100',
+                        f'--screenshot={OUT}/app_{name}{suffix}.png', f'file://{fp}'],
+                       capture_output=True)
+        print(f'{name+suffix:16s}', trim(f'{OUT}/app_{name}{suffix}.png'))
