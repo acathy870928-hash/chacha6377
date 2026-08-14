@@ -231,6 +231,27 @@
   .stepno.on { background: #14A05A; color: #FFF; }
   .chg2 { color: #8B978F; font-size: 11px; margin-left: auto; }
 
+  .dupwarn {
+    border: 1px solid #F0E3C2; background: #FDFAF1; border-radius: 10px;
+    padding: 9px 12px; font-size: 12px; margin-top: 8px;
+  }
+  .dupwarn > b { display: block; color: #9A7420; font-size: 12.5px; }
+
+  .methods { align-self: stretch; display: flex; flex-direction: column; gap: 8px; }
+  .method {
+    border: 1px solid #E3E9E5; border-radius: 12px; padding: 11px 14px;
+    background: #FFF; cursor: default;
+  }
+  .method.best { border-color: #14A05A; background: #F3FAF6; }
+  .method p { margin: 4px 0 0; font-size: 12px; color: #5A6B61; }
+  .mtop { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .mtop b { font-weight: 650; }
+  .badge {
+    margin-left: auto; flex: none; font-size: 10.5px; font-weight: 650;
+    border-radius: 999px; padding: 2px 8px; background: #14A05A; color: #FFF;
+  }
+  .badge.soft { background: #EDF3EF; color: #63756A; }
+
   .mapgrp { align-self: stretch; border: 1px solid #E3E9E5; border-radius: 12px; padding: 11px 14px; }
   .mapname { font-size: 12.5px; font-weight: 650; margin-bottom: 6px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 
@@ -420,7 +441,7 @@
   </div>
 
   <h2>제안 2 — 상담 화면에서 도는 흐름</h2>
-  <p class="h2-sub">진입 화면에서 질문을 던진 뒤가 본론입니다. <b>일반 답변(A) → 약관 등록(B) → 보장맵(C)</b>이 FA가 개인화를 쌓아 가는 길이고, <b>D</b>는 보장분석이 붙어 그 과정이 자동이 된 상태입니다. <b>E · F</b>는 자료가 없을 때의 경로입니다.</p>
+  <p class="h2-sub">진입 화면에서 질문을 던진 뒤가 본론입니다. <b>일반 답변(A) → 고객 만들기(B) → 약관 등록(C · D · E) → 보장맵(F)</b>이 FA가 개인화를 쌓아 가는 길이고, <b>G</b>는 보장분석이 붙어 그 과정이 자동이 된 상태입니다. <b>H · I</b>는 자료가 없을 때의 경로입니다. 등록 경로를 셋으로 나눈 이유는 <b>검색만 있으면 아무도 끝까지 하지 않기 때문</b>입니다.</p>
 
   <section class="flow">
     <span class="flow-tag">FLOW A — 일반 답변에서 갈라진다</span>
@@ -469,7 +490,121 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW B — 약관 등록</span>
+    <span class="flow-tag">FLOW B — 고객 만들기</span>
+    <h3>이름 하나면 시작된다</h3>
+    <p class="why">상담을 시작하려면 「누구 기준인가」만 정해지면 된다. 생년 · 연락처는 <b>요구하지 않는다</b> — 없어도 기능이 돌고, 받으면 보관 · 파기 책임만 늘어난다 — <code>CustomerDirectory.add()</code></p>
+    <div class="app">
+      <div class="side">
+        <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
+        <div class="newbtn">＋ 새로운 보험 상담</div>
+        <div><div class="navitem">💬 상담</div><div class="navitem on">📁 약관북 <span class="cnt">12</span></div></div>
+      </div>
+      <div class="main">
+        <div class="thread-area">
+          <div class="ctx">📁 <span class="pill">새 고객 만들기</span><span class="chg">닫기 ✕</span></div>
+          <div class="reg">
+            <div class="regstep"><span class="stepno on">1</span> 고객 이름 <span class="fs" style="color:#77837C;">— 필수</span></div>
+            <div class="sidesearch" style="margin:8px 0 4px;">김○수</div>
+            <div class="dupwarn"><b>같은 이름의 담당 고객이 1명 있습니다 <span class="mark">1</span></b>
+              <div class="frow" style="border:none;padding:6px 0 0;"><span class="fm"><span class="fn">김○수</span><span class="fs">85년생 · 약관 3건 · 8/12 상담</span></span><span class="chip" style="padding:4px 11px;">이 고객으로 열기</span></div>
+            </div>
+            <div class="regstep" style="margin-top:12px;"><span class="stepno">2</span> 구분 메모 <span class="fs" style="color:#77837C;">— 선택. 동명이인 구분용</span></div>
+            <div class="sidesearch" style="margin:8px 0 4px;">92년생</div>
+            <p class="cav" style="margin-top:8px;">주민번호 · 연락처는 받지 않습니다. FA가 알아볼 수 있는 짧은 메모면 충분합니다. <span class="mark">2</span></p>
+            <div class="chips" style="margin-top:12px;"><span class="chip on">새 고객으로 만들기</span><span class="chip">취소</span></div>
+          </div>
+        </div>
+        <div class="composer"><span class="plus">＋</span> 고객을 만들면 상담을 시작할 수 있어요 <span class="send">↑</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p><b>중복 생성을 등록 전에 막는다.</b><small>FA는 고객이 수십~수백 명이라 이미 만든 고객을 다시 만들기 쉽다. 중복이 생기면 약관북과 보장맵이 둘로 쪼개져 <b>답변이 반쪽</b>이 된다. 같은 이름이 있으면 먼저 보여주고 「이 고객으로 열기」를 준다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>받지 않는 것을 명시한다.<small>보험 앱이라 개인정보를 요구할 것으로 예상하는 FA에게 <b>안 받는다는 사실 자체가 안내</b>가 된다. 식별자도 이름과 분리해 동명이인 · 개명에 견디게 한다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>고객은 상담 중에도 만들 수 있다.<small>「이 고객 기준으로 확인하기」를 눌렀는데 고객이 없으면 이 화면이 그 자리에서 뜬다. 약관북으로 이동시키지 않는다 — 흐름이 끊긴다.</small></p></div>
+    </div>
+  </section>
+
+  <section class="flow">
+    <span class="flow-tag">FLOW C — 약관 등록</span>
+    <h3>빠른 길을 먼저 보여준다</h3>
+    <p class="why">보험사 → 검색 → 등록은 한 건에 세 단계다. 계약이 대여섯 건이면 <b>열다섯 단계</b>가 되고 FA는 한 번 해보고 다시 하지 않는다. 경로를 넷으로 늘리고 빠른 것부터 놓는다 — <code>suggest_methods()</code></p>
+    <div class="app">
+      <div class="side">
+        <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
+        <div class="newbtn">＋ 새로운 보험 상담</div>
+        <div><div class="navitem">💬 상담</div><div class="navitem on">📁 약관북 <span class="cnt">12</span></div></div>
+      </div>
+      <div class="main">
+        <div class="thread-area">
+          <div class="ctx">📁 <span class="pill">차○희 고객 · 약관 등록</span><span class="chg">닫기 ✕</span></div>
+          <div class="methods">
+            <div class="method best">
+              <div class="mtop"><b>📄 보장분석 리포트 올리기</b><span class="badge">가장 빠름</span></div>
+              <p>이미 발행받은 리포트 파일을 올리면 <b>계약이 한 번에</b> 등록됩니다 <span class="mark">1</span></p>
+            </div>
+            <div class="method">
+              <div class="mtop"><b>💬 「브라보라이프보험0808」 등록</b></div>
+              <p>대화에서 말한 상품 <span class="mark">2</span></p>
+            </div>
+            <div class="method">
+              <div class="mtop"><b>🕘 최근 등록한 상품에서 고르기</b><span class="badge soft">8개</span></div>
+              <p>다른 고객에게 등록했던 상품 — 인기 상품은 겹칩니다 <span class="mark">3</span></p>
+            </div>
+            <div class="method">
+              <div class="mtop"><b>🔍 보험사 · 상품명으로 찾기</b></div>
+              <p>직접 검색 — 확실하지만 느립니다</p>
+            </div>
+          </div>
+        </div>
+        <div class="composer"><span class="plus">＋</span> 파일을 끌어다 놓아도 됩니다 <span class="send">↑</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p><b>FA가 이미 가지고 있는 문서다.</b><small>보장분석 리포트에는 계약별 보험사 · 상품명 · 계약년월이 전부 들어 있다. 파일 하나로 보장맵의 뼈대가 채워진다. 보장분석 <b>연동</b> 전에도 <b>파일</b>은 쓸 수 있다는 점이 핵심이다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>이미 말한 상품은 다시 찾게 하지 않는다.<small>대화에서 「브라보라이프보험0808」을 말했다면 그것이 곧 등록 대상이다. 검색창으로 보내 같은 이름을 다시 치게 하는 것은 낭비다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>인기 상품은 고객마다 겹친다.<small>손보 실적 상위 10개 중 7개가 운전자보험이다. 한 FA의 고객들도 같은 상품을 나눠 가진다. 최근 등록 목록에서 고르면 탭 한 번으로 끝난다.</small></p></div>
+      <div class="note"><span class="mark">✓</span><p>쓸 수 없는 방법은 아예 뺀다.<small>최근 등록 이력이 없는 첫 FA에게 「최근 등록한 상품」을 보여줄 이유가 없다. 상황에 맞는 것만 남겨 화면을 단순하게 유지한다.</small></p></div>
+    </div>
+  </section>
+
+  <section class="flow">
+    <span class="flow-tag">FLOW D — 리포트로 한 번에</span>
+    <h3>읽어낸 계약을 확인시키고 넣는다</h3>
+    <p class="why">파일에서 읽은 것을 확인 없이 저장하면 잘못 읽힌 계약이 그대로 보장맵에 남는다. <b>바로 넣지 않고 먼저 보여준다</b> — <code>ImportPreview</code></p>
+    <div class="app">
+      <div class="side">
+        <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
+        <div class="newbtn">＋ 새로운 보험 상담</div>
+        <div><div class="navitem">💬 상담</div><div class="navitem on">📁 약관북 <span class="cnt">12</span></div></div>
+      </div>
+      <div class="main">
+        <div class="thread-area">
+          <div class="ctx">📄 <span class="pill">보장분석리포트_260521.pdf</span> 계약 6건을 읽었습니다<span class="chg">다시 올리기</span></div>
+          <div class="reg">
+            <div class="frow"><span class="fm"><span class="fn">☑ KB다이렉트플러스운전자보험</span><span class="fs">KB손보 · 2024.11 가입</span></span><span class="tag ok">약관 있음</span></div>
+            <div class="frow"><span class="fm"><span class="fn">☑ 브라보라이프보험0808</span><span class="fs">DB손보 · 2009.03 가입</span></span><span class="tag ok">약관 있음</span></div>
+            <div class="frow"><span class="fm"><span class="fn">☑ 무배당더블플러스건강보험(3종)</span><span class="fs">하나손보 · 2020.01 가입</span></span><span class="tag wait">약관 확보 필요 <span class="mark">2</span></span></div>
+            <div class="frow"><span class="fm"><span class="fn">☑ 무배당360암보험(갱신형)</span><span class="fs">메트라이프 · 2021.02 가입</span></span><span class="tag wait">약관 확보 필요</span></div>
+            <div class="frow" style="opacity:.55;"><span class="fm"><span class="fn">☐ 라이프플래닛e정기보험Ⅱ</span><span class="fs">교보라이프플래닛 · 2018.03 가입</span></span><span class="tag ok">약관 있음</span></div>
+            <div class="frow" style="opacity:.55;"><span class="fm"><span class="fn">☐ KB다이렉트주택화재보험</span><span class="fs">KB손보 · 2025.01 가입</span></span><span class="tag ok">약관 있음</span></div>
+          </div>
+          <div class="ok-card"><b>계약 4건 · 약관 확보 필요 2건 <span class="mark">3</span></b>
+            <p>체크한 계약만 등록됩니다. 약관이 없는 2건은 확보 요청으로 이어집니다.</p>
+            <div class="chips" style="margin-top:9px;"><span class="chip on">보장맵에 등록</span><span class="chip">취소</span></div>
+          </div>
+        </div>
+        <div class="composer"><span class="plus">＋</span> 등록 후 바로 물어볼 수 있어요 <span class="send">↑</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p>전부 체크된 채로 시작하되 <b>끌 수 있게</b> 한다.<small>대부분은 다 넣는 것이 맞으므로 기본은 전체 선택이다. 다만 해지했거나 이 상담과 무관한 계약을 뺄 수 있어야 한다. 자동으로 다 넣고 끝내지 않는다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p><b>계약을 안 것과 약관이 있는 것은 다르다.</b><small>리포트는 계약만 알려준다. 약관은 벤더에 등록돼 있어야 답할 수 있다. 이 구분을 목록에서 바로 보여주지 않으면 보장맵이 채워진 것처럼 보이는데 정작 답은 못 한다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>요약에 확보 필요 건수를 함께 쓴다.<small>「계약 4건」만 쓰면 4건 다 쓸 수 있는 줄 안다. 등록 직후 확보 요청 흐름(FLOW I)으로 자연스럽게 이어진다.</small></p></div>
+    </div>
+  </section>
+
+  <section class="flow">
+    <span class="flow-tag">FLOW E — 약관 등록 · 검색 경로</span>
     <h3>보험사 → 상품 → 등록, 여러 건 반복</h3>
     <p class="why">고객 한 명이 여러 상품에 가입해 있으므로 <b>한 번에 하나씩 여러 번</b> 등록한다. 등록할 때마다 보장맵이 채워진다.</p>
     <div class="app">
@@ -505,7 +640,7 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW C — 보장맵</span>
+    <span class="flow-tag">FLOW F — 보장맵</span>
     <h3>등록한 약관이 담보로 펼쳐진다</h3>
     <p class="why">약관은 <b>가입 가능한 담보</b>를 알려줄 뿐 가입 여부는 모른다. 그래서 처음엔 전부 「확인 필요」로 들어오고, FA가 증권으로 확인하거나 보장분석이 붙으면 확정된다 — <code>CoverageMap</code></p>
     <div class="app">
@@ -548,7 +683,7 @@
 
 
   <section class="flow">
-    <span class="flow-tag">FLOW D — 초개인화 (보장분석 연결됨)</span>
+    <span class="flow-tag">FLOW G — 초개인화 (보장분석 연결됨)</span>
     <h3>「얼마 받을 수 있어요」에 답한다</h3>
     <p class="why">가입금액 · 적용 판 · 지급사유 · 면책 네 가지가 모두 있을 때만 금액을 말한다. 면책을 먼저 판정하고, 확정 건만 합산한다 — <code>payout.judge()</code> → <code>PayoutSummary</code></p>
     <div class="app">
@@ -599,7 +734,7 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW E — 되묻기 (아무것도 없을 때)</span>
+    <span class="flow-tag">FLOW H — 되묻기 (아무것도 없을 때)</span>
     <h3>되묻기로 판을 특정한다</h3>
     <p class="why">연결 전이거나 보유 계약 밖 상품이면 이 경로다. 보험사 → 상품 → 가입 시점 순으로 좁힌다 — <code>ASK_INSURER → ASK_PRODUCT → ASK_CONTRACT_DATE</code></p>
     <div class="app">
@@ -641,7 +776,7 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW F — 미등록 약관</span>
+    <span class="flow-tag">FLOW I — 미등록 약관</span>
     <h3>없으면 없다고 하고, 확보를 제안한다</h3>
     <p class="why">약관이 등록돼 있지 않으면 추측하지 않는다. 상품 · 판을 확정한 뒤 확보 요청으로 넘긴다 — <code>CONFIRM_PAID_REQUEST → TERMS_NOT_REGISTERED</code></p>
     <div class="app">
@@ -688,6 +823,8 @@
     <div class="rule"><span class="no">R9</span><b>막힌 건도 보여준다</b><p>면책·미가입·확인 필요 건을 숨기면 FA가 다시 확인해야 한다. 사유와 함께 목록에 남긴다.</p></div>
     <div class="rule"><span class="no">R10</span><b>일반 답변도 완결이다</b><p>먼저 일반으로 답하고 개인화는 선택지로 둔다. 매번 약관 등록을 요구하면 도구가 무거워진다.</p></div>
     <div class="rule"><span class="no">R11</span><b>약관은 가입을 증명하지 않는다</b><p>약관으로 채운 담보는 「확인 필요」가 기본값이다. 증권 확인이나 보장분석으로만 확정된다.</p></div>
+    <div class="rule"><span class="no">R12</span><b>등록은 빠른 길부터 보여준다</b><p>검색만 있으면 계약 6건에 열다섯 단계다. 리포트 · 대화 · 최근 이력을 앞에 두고, 쓸 수 없는 방법은 뺀다.</p></div>
+    <div class="rule"><span class="no">R13</span><b>고객은 이름 하나로 만든다</b><p>필수값은 이름뿐이고 주민번호 · 연락처는 받지 않는다. 대신 동명이인은 등록 전에 보여준다.</p></div>
   </div>
 
   <h2>화면 ↔ 코드 매핑</h2>
@@ -702,6 +839,10 @@
         <tr><td><code>ASK_EXACT_DATE</code></td><td class="d">걸친 판 2~3개만 좁혀 제시</td><td class="d"><code>apply_choice()</code></td></tr>
         <tr><td><code>SEARCH</code></td><td class="d">답변 카드 (담보 목록 → 조항 → 출처 → 유의)</td><td class="d">—</td></tr>
         <tr><td><code>SHOW_ENROLLMENT</code></td><td class="d">가입금액 표 + 「지급액 아님」 고지</td><td class="d">—</td></tr>
+        <tr><td><code>CustomerDirectory.add()</code></td><td class="d">새 고객 만들기 — 이름(필수) + 구분 메모(선택)</td><td class="d"><code>duplicates()</code>로 동명이인 먼저 제시</td></tr>
+        <tr><td><code>suggest_methods()</code></td><td class="d">등록 방법 카드 — 빠른 순, 쓸 수 없는 방법은 제외</td><td class="d">방법별 화면으로 분기</td></tr>
+        <tr><td><code>ImportPreview</code></td><td class="d">리포트에서 읽은 계약 목록 (체크 + 약관 유무 배지)</td><td class="d"><code>selected</code> · <code>ready</code> · <code>needs_terms</code></td></tr>
+        <tr><td><code>recent_products()</code></td><td class="d">최근 등록 상품 목록 — 다른 고객에게 재사용</td><td class="d"><code>TermsLedger.link()</code></td></tr>
         <tr><td><code>offer_personalize</code></td><td class="d">답변 하단 분기 카드 — [약관 등록하고 확인] / [이 답변으로 충분해요]</td><td class="d">등록 플로우 진입</td></tr>
         <tr><td><code>CoverageMap</code></td><td class="d">보장맵 — 계약별 담보, 가입/미가입/확인 필요 3색</td><td class="d"><code>with_entry()</code> · <code>summarize_gap()</code></td></tr>
         <tr><td><code>PayoutSummary</code><br><span style="font-size:11px;color:#8B978F;">(SEARCH 답변 구성)</span></td><td class="d">판정 헤드라인 → 담보별 판정 → 면책 우선 조항 → 합계 유의</td><td class="d"><code>judge()</code> · <code>summarize()</code></td></tr>

@@ -64,6 +64,13 @@ class CustomerSummary:
     benefit_shortfall: int = 0
     """그중 부족 판정 항목 수."""
 
+    note: str = ""
+    """동명이인을 가르기 위한 최소 메모. 생년이나 관계 등 FA가 알아볼 수 있는 짧은 표기.
+
+    **주민번호 · 연락처 같은 식별정보를 여기 담지 않는다.**
+    이 서비스에 필요한 것은 「누구의 계약인지 FA가 구분할 수 있는가」까지다.
+    """
+
     analyzed_on: date | None = None
     """보장분석 조회일. 없으면 분석 이력이 없다는 뜻이다."""
 
@@ -158,6 +165,46 @@ class CustomerDirectory:
             None,
         )
 
+    def duplicates(self, advisor_id: str, name: str) -> list[CustomerSummary]:
+        """같은 이름의 담당 고객. **등록 전에 보여줘 중복 생성을 막는다.**
+
+        FA는 고객이 수십~수백 명이라 이미 만든 고객을 다시 만들기 쉽다.
+        중복이 생기면 약관북과 보장맵이 둘로 쪼개져 답변이 반쪽이 된다.
+        """
+        needle = name.strip()
+        if not needle:
+            return []
+        return [c for c in self.for_advisor(advisor_id) if c.name == needle]
+
+    def add(
+        self,
+        advisor_id: str,
+        name: str,
+        *,
+        note: str = "",
+        customer_id: str | None = None,
+    ) -> CustomerSummary:
+        """고객을 만든다. **이름 하나면 충분하다.**
+
+        상담을 시작하려면 「누구 기준인가」만 정해지면 되므로 필수값은 이름뿐이다.
+        생년 · 연락처 같은 정보는 요구하지 않는다 — 없어도 기능이 돌고,
+        받으면 보관 · 파기 책임만 늘어난다(`docs/privacy.md`).
+
+        동명이인은 `note`로 가른다. 중복 여부는 호출 전에 `duplicates()`로 확인한다.
+        """
+        cleaned = name.strip()
+        if not cleaned:
+            raise ValueError("고객 이름은 비워 둘 수 없습니다.")
+
+        customer = CustomerSummary(
+            customer_id=customer_id or _make_customer_id(advisor_id, cleaned, len(self.customers)),
+            name=cleaned,
+            advisor_id=advisor_id,
+            note=note.strip(),
+        )
+        self.customers.append(customer)
+        return customer
+
     def counts(self, advisor_id: str, *, today: date) -> dict[CustomerCategory, int]:
         """분류별 인원. 화면의 칩에 붙일 숫자다."""
         result = {category: 0 for category in CustomerCategory}
@@ -165,6 +212,11 @@ class CustomerDirectory:
             for category in customer.categories(today):
                 result[category] += 1
         return result
+
+
+def _make_customer_id(advisor_id: str, name: str, seq: int) -> str:
+    """고객 식별자. 이름을 그대로 키로 쓰지 않는다(동명이인 · 개명)."""
+    return f"{advisor_id}-{seq + 1:04d}"
 
 
 def _sort_key(category: CustomerCategory, today: date):

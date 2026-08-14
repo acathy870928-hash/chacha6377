@@ -65,6 +65,13 @@ from .pricing import (
     estimate_by_product,
     products_within_budget,
 )
+from .registration import (
+    ImportPreview,
+    ParsedContract,
+    RegistrationMethod,
+    RegistrationOption,
+    suggest_methods,
+)
 from .requests import (
     RegistrationCandidate,
     RequestLog,
@@ -127,6 +134,7 @@ __all__ = [
     "EnrolledBenefit",
     "EnrolledContract",
     "EditionStatus",
+    "ImportPreview",
     "InMemoryProductCatalog",
     "NextAction",
     "Option",
@@ -134,11 +142,14 @@ __all__ = [
     "MappedBenefit",
     "PayoutEstimate",
     "PayoutSummary",
+    "ParsedContract",
     "PolicyEdition",
     "Product",
     "ProductCatalog",
     "QuestionType",
     "RegistrationCandidate",
+    "RegistrationMethod",
+    "RegistrationOption",
     "RequestLog",
     "RequestStatus",
     "RoutingDecision",
@@ -170,5 +181,6 @@ __all__ = [
     "select_within_budget",
     "strip_pii",
     "summarize",
+    "suggest_methods",
     "summarize_gap",
 ]

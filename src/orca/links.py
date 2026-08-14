@@ -151,6 +151,27 @@ class TermsLedger:
             ln.customer_id == customer_id and ln.terms_key == terms_key for ln in self.links
         )
 
+    def recent_products(self, advisor_id: str, limit: int = 8) -> list[CustomerTermsLink]:
+        """이 FA가 최근 등록한 상품. **다른 고객에게 다시 쓰라고 내놓는다.**
+
+        인기 상품은 고객마다 겹치므로, 검색을 다시 하는 것보다 목록에서 고르는 편이 빠르다.
+        같은 상품은 한 번만 내보낸다(고객이 달라도 상품은 같다).
+        """
+        seen: set[tuple[str, str, int | None]] = set()
+        picked: list[CustomerTermsLink] = []
+        for link in sorted(
+            self.for_advisor(advisor_id),
+            key=lambda ln: ln.linked_on or date.min,
+            reverse=True,
+        ):
+            if link.terms_key in seen:
+                continue
+            seen.add(link.terms_key)
+            picked.append(link)
+            if len(picked) >= limit:
+                break
+        return picked
+
     def folders(self, advisor_id: str) -> list[TermsFolder]:
         """약관북 폴더 목록. **최근에 약관이 추가된 고객이 위로 온다.**
 
