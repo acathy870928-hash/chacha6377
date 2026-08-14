@@ -34,13 +34,14 @@
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+    font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo",
+      "Malgun Gothic", NanumBarunGothic, system-ui, sans-serif;
     line-height: 1.6; -webkit-font-smoothing: antialiased;
   }
   .wrap { max-width: 1180px; margin: 0 auto; padding: 56px 24px 96px; }
 
   .eyebrow {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: ui-monospace, SFMono-Regular, "NanumGothicCoding", Menlo, monospace;
     font-size: 12px; letter-spacing: 0.14em; color: var(--accent-deep);
     text-transform: uppercase; margin: 0 0 12px;
   }
@@ -50,7 +51,7 @@
   }
   .lede { max-width: 66ch; color: var(--muted); font-size: 16px; margin: 0; }
   .meta {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: ui-monospace, SFMono-Regular, "NanumGothicCoding", Menlo, monospace;
     font-size: 12px; color: var(--faint); margin-top: 20px;
   }
   .meta code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; }
@@ -284,7 +285,7 @@
 
   /* ── 주석 ─────────────────────────────── */
   .flow { padding: 34px 0 40px; border-top: 1px solid var(--line); }
-  .flow-tag { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; color: var(--accent-deep); }
+  .flow-tag { font-family: ui-monospace, SFMono-Regular, "NanumGothicCoding", Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; color: var(--accent-deep); }
   .flow h3 { font-size: 18px; font-weight: 750; margin: 6px 0 4px; letter-spacing: -0.01em; }
   .flow .why { color: var(--muted); font-size: 14px; margin: 0 0 22px; max-width: 70ch; }
   .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
@@ -299,15 +300,15 @@
 
   .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 13px; margin-top: 26px; }
   .rule { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 17px; }
-  .rule .no { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--accent-deep); letter-spacing: 0.1em; display: block; margin-bottom: 9px; }
+  .rule .no { font-family: ui-monospace, SFMono-Regular, "NanumGothicCoding", Menlo, monospace; font-size: 11px; color: var(--accent-deep); letter-spacing: 0.1em; display: block; margin-bottom: 9px; }
   .rule b { display: block; font-size: 14px; margin-bottom: 6px; letter-spacing: -0.01em; }
   .rule p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
 
   .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
   table { border-collapse: collapse; width: 100%; font-size: 13px; }
   th, td { text-align: left; padding: 11px 15px; border-top: 1px solid var(--line); vertical-align: top; }
-  thead th { border-top: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
-  td code, .why code, .note code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; background: var(--code-bg); border-radius: 5px; padding: 2px 6px; white-space: nowrap; }
+  thead th { border-top: none; font-family: ui-monospace, SFMono-Regular, "NanumGothicCoding", Menlo, monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+  td code, .why code, .note code { font-family: ui-monospace, SFMono-Regular, "NanumGothicCoding", Menlo, monospace; font-size: 11.5px; background: var(--code-bg); border-radius: 5px; padding: 2px 6px; white-space: nowrap; }
   td.d { color: var(--muted); }
 
   .v2banner {
@@ -315,13 +316,33 @@
     padding: 22px 26px; margin: 30px 0 6px;
   }
   .v2banner .v2tag {
-    display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    display: inline-block; font-family: ui-monospace, SFMono-Regular, "NanumGothicCoding", Menlo, monospace;
     font-size: 11px; letter-spacing: .14em; background: #14A05A; color: #FFF;
     border-radius: 999px; padding: 3px 12px; margin-bottom: 10px; font-weight: 700;
   }
   .v2banner b.head { display: block; font-size: 17px; letter-spacing: -0.01em; margin-bottom: 6px; }
   .v2banner p { margin: 0; font-size: 14px; color: var(--muted); max-width: 74ch; }
   .v2banner p b { color: var(--ink); }
+  .brief { border: 1px solid var(--line); border-radius: 14px; padding: 24px 26px; margin: 6px 0 34px; background: #FBFDFC; }
+  .brief h4 { margin: 0 0 4px; font-size: 15.5px; letter-spacing: -0.01em; }
+  .brief .lead { margin: 0 0 18px; font-size: 14px; color: var(--muted); }
+  .briefgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 14px; }
+  .bcard { border: 1px solid var(--line); border-radius: 11px; padding: 13px 15px; background: #FFF; }
+  .bcard .bt {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px;
+    letter-spacing: .12em; color: var(--accent-deep); margin-bottom: 5px;
+  }
+  .bcard b { display: block; font-size: 13.5px; margin-bottom: 4px; letter-spacing: -0.01em; }
+  .bcard p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.62; }
+  .bnote { margin: 16px 0 0; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 12.5px; color: var(--muted); }
+  .bnote b { color: var(--ink); }
+  .scopeline { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 0; }
+  .scopeline span {
+    font-size: 12px; border-radius: 999px; padding: 3px 11px;
+    border: 1px solid #CFE9DB; background: #F3FAF6; color: #0B7C44; font-weight: 600;
+  }
+  .scopeline span.out { border-color: var(--line); background: #F7F8F7; color: #8B978F; font-weight: 500; }
+
   .flag { border: 1px solid #EADFC4; background: var(--warn-soft); border-radius: 12px; padding: 16px 18px; margin-top: 26px; }
   .flag b { color: var(--warn); }
   .flag p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink); }
@@ -337,12 +358,22 @@
   }
 
   @media print {
-    @page { size: A4 landscape; margin: 10mm; }
+    @page { size: A4 portrait; margin: 11mm; }
     body { background: #FFF; }
     .wrap { max-width: none; padding: 0; }
-    .app, .note, .rule, .tablewrap, .v2banner, .flag { break-inside: avoid; }
-    .app { grid-template-columns: 250px 1fr !important; }
-    .side { min-height: 420px !important; }
+    .app, .note, .rule, .tablewrap, .v2banner, .flag, .bcard, .brief { break-inside: avoid; }
+    .app { grid-template-columns: 168px 1fr !important; font-size: 11px; }
+    .side { min-height: 340px !important; padding: 12px 10px; gap: 12px; }
+    .main { min-height: 340px; padding: 13px 15px 14px; }
+    body { font-size: 12.5px; }
+    h2 { font-size: 17px; }
+    .flow h3 { font-size: 15px; }
+    .flow .why, .h2-sub { font-size: 12px; }
+    .notes { grid-template-columns: 1fr 1fr; gap: 11px; }
+    .note { font-size: 11.5px; }
+    .note p small { font-size: 11px; }
+    .rules { grid-template-columns: 1fr 1fr; gap: 10px; }
+    table { font-size: 11px; }
     h2, h3, .flow-tag { break-after: avoid; }
     .flow { border-top: none; }
   }
@@ -350,9 +381,50 @@
 
 <div class="wrap">
   <p class="eyebrow">Insurance AI · BETA</p>
-  <h1>첫 화면에서 답까지,<br>한 화면 안에서 끝난다</h1>
+  <h1>10/1 오픈 — 상담 화면 설계<br><span style="font-weight:600;color:#4A5B52;">첫 화면에서 답까지, 한 화면 안에서</span></h1>
   <p class="lede">데스크톱 상담 화면 기준 설계입니다. 사용자는 <b>설계사(FA)</b>로 확정됐습니다. 진입 화면은 레이아웃을 그대로 두고 화법만 FA 기준으로 맞췄으며, 그 안에서 되묻기 · 약관 판 특정 · 미등록 확보 · 약관북 누적이 어떻게 도는지 이어서 그렸습니다. 상품명과 대화는 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처 기준이며, 고객명은 가상입니다.</p>
-  <p class="meta">근거 코드: <code>src/orca/clarify.py</code> · <code>routing.py</code> · <code>versioning.py</code> · <code>coverage.py</code> · <code>links.py</code> — 테스트 259건</p>
+  <p class="meta">근거 코드: <code>src/orca/scope.py</code> · <code>clarify.py</code> · <code>routing.py</code> · <code>versioning.py</code> · <code>payout.py</code> · <code>links.py</code> — 테스트 343건 통과</p>
+
+  <div class="brief">
+    <h4>10월 1일에 무엇이 열리는가</h4>
+    <p class="lead">7주 안에 만들 수 있는 범위로 잘랐습니다. <b>「약관을 넣어두면 답하겠지」가 안 되는 이유</b>를 먼저 풀고, 거기서 나온 최소 구성만 담았습니다.</p>
+
+    <div class="briefgrid">
+      <div class="bcard">
+        <div class="bt">문제</div>
+        <b>약관은 서로 90%가 닮았다</b>
+        <p>100권을 섞어놓고 「닮은 것 찾기」를 시키면 아무거나 집어옵니다. 게다가 검색은 「모르겠다」를 못 해서 <b>틀려도 티가 안 납니다.</b></p>
+      </div>
+      <div class="bcard">
+        <div class="bt">해법</div>
+        <b>찾기 전에 한 권으로 좁힌다</b>
+        <p>사람이 하던 순서 그대로입니다. 보험사 → 상품 → 가입 시점으로 <b>약관 1권을 먼저 확정</b>하고, 그 안에서만 찾습니다.</p>
+      </div>
+      <div class="bcard">
+        <div class="bt">안전장치</div>
+        <b>면책이 먼저, 근거는 조항으로</b>
+        <p>지급사유만 보면 「된다」로 읽힙니다. 면책을 먼저 판정하고, 답변에 <b>어느 약관 몇 조인지</b>를 항상 붙입니다.</p>
+      </div>
+      <div class="bcard">
+        <div class="bt">효용</div>
+        <b>선배에게 묻던 것을 대체</b>
+        <p>24시간 · 같은 기준 · 근거 제시. 쓸수록 고객별 약관이 <b>약관북</b>에 쌓여 다음 상담이 빨라집니다.</p>
+      </div>
+    </div>
+
+    <div class="scopeline">
+      <span>✓ 1차 · 약관 스코프 확정</span>
+      <span>✓ 보상 답변 · 면책 우선</span>
+      <span>✓ 약관북 · 보장맵</span>
+      <span>✓ 미등록 약관 확보 요청</span>
+      <span class="out">2차 · My Data 연동</span>
+      <span class="out">2차 · 보장분석 결합</span>
+      <span class="out">2차 · 금액 답변</span>
+    </div>
+
+    <p class="bnote"><b>1차에서 금액은 말하지 않습니다.</b> 「얼마 받나요」에 답하려면 가입 담보와 가입금액이 필요하고, 그건 My Data · 보장분석이 붙는 2차입니다.
+    <b>고객 등록도 필수가 아닙니다</b> — 한 건만 확인하고 끝낼 수 있어야 도구가 실제로 쓰입니다.</p>
+  </div>
 
   <h2>진입 화면 — 레이아웃 확정, 화법은 FA 기준으로</h2>
   <p class="h2-sub">사용자는 <b>설계사(FA)</b>로 확정됐습니다. 받은 디자인의 구조 · 여백 · 카드 배치는 그대로 두고 <b>문장만</b> 바꿉니다. 원안은 「나 · 내 보험」 1인칭이라 본인 계약을 보는 사람의 말투인데, 실제 사용자는 <b>고객 계약을 대신 확인하는 사람</b>입니다.</p>
@@ -467,7 +539,7 @@
   </div>
 
   <h2>제안 2 — 상담 화면에서 도는 흐름</h2>
-  <p class="h2-sub">진입 화면에서 질문을 던진 뒤가 본론입니다. <b>일반 답변(A) → 약관 스코프 확정(B) → 고객 만들기(C) → 약관 등록(D · E · F) → 보장맵(G)</b>이 FA가 개인화를 쌓아 가는 길이고, <b>H</b>는 보장분석이 붙어 그 과정이 자동이 된 상태입니다. <b>I · J</b>는 자료가 없을 때의 경로입니다. <b>B가 이 설계의 첫 관문입니다</b> — 약관은 서로 90%가 닮아 있어, 한 권으로 좁히지 않으면 나머지가 다 무너집니다.</p>
+  <p class="h2-sub">진입 화면에서 질문을 던진 뒤가 본론입니다. <b>일반 답변(A) → 약관 스코프 확정(B) → 고객 만들기(C) → 약관 등록(D · F) → 보장맵(G)</b>이 FA가 개인화를 쌓아 가는 길이고, <b>E · H</b>는 My Data · 보장분석이 붙어 그 과정이 자동이 되는 <b>2차</b> 모습입니다. <b>I · J</b>는 자료가 없을 때의 경로입니다. <b>B가 이 설계의 첫 관문입니다</b> — 약관은 서로 90%가 닮아 있어, 한 권으로 좁히지 않으면 나머지가 다 무너집니다.</p>
 
   <section class="flow">
     <span class="flow-tag">FLOW A — 일반 답변에서 갈라진다</span>
@@ -598,7 +670,7 @@
   <section class="flow">
     <span class="flow-tag">FLOW D — 약관 등록</span>
     <h3>빠른 길을 먼저 보여준다</h3>
-    <p class="why">보험사 → 검색 → 등록은 한 건에 세 단계다. 계약이 대여섯 건이면 <b>열다섯 단계</b>가 되고 FA는 한 번 해보고 다시 하지 않는다. 경로를 넷으로 늘리고 빠른 것부터 놓는다 — <code>suggest_methods()</code></p>
+    <p class="why">보험사 → 검색 → 등록은 한 건에 세 단계다. 계약이 대여섯 건이면 <b>열다섯 단계</b>가 되고 FA는 한 번 해보고 다시 하지 않는다. <b>My Data가 열리면 이 문제가 사라지지만 아직 닫혀 있다</b> — <code>suggest_methods()</code></p>
     <div class="app">
       <div class="side">
         <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
@@ -609,39 +681,35 @@
         <div class="thread-area">
           <div class="ctx">📁 <span class="pill">차승희 고객 · 약관 등록</span><span class="chg">닫기 ✕</span></div>
           <div class="methods">
+            <div class="method" style="opacity:.62;border-style:dashed;">
+              <div class="mtop"><b>🔗 My Data 가져오기</b><span class="badge soft">현 시점 오픈하지 않음</span></div>
+              <p>고객 계약이 <b>한 번에</b> 등록됩니다 — 개인인증 · 동의 범위 확인 후 열립니다 <span class="mark">1</span></p>
+            </div>
             <div class="method best">
-              <div class="mtop"><b>📄 보장분석 리포트 올리기</b><span class="badge">가장 빠름</span></div>
-              <p>이미 발행받은 리포트 파일을 올리면 <b>계약이 한 번에</b> 등록됩니다 <span class="mark">1</span></p>
-            </div>
-            <div class="method">
-              <div class="mtop"><b>💬 「브라보라이프보험0808」 등록</b></div>
-              <p>대화에서 말한 상품 <span class="mark">2</span></p>
-            </div>
-            <div class="method">
-              <div class="mtop"><b>🕘 최근 등록한 상품에서 고르기</b><span class="badge soft">8개</span></div>
-              <p>다른 고객에게 등록했던 상품 — 인기 상품은 겹칩니다 <span class="mark">3</span></p>
+              <div class="mtop"><b>💬 「브라보라이프보험0808」 등록</b><span class="badge">지금 가장 빠름</span></div>
+              <p>대화에서 말한 상품 — 다시 찾게 하지 않습니다 <span class="mark">2</span></p>
             </div>
             <div class="method">
               <div class="mtop"><b>🔍 보험사 · 상품명으로 찾기</b></div>
-              <p>직접 검색 — 확실하지만 느립니다</p>
+              <p>My Data가 열리기 전까지 기본 경로 <span class="mark">3</span></p>
             </div>
           </div>
         </div>
-        <div class="composer"><span class="plus">＋</span> 파일을 끌어다 놓아도 됩니다 <span class="send">↑</span></div>
+        <div class="composer"><span class="plus">＋</span> 등록할 상품을 말해도 됩니다 <span class="send">↑</span></div>
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="mark">1</span><p><b>FA가 이미 가지고 있는 문서다.</b><small>보장분석 리포트에는 계약별 보험사 · 상품명 · 계약년월이 전부 들어 있다. 파일 하나로 보장맵의 뼈대가 채워진다. 보장분석 <b>연동</b> 전에도 <b>파일</b>은 쓸 수 있다는 점이 핵심이다.</small></p></div>
-      <div class="note"><span class="mark">2</span><p>이미 말한 상품은 다시 찾게 하지 않는다.<small>대화에서 「브라보라이프보험0808」을 말했다면 그것이 곧 등록 대상이다. 검색창으로 보내 같은 이름을 다시 치게 하는 것은 낭비다.</small></p></div>
-      <div class="note"><span class="mark">3</span><p>인기 상품은 고객마다 겹친다.<small>손보 실적 상위 10개 중 7개가 운전자보험이다. 한 FA의 고객들도 같은 상품을 나눠 가진다. 최근 등록 목록에서 고르면 탭 한 번으로 끝난다.</small></p></div>
-      <div class="note"><span class="mark">✓</span><p>쓸 수 없는 방법은 아예 뺀다.<small>최근 등록 이력이 없는 첫 FA에게 「최근 등록한 상품」을 보여줄 이유가 없다. 상황에 맞는 것만 남겨 화면을 단순하게 유지한다.</small></p></div>
+      <div class="note"><span class="mark">1</span><p><b>안 열린 길도 보여준다. 다만 잠근다.</b><small>마이데이터는 고객이 전송요구권을 행사해 가입내역을 한 번에 모으는 제도라, 열리면 이 화면의 나머지가 거의 필요 없어진다. 숨기지 않는 이유는 <b>곧 열릴 경로가 있다는 사실 자체가 안내</b>이고, FA가 「왜 하나씩 넣어야 하나」를 납득하는 근거가 되기 때문이다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>이미 말한 상품은 다시 찾게 하지 않는다.<small>대화에서 「브라보라이프보험0808」을 말했다면 그것이 곧 등록 대상이다. 검색창으로 보내 같은 이름을 다시 치게 하는 것은 낭비다. <b>My Data가 열리기 전까지 실질적으로 가장 빠른 길</b>이다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p><b>「최근 등록한 상품」은 두지 않는다.</b><small>그 목록은 결국 <b>다른 고객에게 등록했던 상품</b>이라, 지금 상담 중인 고객과 무관한 계약을 화면에 끌어오는 셈이 된다. 상품명을 아는 상태라면 검색이 더 빠르고 오해도 없다.</small></p></div>
+      <div class="note"><span class="mark">✓</span><p>1차에는 대량 등록 경로가 없다.<small>My Data가 닫혀 있는 동안 보장맵은 <b>상담하면서 하나씩</b> 쌓인다. 그래서 등록 한 건의 단계 수를 줄이는 것이 더 중요해진다 — 대화에서 바로 등록하는 경로가 그 답이다.</small></p></div>
     </div>
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW E — 리포트로 한 번에</span>
-    <h3>읽어낸 계약을 확인시키고 넣는다</h3>
-    <p class="why">파일에서 읽은 것을 확인 없이 저장하면 잘못 읽힌 계약이 그대로 보장맵에 남는다. <b>바로 넣지 않고 먼저 보여준다</b> — <code>ImportPreview</code></p>
+    <span class="flow-tag">FLOW E — My Data로 한 번에 (2차)</span>
+    <h3>가져온 계약을 확인시키고 넣는다</h3>
+    <p class="why"><b>현 시점 오픈하지 않는 화면이다.</b> 열렸을 때의 규칙을 미리 정해 둔다 — 가져온 것을 확인 없이 저장하면 잘못 읽힌 계약이 그대로 보장맵에 남으므로, <b>바로 넣지 않고 먼저 보여준다</b> — <code>ImportPreview</code></p>
     <div class="app">
       <div class="side">
         <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
@@ -650,7 +718,7 @@
       </div>
       <div class="main">
         <div class="thread-area">
-          <div class="ctx">📄 <span class="pill">보장분석리포트_260521.pdf</span> 계약 6건을 읽었습니다<span class="chg">다시 올리기</span></div>
+          <div class="ctx">🔗 <span class="pill">My Data · 2026.05.21 조회</span> 계약 6건을 가져왔습니다<span class="chg">다시 조회</span></div>
           <div class="reg">
             <div class="frow"><span class="fm"><span class="fn">☑ KB다이렉트플러스운전자보험</span><span class="fs">KB손보 · 2024.11 가입</span></span><span class="tag ok">약관 있음</span></div>
             <div class="frow"><span class="fm"><span class="fn">☑ 브라보라이프보험0808</span><span class="fs">DB손보 · 2009.03 가입</span></span><span class="tag ok">약관 있음</span></div>
@@ -669,8 +737,8 @@
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="mark">1</span><p>전부 체크된 채로 시작하되 <b>끌 수 있게</b> 한다.<small>대부분은 다 넣는 것이 맞으므로 기본은 전체 선택이다. 다만 해지했거나 이 상담과 무관한 계약을 뺄 수 있어야 한다. 자동으로 다 넣고 끝내지 않는다.</small></p></div>
-      <div class="note"><span class="mark">2</span><p><b>계약을 안 것과 약관이 있는 것은 다르다.</b><small>리포트는 계약만 알려준다. 약관은 벤더에 등록돼 있어야 답할 수 있다. 이 구분을 목록에서 바로 보여주지 않으면 보장맵이 채워진 것처럼 보이는데 정작 답은 못 한다.</small></p></div>
+      <div class="note"><span class="mark">1</span><p>전부 체크된 채로 시작하되 <b>끌 수 있게</b> 한다.<small>대부분은 다 넣는 것이 맞으므로 기본은 전체 선택이다. 다만 해지했거나 이 상담과 무관한 계약을 뺄 수 있어야 한다. <b>자동으로 다 넣고 끝내지 않는다</b> — 개인 계약 정보라 더욱 그렇다.</small></p></div>
+      <div class="note"><span class="mark">2</span><p><b>계약을 안 것과 약관이 있는 것은 다르다.</b><small>My Data는 계약만 알려준다. 약관은 벤더에 등록돼 있어야 답할 수 있다. 이 구분을 목록에서 바로 보여주지 않으면 보장맵이 채워진 것처럼 보이는데 정작 답은 못 한다.</small></p></div>
       <div class="note"><span class="mark">3</span><p><b>등록된 계약 수와 답할 수 있는 수를 나눠 쓴다.</b><small>「계약 4건」만 쓰면 4건 다 물어볼 수 있는 줄 안다. <b>「지금 답할 수 있는 건 약관 2건」</b>처럼 <b>지금 가능한 범위</b>를 숫자로 못박아야, FA가 나머지 2건을 물었다가 「없다」는 답을 받고 도구를 불신하는 일이 없다. 등록 직후 확보 요청 흐름(FLOW J)으로 이어진다.</small></p></div>
     </div>
   </section>

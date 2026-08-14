@@ -4,18 +4,30 @@
 고객 한 명이 계약을 대여섯 건 가지고 있으므로 **그대로 두면 열다섯 단계**가 되고,
 FA는 한 번 해보고 다시 하지 않는다.
 
-그래서 등록 경로를 넷으로 늘리고, **빠른 것부터 보여준다.**
+그래서 등록 경로를 셋으로 두고, **빠른 것부터 보여준다.**
 
-    1. 보장분석 리포트 올리기   계약 전부가 한 번에    ← FA가 이미 가지고 있다
-    2. 최근 등록한 상품에서     탭 한 번               ← 인기 상품은 고객마다 겹친다
-    3. 대화 중 바로 등록        말한 김에              ← 이미 상품을 말했다
-    4. 보험사 → 상품 검색       확실하지만 느리다      ← 마지막 수단
+    1. My Data 가져오기      계약 전부가 한 번에    ← 현 시점 미오픈
+    2. 대화 중 바로 등록      말한 김에              ← 이미 상품을 말했다
+    3. 보험사 → 상품 검색     확실하지만 느리다      ← 기본 경로
 
-1번이 결정적이다. 보장분석 리포트는 **FA가 이미 발행받아 가지고 있는 문서**이고,
-거기에 계약별 보험사 · 상품명 · 계약년월이 전부 들어 있다.
-그 파일 하나로 보장맵의 뼈대가 채워진다.
+「최근 등록한 상품에서 고르기」는 두지 않는다. 그 목록은 결국 **다른 고객에게
+등록했던 상품**이라, 지금 이 고객과 무관한 계약을 화면에 끌어오는 셈이 된다.
+상품명을 아는 상태라면 검색이 더 빠르고 오해도 없다.
 
-주의: 리포트로 채워도 **약관이 등록된 것은 아니다.** 계약을 알게 됐을 뿐이며,
+1번이 원래 결정적인 경로다. 마이데이터는 고객이 전송요구권을 행사해 여러 기관의
+보험 가입내역을 한 번에 모으는 제도이므로, 계약별 보험사 · 상품명 · 계약년월이
+구조화된 형태로 들어온다. 그 한 번으로 보장맵의 뼈대가 채워진다.
+
+**다만 1차 오픈 범위가 아니다.** 개인인증 · 동의 범위 · 사업자 계약이 선행되어야
+하므로 화면에는 두되 **「현 시점 오픈하지 않음」으로 표시하고 고를 수 없게** 한다.
+숨기지 않는 이유는, 곧 열릴 경로가 있다는 사실 자체가 안내이고
+FA가 「왜 하나씩 넣어야 하나」를 납득하는 근거가 되기 때문이다.
+
+그 결과 **1차에는 대량 등록 경로가 없다.** 실질적으로 가장 빠른 길은 2번(대화에서
+말한 상품)이며, 보장맵은 상담하면서 하나씩 쌓인다. 이 점을 감안해 등록 한 건의
+단계 수를 최대한 줄여야 한다.
+
+주의: 계약을 가져와도 **약관이 등록된 것은 아니다.** 계약을 알게 됐을 뿐이며,
 약관 등록 여부는 별개로 확인해 미등록 건은 확보 요청으로 넘긴다.
 """
 
@@ -28,11 +40,8 @@ from enum import Enum
 class RegistrationMethod(Enum):
     """약관(계약)을 보장맵에 넣는 방법."""
 
-    REPORT_UPLOAD = "report_upload"
-    """보장분석 리포트 파일을 올린다. 계약 전부가 한 번에 들어온다."""
-
-    RECENT_REUSE = "recent_reuse"
-    """최근 등록한 상품에서 고른다. 인기 상품은 고객마다 겹친다."""
+    MYDATA_IMPORT = "mydata_import"
+    """My Data로 계약을 가져온다. 전부가 한 번에 들어온다. **1차 오픈 범위 밖.**"""
 
     FROM_CHAT = "from_chat"
     """대화에서 이미 말한 상품을 그대로 등록한다."""
@@ -43,10 +52,9 @@ class RegistrationMethod(Enum):
 
 #: 방법별 예상 소요. 화면에서 「빠른 순」으로 정렬하는 근거다.
 _SPEED_RANK = {
-    RegistrationMethod.REPORT_UPLOAD: 0,
+    RegistrationMethod.MYDATA_IMPORT: 0,
     RegistrationMethod.FROM_CHAT: 1,
-    RegistrationMethod.RECENT_REUSE: 2,
-    RegistrationMethod.SEARCH: 3,
+    RegistrationMethod.SEARCH: 2,
 }
 
 
@@ -60,6 +68,12 @@ class RegistrationOption:
     expected_entries: int | None = None
     """이 방법으로 한 번에 들어올 계약 수. 모르면 None."""
 
+    available: bool = True
+    """지금 쓸 수 있는가. False면 화면에 두되 고를 수 없게 한다."""
+
+    note: str = ""
+    """쓸 수 없는 이유. 「현 시점 오픈하지 않음」처럼 화면에 그대로 띄운다."""
+
     @property
     def is_bulk(self) -> bool:
         return (self.expected_entries or 0) > 1
@@ -67,20 +81,26 @@ class RegistrationOption:
 
 def suggest_methods(
     *,
-    has_report: bool = False,
-    recent_count: int = 0,
+    mydata_open: bool = False,
     mentioned_product: str | None = None,
 ) -> list[RegistrationOption]:
     """지금 상황에서 쓸 수 있는 등록 방법을 빠른 순으로.
 
-    쓸 수 없는 방법은 아예 빼서 화면을 단순하게 유지한다.
-    (최근 등록 이력이 없는 첫 FA에게 「최근 등록한 상품」을 보여줄 이유가 없다)
+    **상황에 없는 방법은 빼고, 아직 안 열린 방법은 두되 잠근다.** 둘은 다르다 —
+    최근 등록 이력이 없는 첫 FA에게 「최근 등록한 상품」을 보여줄 이유는 없지만,
+    My Data는 곧 열릴 경로이므로 보여주는 것 자체가 안내가 된다.
     """
     options: list[RegistrationOption] = [
         RegistrationOption(
-            method=RegistrationMethod.REPORT_UPLOAD,
-            label="보장분석 리포트 올리기",
-            hint="계약이 한 번에 등록됩니다",
+            method=RegistrationMethod.MYDATA_IMPORT,
+            label="My Data 가져오기",
+            hint=(
+                "계약이 한 번에 등록됩니다"
+                if mydata_open
+                else "현 시점 오픈하지 않음"
+            ),
+            available=mydata_open,
+            note="" if mydata_open else "개인인증 · 동의 범위 확인 후 열립니다",
         )
     ]
 
@@ -94,20 +114,11 @@ def suggest_methods(
             )
         )
 
-    if recent_count:
-        options.append(
-            RegistrationOption(
-                method=RegistrationMethod.RECENT_REUSE,
-                label="최근 등록한 상품에서 고르기",
-                hint=f"{recent_count}개",
-            )
-        )
-
     options.append(
         RegistrationOption(
             method=RegistrationMethod.SEARCH,
             label="보험사 · 상품명으로 찾기",
-            hint="직접 검색",
+            hint="My Data가 열리기 전까지 기본 경로",
             expected_entries=1,
         )
     )
@@ -118,7 +129,7 @@ def suggest_methods(
 
 @dataclass(frozen=True)
 class ParsedContract:
-    """리포트에서 읽어낸 계약 한 건. 보장맵에 넣기 전 확인 단계에서 쓴다."""
+    """가져온 계약 한 건. 보장맵에 넣기 전 확인 단계에서 쓴다."""
 
     insurer: str
     product_name: str
@@ -141,10 +152,12 @@ class ParsedContract:
 
 @dataclass(frozen=True)
 class ImportPreview:
-    """리포트를 읽은 결과. **바로 저장하지 않고 먼저 보여준다.**
+    """가져온 계약 목록. **바로 저장하지 않고 먼저 보여준다.**
 
-    파일에서 읽은 것을 확인 없이 넣으면 잘못 읽힌 계약이 그대로 보장맵에 남는다.
+    확인 없이 넣으면 잘못 읽힌 계약이 그대로 보장맵에 남는다.
     FA가 훑어보고 체크를 조정한 뒤 저장한다.
+
+    My Data가 열리기 전까지는 쓰이지 않지만, 화면과 규칙을 먼저 정해 둔다.
     """
 
     contracts: tuple[ParsedContract, ...] = ()

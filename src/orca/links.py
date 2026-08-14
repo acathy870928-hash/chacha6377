@@ -152,10 +152,12 @@ class TermsLedger:
         )
 
     def recent_products(self, advisor_id: str, limit: int = 8) -> list[CustomerTermsLink]:
-        """이 FA가 최근 등록한 상품. **다른 고객에게 다시 쓰라고 내놓는다.**
+        """이 FA가 최근 등록한 상품. **운영 지표용이며 등록 화면에 내놓지 않는다.**
 
-        인기 상품은 고객마다 겹치므로, 검색을 다시 하는 것보다 목록에서 고르는 편이 빠르다.
-        같은 상품은 한 번만 내보낸다(고객이 달라도 상품은 같다).
+        이 목록은 결국 다른 고객에게 등록했던 상품이라, 지금 상담 중인 고객과
+        무관한 계약을 화면에 끌어오게 된다. 그래서 등록 경로로는 쓰지 않고,
+        어떤 상품이 자주 등록되는지(= 초기 등록 목록 산정 근거)를 보는 데만 쓴다.
+        같은 상품은 한 번만 내보낸다.
         """
         seen: set[tuple[str, str, int | None]] = set()
         picked: list[CustomerTermsLink] = []

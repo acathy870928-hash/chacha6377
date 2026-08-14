@@ -65,36 +65,48 @@ class TestCustomerCreation:
 
 
 class TestMethodSuggestion:
-    def test_리포트_업로드가_가장_먼저다(self):
+    def test_MyData가_가장_먼저다(self):
         options = suggest_methods()
-        assert options[0].method is RegistrationMethod.REPORT_UPLOAD
+        assert options[0].method is RegistrationMethod.MYDATA_IMPORT
+
+    def test_MyData는_아직_열리지_않았다(self):
+        # 상황에 없는 방법은 빼지만, 곧 열릴 방법은 두되 잠근다.
+        mydata = suggest_methods()[0]
+        assert not mydata.available
+        assert mydata.hint == "현 시점 오픈하지 않음"
+        assert mydata.note
+
+    def test_열리면_고를_수_있게_된다(self):
+        mydata = suggest_methods(mydata_open=True)[0]
+        assert mydata.available
+        assert "한 번에" in mydata.hint
 
     def test_쓸_수_없는_방법은_빼놓는다(self):
         # 최근 등록 이력이 없는 FA에게 「최근 등록한 상품」을 보여줄 이유가 없다.
         methods = {o.method for o in suggest_methods()}
-        assert RegistrationMethod.RECENT_REUSE not in methods
         assert RegistrationMethod.FROM_CHAT not in methods
+        # My Data는 예외 — 빼지 않고 잠근다.
+        assert RegistrationMethod.MYDATA_IMPORT in methods
 
     def test_대화에서_말한_상품이_있으면_바로_등록을_제안한다(self):
         options = suggest_methods(mentioned_product="브라보라이프보험0808")
         chat = next(o for o in options if o.method is RegistrationMethod.FROM_CHAT)
         assert "브라보라이프보험0808" in chat.label
 
-    def test_최근_등록_이력이_있으면_재사용을_제안한다(self):
-        options = suggest_methods(recent_count=5)
-        reuse = next(o for o in options if o.method is RegistrationMethod.RECENT_REUSE)
-        assert "5개" in reuse.hint
+    def test_다른_고객에게_등록한_상품은_제안하지_않는다(self):
+        # 지금 이 고객과 무관한 계약을 화면에 끌어오는 셈이 된다.
+        labels = " ".join(o.label for o in suggest_methods(mentioned_product="가나보험"))
+        assert "최근" not in labels
 
     def test_검색은_항상_마지막에_남는다(self):
-        for kwargs in ({}, {"recent_count": 3}, {"mentioned_product": "가나보험"}):
+        for kwargs in ({}, {"mydata_open": True}, {"mentioned_product": "가나보험"}):
             assert suggest_methods(**kwargs)[-1].method is RegistrationMethod.SEARCH
 
     def test_빠른_순으로_정렬된다(self):
-        options = suggest_methods(recent_count=3, mentioned_product="가나보험")
+        options = suggest_methods(mentioned_product="가나보험")
         assert [o.method for o in options] == [
-            RegistrationMethod.REPORT_UPLOAD,
+            RegistrationMethod.MYDATA_IMPORT,
             RegistrationMethod.FROM_CHAT,
-            RegistrationMethod.RECENT_REUSE,
             RegistrationMethod.SEARCH,
         ]
 
@@ -103,7 +115,7 @@ class TestImportPreview:
     @pytest.fixture
     def preview(self):
         return ImportPreview(
-            source_label="보장분석리포트_260521.pdf",
+            source_label="My Data · 2026.05.21 조회",
             contracts=(
                 ParsedContract("KB손보", "KB다이렉트플러스운전자보험", 2024, 11,
                                terms_registered=True),
