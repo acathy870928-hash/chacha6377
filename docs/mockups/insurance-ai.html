@@ -252,6 +252,27 @@
   }
   .badge.soft { background: #EDF3EF; color: #63756A; }
 
+  .scopebar {
+    align-self: stretch; display: flex; align-items: center; gap: 8px;
+    border: 1px solid #14A05A; background: #F3FAF6; border-radius: 10px;
+    padding: 8px 12px; font-size: 12px; color: #1C2621;
+  }
+  .scopebar b { font-weight: 700; }
+  .scopebar .chg { margin-left: auto; color: #0B7C44; font-size: 11px; }
+
+  .ladder { align-self: stretch; display: flex; flex-direction: column; gap: 7px; }
+  .rung {
+    border: 1px solid #E3E9E5; border-radius: 10px; padding: 9px 12px;
+    display: flex; align-items: center; gap: 9px; font-size: 12.5px;
+  }
+  .rung.done { border-color: #CFE9DB; background: #F7FBF9; }
+  .rung.now { border-color: #14A05A; }
+  .rung.todo { opacity: .5; }
+  .rung .rlab { color: #77837C; font-size: 11.5px; width: 58px; flex: none; }
+  .rung .rval { font-weight: 650; }
+  .rung .rchips { margin-left: auto; display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+  .rung .rchips .chip { padding: 3px 9px; font-size: 11px; }
+
   .mapgrp { align-self: stretch; border: 1px solid #E3E9E5; border-radius: 12px; padding: 11px 14px; }
   .mapname { font-size: 12.5px; font-weight: 650; margin-bottom: 6px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 
@@ -441,7 +462,7 @@
   </div>
 
   <h2>제안 2 — 상담 화면에서 도는 흐름</h2>
-  <p class="h2-sub">진입 화면에서 질문을 던진 뒤가 본론입니다. <b>일반 답변(A) → 고객 만들기(B) → 약관 등록(C · D · E) → 보장맵(F)</b>이 FA가 개인화를 쌓아 가는 길이고, <b>G</b>는 보장분석이 붙어 그 과정이 자동이 된 상태입니다. <b>H · I</b>는 자료가 없을 때의 경로입니다. 등록 경로를 셋으로 나눈 이유는 <b>검색만 있으면 아무도 끝까지 하지 않기 때문</b>입니다.</p>
+  <p class="h2-sub">진입 화면에서 질문을 던진 뒤가 본론입니다. <b>일반 답변(A) → 약관 스코프 확정(B) → 고객 만들기(C) → 약관 등록(D · E · F) → 보장맵(G)</b>이 FA가 개인화를 쌓아 가는 길이고, <b>H</b>는 보장분석이 붙어 그 과정이 자동이 된 상태입니다. <b>I · J</b>는 자료가 없을 때의 경로입니다. <b>B가 이 설계의 첫 관문입니다</b> — 약관은 서로 90%가 닮아 있어, 한 권으로 좁히지 않으면 나머지가 다 무너집니다.</p>
 
   <section class="flow">
     <span class="flow-tag">FLOW A — 일반 답변에서 갈라진다</span>
@@ -490,7 +511,44 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW B — 고객 만들기</span>
+    <span class="flow-tag">FLOW B — 약관 스코프 확정</span>
+    <h3>찾기 전에 한 권으로 좁힌다</h3>
+    <p class="why">약관은 서로 <b>80~90%가 똑같은 책들</b>이다. 100권을 섞어놓고 「닮은 것」을 찾게 하면 아무거나 집어온다. 그래서 <b>질문을 받기 전에 약관 1권을 확정</b>한다 — <code>TermsScope</code> · <code>require_locked()</code></p>
+    <div class="app">
+      <div class="side">
+        <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
+        <div class="newbtn">＋ 새로운 보험 상담</div>
+        <div><div class="navitem on">💬 상담</div><div class="navitem">📁 약관북 <span class="cnt">12</span></div></div>
+      </div>
+      <div class="main">
+        <div class="thread-area">
+          <div class="ctx">📄 <span class="pill">어느 약관으로 볼까요</span> 클릭 2~3번이면 끝납니다<span class="chg">닫기 ✕</span></div>
+          <div class="ladder">
+            <div class="rung done"><span class="rlab">보험사</span><span class="rval">DB손해보험</span><span class="chg2">변경</span></div>
+            <div class="rung done"><span class="rlab">보종 <span class="mark">1</span></span><span class="rval">장기</span><span class="rchips"><span class="chip">자동차</span><span class="chip">일반</span><span class="chip">통합</span></span></div>
+            <div class="rung now"><span class="rlab">상품</span><span class="rval">무배당 프로미라이프 참좋은동행보험</span><span class="rchips"><span class="chip on">선택됨</span></span></div>
+            <div class="rung now"><span class="rlab">가입 시점 <span class="mark">2</span></span><span class="rchips"><span class="chip">2018.03</span><span class="chip on">2021.09</span><span class="chip">2023.01</span><span class="chip dim">직접 입력</span></span></div>
+          </div>
+          <div class="sidesearch" style="margin-top:2px;">🔍 참좋은동행 <span style="color:#98A29B;">— 약어로도 찾습니다 <span class="mark">3</span></span></div>
+          <div class="scopebar">📄 <span><b>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행판</b></span><span class="chg">약관 변경</span></div>
+          <div class="ok-card"><b>이 약관 1권 안에서만 찾습니다 <span class="mark">4</span></b>
+            <p>다른 상품 · 다른 판의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>
+          </div>
+        </div>
+        <div class="composer"><span class="plus">＋</span> 이제 물어보세요 — 「계단에서 굴러 골절됐는데 보장돼요?」 <span class="send">↑</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="note"><span class="mark">1</span><p><b>보종 한 단계가 목록을 크게 줄인다.</b><small>상품이 수백 개인 보험사에서 장기 · 자동차 · 일반 · 통합 · 퇴직연금으로 한 번 가르면 고를 것이 확 준다. FA는 자기 계약의 보종을 이미 알고 있어 <b>묻는 비용이 거의 없다</b>.</small></p></div>
+      <div class="note"><span class="mark">2</span><p>판까지 정해져야 잠긴다.<small>상품까지만으로는 검색을 걸지 않는다. 보상은 <b>계약 시점의 판</b>이 적용되므로 판이 다르면 답이 달라진다. 판이 6개를 넘으면 칩 대신 연 · 월 입력만 받는다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>검색은 보조이지 대체가 아니다.<small>「참좋은동행」처럼 약어로 찾을 수 있게 하되 <b>선택은 목록에서</b> 한다. 자유 입력만 받으면 표기가 흔들려 같은 약관 요청이 여러 건으로 흩어진다.</small></p></div>
+      <div class="note"><span class="mark">4</span><p><b>되묻는 게 아니라 미리 고르는 것이다.</b><small>질문이 들어오는 순간 이미 1권으로 좁혀져 있으면 「찾기」 문제 자체가 사라진다. 2차에서 계약이 연동되면 이 화면은 <b>클릭 0회</b>가 된다.</small></p></div>
+      <div class="note"><span class="mark">✓</span><p>공통 조항 질문은 이 화면을 띄우지 않는다.<small>「골절진단비가 뭔가요」는 모든 상품 공통이라 그냥 답한다. 상품마다 다른 조항일 때만 선택을 요구한다 — 매번 강요하면 도구가 무거워진다.</small></p></div>
+    </div>
+  </section>
+
+  <section class="flow">
+    <span class="flow-tag">FLOW C — 고객 만들기</span>
     <h3>이름 하나면 시작된다</h3>
     <p class="why">상담을 시작하려면 「누구 기준인가」만 정해지면 된다. 생년 · 연락처는 <b>요구하지 않는다</b> — 없어도 기능이 돌고, 받으면 보관 · 파기 책임만 늘어난다 — <code>CustomerDirectory.add()</code></p>
     <div class="app">
@@ -525,7 +583,7 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW C — 약관 등록</span>
+    <span class="flow-tag">FLOW D — 약관 등록</span>
     <h3>빠른 길을 먼저 보여준다</h3>
     <p class="why">보험사 → 검색 → 등록은 한 건에 세 단계다. 계약이 대여섯 건이면 <b>열다섯 단계</b>가 되고 FA는 한 번 해보고 다시 하지 않는다. 경로를 넷으로 늘리고 빠른 것부터 놓는다 — <code>suggest_methods()</code></p>
     <div class="app">
@@ -568,7 +626,7 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW D — 리포트로 한 번에</span>
+    <span class="flow-tag">FLOW E — 리포트로 한 번에</span>
     <h3>읽어낸 계약을 확인시키고 넣는다</h3>
     <p class="why">파일에서 읽은 것을 확인 없이 저장하면 잘못 읽힌 계약이 그대로 보장맵에 남는다. <b>바로 넣지 않고 먼저 보여준다</b> — <code>ImportPreview</code></p>
     <div class="app">
@@ -599,12 +657,12 @@
     <div class="notes">
       <div class="note"><span class="mark">1</span><p>전부 체크된 채로 시작하되 <b>끌 수 있게</b> 한다.<small>대부분은 다 넣는 것이 맞으므로 기본은 전체 선택이다. 다만 해지했거나 이 상담과 무관한 계약을 뺄 수 있어야 한다. 자동으로 다 넣고 끝내지 않는다.</small></p></div>
       <div class="note"><span class="mark">2</span><p><b>계약을 안 것과 약관이 있는 것은 다르다.</b><small>리포트는 계약만 알려준다. 약관은 벤더에 등록돼 있어야 답할 수 있다. 이 구분을 목록에서 바로 보여주지 않으면 보장맵이 채워진 것처럼 보이는데 정작 답은 못 한다.</small></p></div>
-      <div class="note"><span class="mark">3</span><p>요약에 확보 필요 건수를 함께 쓴다.<small>「계약 4건」만 쓰면 4건 다 쓸 수 있는 줄 안다. 등록 직후 확보 요청 흐름(FLOW I)으로 자연스럽게 이어진다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>요약에 확보 필요 건수를 함께 쓴다.<small>「계약 4건」만 쓰면 4건 다 쓸 수 있는 줄 안다. 등록 직후 확보 요청 흐름(FLOW J)으로 자연스럽게 이어진다.</small></p></div>
     </div>
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW E — 약관 등록 · 검색 경로</span>
+    <span class="flow-tag">FLOW F — 약관 등록 · 검색 경로</span>
     <h3>보험사 → 상품 → 등록, 여러 건 반복</h3>
     <p class="why">고객 한 명이 여러 상품에 가입해 있으므로 <b>한 번에 하나씩 여러 번</b> 등록한다. 등록할 때마다 보장맵이 채워진다.</p>
     <div class="app">
@@ -640,7 +698,7 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW F — 보장맵</span>
+    <span class="flow-tag">FLOW G — 보장맵</span>
     <h3>등록한 약관이 담보로 펼쳐진다</h3>
     <p class="why">약관은 <b>가입 가능한 담보</b>를 알려줄 뿐 가입 여부는 모른다. 그래서 처음엔 전부 「확인 필요」로 들어오고, FA가 증권으로 확인하거나 보장분석이 붙으면 확정된다 — <code>CoverageMap</code></p>
     <div class="app">
@@ -683,7 +741,7 @@
 
 
   <section class="flow">
-    <span class="flow-tag">FLOW G — 초개인화 (보장분석 연결됨)</span>
+    <span class="flow-tag">FLOW H — 초개인화 (보장분석 연결됨)</span>
     <h3>「얼마 받을 수 있어요」에 답한다</h3>
     <p class="why">가입금액 · 적용 판 · 지급사유 · 면책 네 가지가 모두 있을 때만 금액을 말한다. 면책을 먼저 판정하고, 확정 건만 합산한다 — <code>payout.judge()</code> → <code>PayoutSummary</code></p>
     <div class="app">
@@ -701,6 +759,7 @@
       <div class="main">
         <div class="thread-area">
           <div class="ctx">고객 <span class="pill">차○희</span> · 보장분석 2026.05.21 기준 <span class="chg">변경 ✕</span></div>
+          <div class="scopebar">📄 <span><b>DB손해보험 · 브라보라이프보험0808 · 2009.03 시행판</b></span><span class="chg">약관 변경</span></div>
           <div class="u">계단에서 넘어져 발목 골절인데 얼마 받을 수 있어요?</div>
           <div class="ans">
             <div class="verdict"><span class="vtag ok">지급 대상</span><b>확정 40만원</b> <span class="mark">1</span></div>
@@ -734,7 +793,7 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW H — 되묻기 (아무것도 없을 때)</span>
+    <span class="flow-tag">FLOW I — 되묻기 (아무것도 없을 때)</span>
     <h3>되묻기로 판을 특정한다</h3>
     <p class="why">연결 전이거나 보유 계약 밖 상품이면 이 경로다. 보험사 → 상품 → 가입 시점 순으로 좁힌다 — <code>ASK_INSURER → ASK_PRODUCT → ASK_CONTRACT_DATE</code></p>
     <div class="app">
@@ -776,7 +835,7 @@
   </section>
 
   <section class="flow">
-    <span class="flow-tag">FLOW I — 미등록 약관</span>
+    <span class="flow-tag">FLOW J — 미등록 약관</span>
     <h3>없으면 없다고 하고, 확보를 제안한다</h3>
     <p class="why">약관이 등록돼 있지 않으면 추측하지 않는다. 상품 · 판을 확정한 뒤 확보 요청으로 넘긴다 — <code>CONFIRM_PAID_REQUEST → TERMS_NOT_REGISTERED</code></p>
     <div class="app">
@@ -825,6 +884,9 @@
     <div class="rule"><span class="no">R11</span><b>약관은 가입을 증명하지 않는다</b><p>약관으로 채운 담보는 「확인 필요」가 기본값이다. 증권 확인이나 보장분석으로만 확정된다.</p></div>
     <div class="rule"><span class="no">R12</span><b>등록은 빠른 길부터 보여준다</b><p>검색만 있으면 계약 6건에 열다섯 단계다. 리포트 · 대화 · 최근 이력을 앞에 두고, 쓸 수 없는 방법은 뺀다.</p></div>
     <div class="rule"><span class="no">R13</span><b>고객은 이름 하나로 만든다</b><p>필수값은 이름뿐이고 주민번호 · 연락처는 받지 않는다. 대신 동명이인은 등록 전에 보여준다.</p></div>
+    <div class="rule"><span class="no">R14</span><b>확정 전에는 찾지 않는다</b><p>약관 1권으로 좁혀지기 전에는 검색을 걸지 않는다. 100권을 섞어놓고 닮은 것을 찾으면 아무거나 집어온다.</p></div>
+    <div class="rule"><span class="no">R15</span><b>어느 약관으로 답했는지 항상 보인다</b><p>답변 화면에 보험사 · 상품 · 판을 고정 표시한다. 보이지 않으면 FA가 고객에게 옮길 수 없고, 틀려도 알아챌 수 없다.</p></div>
+    <div class="rule"><span class="no">R16</span><b>스코프 밖은 점수가 높아도 버린다</b><p>남는 게 없으면 순위를 낮춰 채우지 않고 「해당 조항 없음」으로 끝낸다. 검색은 언제나 1등을 내놓는다.</p></div>
   </div>
 
   <h2>화면 ↔ 코드 매핑</h2>
