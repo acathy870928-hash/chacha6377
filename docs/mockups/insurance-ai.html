@@ -298,6 +298,19 @@
     display: inline-flex; align-items: center; justify-content: center; margin-top: 2px;
   }
 
+  .rulelist { margin-top: 22px; border-top: 1px solid var(--line); }
+  .ruleline {
+    display: grid; grid-template-columns: 44px 250px 1fr; gap: 14px; align-items: baseline;
+    padding: 10px 4px; border-bottom: 1px solid #F0F3F1; font-size: 13px;
+  }
+  .ruleline .rn {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+    font-weight: 700; color: var(--accent-deep);
+  }
+  .ruleline .rt { font-weight: 700; color: var(--ink); }
+  .ruleline .rd { color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+  @media (max-width: 720px) { .ruleline { grid-template-columns: 40px 1fr; } .ruleline .rd { grid-column: 2; } }
+
   .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 13px; margin-top: 26px; }
   .rule { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 17px; }
   .rule .no { font-family: ui-monospace, SFMono-Regular, "NanumGothicCoding", Menlo, monospace; font-size: 11px; color: var(--accent-deep); letter-spacing: 0.1em; display: block; margin-bottom: 9px; }
@@ -372,7 +385,20 @@
     .notes { grid-template-columns: 1fr 1fr; gap: 11px; }
     .note { font-size: 11.5px; }
     .note p small { font-size: 11px; }
-    .rules { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .rulelist { margin-top: 22px; border-top: 1px solid var(--line); }
+  .ruleline {
+    display: grid; grid-template-columns: 44px 250px 1fr; gap: 14px; align-items: baseline;
+    padding: 10px 4px; border-bottom: 1px solid #F0F3F1; font-size: 13px;
+  }
+  .ruleline .rn {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+    font-weight: 700; color: var(--accent-deep);
+  }
+  .ruleline .rt { font-weight: 700; color: var(--ink); }
+  .ruleline .rd { color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+  @media (max-width: 720px) { .ruleline { grid-template-columns: 40px 1fr; } .ruleline .rd { grid-column: 2; } }
+
+  .rules { grid-template-columns: 1fr 1fr; gap: 10px; }
     table { font-size: 11px; }
     h2, h3, .flow-tag { break-after: avoid; }
     .flow { border-top: none; }
@@ -382,7 +408,7 @@
 <div class="wrap">
   <p class="eyebrow">Insurance AI · BETA</p>
   <h1>10/1 오픈 — 상담 화면 설계<br><span style="font-weight:600;color:#4A5B52;">첫 화면에서 답까지, 한 화면 안에서</span></h1>
-  <p class="lede">데스크톱 상담 화면 기준 설계입니다. 사용자는 <b>설계사(FA)</b>로 확정됐습니다. 진입 화면은 레이아웃을 그대로 두고 화법만 FA 기준으로 맞췄으며, 그 안에서 되묻기 · 약관 판 특정 · 미등록 확보 · 약관북 누적이 어떻게 도는지 이어서 그렸습니다. 상품명과 대화는 시드 데이터(손보 91 + 생보 29)와 테스트 픽스처 기준이며, 고객명은 가상입니다.</p>
+  <p class="lede">데스크톱 상담 화면 기준 설계입니다. 사용자는 <b>설계사(FA)</b>로 확정됐습니다. 진입 화면은 레이아웃을 그대로 두고 화법만 FA 기준으로 맞췄으며, 그 안에서 되묻기 · 약관 시점 특정 · 미등록 확보 · 약관북 누적이 어떻게 도는지 이어서 그렸습니다. 상품명과 대화는 예시이며 고객명은 가상입니다. <b>첫 시작은 현재 판매 중인 약관 200개로 시작합니다.</b></p>
   <p class="meta">근거 코드: <code>src/orca/scope.py</code> · <code>clarify.py</code> · <code>routing.py</code> · <code>versioning.py</code> · <code>payout.py</code> · <code>links.py</code> — 테스트 343건 통과</p>
 
   <div class="brief">
@@ -439,7 +465,7 @@
       <div>
         <div class="sidehead"><span>최근 상담</span><span>🗂</span></div>
         <div class="sidesearch">고객명 · 상담 제목 검색</div>
-        <div class="thread on"><b>차승희 고객 · 골절 진단금</b><span>내맘같은어린이보험 2019.04 판</span></div>
+        <div class="thread on"><b>차승희 고객 · 골절 진단금</b><span>내맘같은어린이보험 2019.04 약관</span></div>
       </div>
       <div class="sidefoot">
         <div class="linkbox">
@@ -521,7 +547,7 @@
       <div class="thread-area">
         <div class="ctx">📁 <span class="pill">차승희 · 약관 4건</span> <b>확보된 4건 안에서만</b> 답합니다<span class="chg">고객 변경 ✕</span></div>
         <div class="folder">
-          <div class="frow"><span class="fm"><span class="fn">내맘같은어린이보험</span><span class="fs">○○화재 · 2019.04 시행판</span></span><span class="tag ok">상담 중 저장</span></div>
+          <div class="frow"><span class="fm"><span class="fn">내맘같은어린이보험</span><span class="fs">○○화재 · 2019.04 시행 약관</span></span><span class="tag ok">상담 중 저장</span></div>
           <div class="frow"><span class="fm"><span class="fn">KB다이렉트플러스운전자보험</span><span class="fs">KB손보 · 2024.11 가입</span></span><span class="tag ok">보장분석</span></div>
           <div class="frow"><span class="fm"><span class="fn">브라보라이프보험0808</span><span class="fs">DB손보 · 2009.03 가입</span></span><span class="tag wait">확보 요청 중</span></div>
           <div class="frow"><span class="fm"><span class="fn">무배당더블플러스건강보험</span><span class="fs">하나손보 · 2020.01 가입</span></span><span class="tag ok">보장분석</span></div>
@@ -535,7 +561,7 @@
     <div class="note"><span class="mark">📁</span><p><b>폴더를 열면 질문 범위가 그 고객으로 잠긴다.</b><small>차승희 폴더에서 물으면 차승희의 약관 4건 안에서만 찾는다 — 다른 고객 계약이나 미등록 약관의 조항은 점수가 높아도 쓰지 않는다. 담보가 여러 계약에 걸치면 걸리는 계약을 <b>모두</b> 보여줘 청구 누락을 잡는다. 판이 미확정인 계약은 검색에서 빼되 「미확정 N건 제외」로 밝힌다.</small></p></div>
     <div class="note"><span class="mark">1</span><p>약관북은 상담과 나란한 최상위 메뉴다.<small>「최근 상담」은 대화 이력이고, 약관북은 <b>고객별로 정리된 약관</b>이다. 성격이 달라 같은 목록에 섞으면 안 된다. 폴더를 열고 그 안에서 물으면 되묻기가 사라진다.</small></p></div>
     <div class="note"><span class="mark">2</span><p>보장분석 연결 상태가 답변 품질을 가른다.<small>연결되면 상품 · 계약년월 · 가입담보가 들어와 되묻기 0회로 간다. 연결 안 되면 되묻기 경로로 빠진다. VFA · Medicode와 같은 자리에 상태를 노출해 <b>연결 유인</b>을 만든다. <b>(v2에서 전개 예정)</b></small></p></div>
-    <div class="note"><span class="mark">3</span><p>상담 제목에 상품 · 판을 남긴다.<small>「차승희 · 골절 진단금 / 내맘같은어린이보험 2019.04 판」처럼 어떤 기준으로 답했는지가 이력에 남아야 나중에 되짚을 수 있다.</small></p></div>
+    <div class="note"><span class="mark">3</span><p>상담 제목에 상품 · 판을 남긴다.<small>「차승희 · 골절 진단금 / 내맘같은어린이보험 2019.04 약관」처럼 어떤 기준으로 답했는지가 이력에 남아야 나중에 되짚을 수 있다.</small></p></div>
   </div>
 
   <h2>제안 2 — 상담 화면에서 도는 흐름</h2>
@@ -566,7 +592,7 @@
               <div class="brow"><span>깁스치료비 · 부위별 특약</span><span class="fs" style="color:#77837C;">상품마다 다름</span></div>
             </div>
             <div class="src">출처 · Micky DATA — 보험 일반지식</div>
-            <p class="cav">담보 구성 · 지급 조건 · 면책은 상품과 약관 판마다 다릅니다.</p>
+            <p class="cav">담보 구성 · 지급 조건 · 면책은 상품과 약관마다 다릅니다.</p>
           </div>
           <div class="branch">
             <b>가입한 상품 기준으로 확인할까요? <span class="mark">1</span></b>
@@ -605,16 +631,16 @@
             <div class="rung now" style="flex-direction:column;align-items:stretch;gap:7px;">
               <div style="display:flex;align-items:center;gap:9px;"><span class="rlab">상품 <span class="mark">2</span></span><span class="rval">검색해서 고릅니다</span></div>
               <div class="sidesearch" style="margin:0;">🔍 참좋은동행</div>
-              <div class="frow" style="padding:8px 4px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험</span><span class="fs">장기 · 판 3개</span></span><span class="chip on" style="padding:4px 11px;">선택됨</span></div>
-              <div class="frow" style="padding:8px 4px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험Ⅱ</span><span class="fs">장기 · 판 5개</span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
-              <div class="frow" style="padding:8px 4px;border-bottom:none;"><span class="fm"><span class="fn">참좋은운전자상해보험</span><span class="fs">장기 · 판 2개 <span class="mark">3</span></span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
+              <div class="frow" style="padding:8px 4px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험</span><span class="fs">장기 · 약관 3건</span></span><span class="chip on" style="padding:4px 11px;">선택됨</span></div>
+              <div class="frow" style="padding:8px 4px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험Ⅱ</span><span class="fs">장기 · 약관 5건</span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
+              <div class="frow" style="padding:8px 4px;border-bottom:none;"><span class="fm"><span class="fn">참좋은운전자상해보험</span><span class="fs">장기 · 약관 2건 <span class="mark">3</span></span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
             </div>
             <div class="rung now"><span class="rlab">가입 시점</span><span class="rchips"><span class="chip">2018.03</span><span class="chip on">2021.09</span><span class="chip">2023.01</span><span class="chip dim">직접 입력</span></span></div>
             <p class="cav" style="margin:2px 0 0;">실손의료보험이면 판 대신 <b>세대</b>를 고릅니다 — 1세대 / 2세대 / 3세대(착한실손) / 4세대 <span class="mark">6</span></p>
           </div>
-          <div class="scopebar">📄 <span><b>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행판</b></span><span class="chg">약관 변경</span></div>
+          <div class="scopebar">📄 <span><b>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행 약관</b></span><span class="chg">약관 변경</span></div>
           <div class="ok-card"><b>이 약관 1권 안에서만 찾습니다 <span class="mark">4</span></b>
-            <p>다른 상품 · 다른 판의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>
+            <p>다른 상품 · 다른 시점 약관의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>
             <div class="chips" style="margin-top:10px;"><span class="chip on">약관 선택 완료 <span style="font-weight:400;opacity:.8;">— 바로 질문</span></span><span class="chip">고객 등록 후 이 약관 등록하기 <span class="mark">5</span></span></div>
           </div>
         </div>
@@ -625,9 +651,9 @@
       <div class="note"><span class="mark">1</span><p><b>보험사는 치거나 눌러서 고른다.</b><small>이름을 알면 그대로 치고, 모르면 눌러 목록에서 고른다. 어느 쪽이든 <b>목록에 있는 값으로만 확정</b>된다 — 자유 입력만 받으면 「디비손보」 · 「DB손해」로 표기가 흔들려 같은 약관이 갈라진다.</small></p></div>
       <div class="note"><span class="mark">2</span><p><b>보종은 묻지 않는다. 상품 검색으로 바로 간다.</b><small>보종을 한 단계 더 두면 FA가 「내 계약이 장기인가 통합인가」를 멈춰서 생각하게 된다. 상품명은 이미 알고 있으므로 <b>치면 매칭되는 편이 빠르다.</b> 보종은 검색 결과에 꼬리표로만 붙인다.</small></p></div>
       <div class="note"><span class="mark">3</span><p>이름이 겹치는 상품을 함께 보여준다.<small>「참좋은동행」과 「참좋은동행Ⅱ」, 「참좋은운전자상해」는 다른 약관이다. 한 건만 자동 선택하지 않고 <b>후보를 나란히 놓아 FA가 고르게</b> 한다. 판 개수를 함께 보여줘 다음 단계를 예고한다.</small></p></div>
-      <div class="note"><span class="mark">4</span><p>판까지 정해져야 잠긴다.<small>상품까지만으로는 검색을 걸지 않는다. 보상은 <b>계약 시점의 판</b>이 적용되므로 판이 다르면 답이 달라진다. 판이 6개를 넘으면 칩 대신 연 · 월 입력만 받는다.</small></p></div>
+      <div class="note"><span class="mark">4</span><p>약관 시점까지 정해져야 잠긴다.<small>상품까지만으로는 검색을 걸지 않는다. 보상은 <b>계약 시점의 판</b>이 적용되므로 판이 다르면 답이 달라진다. 시행 약관이 6건을 넘으면 칩 대신 연 · 월 입력만 받는다.</small></p></div>
       <div class="note"><span class="mark">5</span><p><b>고객을 만들지 않아도 여기서 끝난다.</b><small>「약관 선택 완료」가 <b>기본값</b>이다 — 그대로 질문으로 가고 고객 등록이 없다. 「고객 등록 후 이 약관 등록하기」는 <b>이어서 상담할 고객일 때만</b> 고른다. 순서를 바꾸면 한 건만 물어보려던 FA가 등록 화면에서 이탈한다.</small></p></div>
-      <div class="note"><span class="mark">6</span><p><b>실손은 판이 아니라 세대로 고른다.</b><small>실손은 판이 150개를 넘지만 보상 판정의 갈래는 <b>1~4세대 표준약관</b>이 정한다. 판을 늘어놓는 대신 세대 넷을 칩으로 주면 끝난다. 등록도 세대 대표 판만 사면 되므로 <b>파일 수 대비 효율이 가장 좋다.</b> 다만 갱신 · 전환으로 세대가 바뀌므로 「가입 시점」이 아니라 「지금 적용 중인 세대」를 물어야 한다.</small></p></div>
+      <div class="note"><span class="mark">6</span><p><b>실손은 판이 아니라 세대로 고른다.</b><small>실손은 판이 150개를 넘지만 보상 판정의 갈래는 <b>1~4세대 표준약관</b>이 정한다. 약관을 늘어놓는 대신 세대 넷을 칩으로 주면 끝난다. 등록도 세대 대표 약관만 사면 되므로 <b>파일 수 대비 효율이 가장 좋다.</b> 다만 갱신 · 전환으로 세대가 바뀌므로 「가입 시점」이 아니라 「지금 적용 중인 세대」를 물어야 한다.</small></p></div>
       <div class="note"><span class="mark">✓</span><p>공통 조항 질문은 이 화면을 띄우지 않는다.<small>「골절진단비가 뭔가요」는 모든 상품 공통이라 그냥 답한다. 상품마다 다른 조항일 때만 선택을 요구한다 — 매번 강요하면 도구가 무거워진다.</small></p></div>
     </div>
   </section>
@@ -651,8 +677,13 @@
             <div class="dupwarn"><b>같은 이름의 담당 고객이 1명 있습니다 <span class="mark">1</span></b>
               <div class="frow" style="border:none;padding:6px 0 0;"><span class="fm"><span class="fn">김철수</span><span class="fs">85년생 · 약관 3건 · 8/12 상담</span></span><span class="chip" style="padding:4px 11px;">이 고객으로 열기</span></div>
             </div>
-            <div class="regstep" style="margin-top:12px;"><span class="stepno">2</span> 구분 메모 <span class="fs" style="color:#77837C;">— 선택. 동명이인 구분용</span></div>
-            <div class="sidesearch" style="margin:8px 0 4px;">92년생</div>
+            <div class="regstep" style="margin-top:12px;"><span class="stepno">2</span> 구분 메모 <span class="fs" style="color:#77837C;">— 선택. 여러 개 붙일 수 있습니다</span></div>
+            <div class="chips" style="margin:8px 0 4px;">
+              <span class="chip on"># 92년생 <span style="opacity:.7;">✕</span></span>
+              <span class="chip on"># 강남지점 <span style="opacity:.7;">✕</span></span>
+              <span class="chip on"># 소개 · 김철수 <span style="opacity:.7;">✕</span></span>
+              <span class="chip dim">＋ 메모 추가 <span class="mark">3</span></span>
+            </div>
             <p class="cav" style="margin-top:8px;">주민번호 · 연락처는 받지 않습니다. FA가 알아볼 수 있는 짧은 메모면 충분합니다. <span class="mark">2</span></p>
             <div class="chips" style="margin-top:12px;"><span class="chip on">새 고객으로 만들기</span><span class="chip">취소</span></div>
           </div>
@@ -663,7 +694,8 @@
     <div class="notes">
       <div class="note"><span class="mark">1</span><p><b>중복 생성을 등록 전에 막는다.</b><small>FA는 고객이 수십~수백 명이라 이미 만든 고객을 다시 만들기 쉽다. 중복이 생기면 약관북과 보장맵이 둘로 쪼개져 <b>답변이 반쪽</b>이 된다. 같은 이름이 있으면 먼저 보여주고 「이 고객으로 열기」를 준다.</small></p></div>
       <div class="note"><span class="mark">2</span><p>받지 않는 것을 명시한다.<small>보험 앱이라 개인정보를 요구할 것으로 예상하는 FA에게 <b>안 받는다는 사실 자체가 안내</b>가 된다. 식별자도 이름과 분리해 동명이인 · 개명에 견디게 한다.</small></p></div>
-      <div class="note"><span class="mark">3</span><p>고객은 상담 중에도 만들 수 있다.<small>「이 고객 기준으로 확인하기」를 눌렀는데 고객이 없으면 이 화면이 그 자리에서 뜬다. 약관북으로 이동시키지 않는다 — 흐름이 끊긴다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p><b>메모는 여러 개 붙는다.</b><small>「92년생」 하나로는 부족하다 — 지점 · 소개자 · 상담 맥락처럼 <b>FA가 나중에 찾을 단서</b>가 여럿이다. ＋ 버튼으로 계속 더하고 ✕로 뺀다. 나중에 이 메모로 고객을 <b>검색</b>할 수 있다.</small></p></div>
+      <div class="note"><span class="mark">4</span><p>고객은 상담 중에도 만들 수 있다.<small>「이 고객 기준으로 확인하기」를 눌렀는데 고객이 없으면 이 화면이 그 자리에서 뜬다. 약관북으로 이동시키지 않는다 — 흐름이 끊긴다.</small></p></div>
     </div>
   </section>
 
@@ -682,11 +714,11 @@
           <div class="ctx">📁 <span class="pill">차승희 고객 · 약관 등록</span><span class="chg">닫기 ✕</span></div>
           <div class="methods">
             <div class="method" style="opacity:.62;border-style:dashed;">
-              <div class="mtop"><b>🔗 My Data 가져오기</b><span class="badge soft">현 시점 오픈하지 않음</span></div>
-              <p>고객 계약이 <b>한 번에</b> 등록됩니다 — 개인인증 · 동의 범위 확인 후 열립니다 <span class="mark">1</span></p>
+              <div class="mtop"><b>🔗 My Data 가져오기</b><span class="badge soft">가장 빠름 · 추후 오픈</span></div>
+              <p><b>원래 이게 가장 빠른 길입니다</b> — 고객 계약이 한 번에 들어옵니다. 개인인증 · 동의 범위 확인 후 열립니다 <span class="mark">1</span></p>
             </div>
             <div class="method best">
-              <div class="mtop"><b>💬 「브라보라이프보험0808」 등록</b><span class="badge">지금 가장 빠름</span></div>
+              <div class="mtop"><b>💬 「브라보라이프보험0808」 등록</b><span class="badge">현재 최선</span></div>
               <p>대화에서 말한 상품 — 다시 찾게 하지 않습니다 <span class="mark">2</span></p>
             </div>
             <div class="method">
@@ -760,8 +792,8 @@
             <div class="regstep"><span class="stepno done">1</span> 보험사 <b>DB손보</b> <span class="chg2">변경</span></div>
             <div class="regstep"><span class="stepno on">2</span> 상품 검색 <span class="mark">1</span></div>
             <div class="sidesearch" style="margin:8px 0 10px;">브라보라이프</div>
-            <div class="frow"><span class="fm"><span class="fn">브라보라이프보험0808</span><span class="fs">2008.08 시행판 · 등록 가능</span></span><span class="chip on" style="padding:4px 11px;">등록</span></div>
-            <div class="frow"><span class="fm"><span class="fn">브라보라이프플러스보험</span><span class="fs">2014.03 시행판 · 등록 가능</span></span><span class="chip" style="padding:4px 11px;">등록</span></div>
+            <div class="frow"><span class="fm"><span class="fn">브라보라이프보험0808</span><span class="fs">2008.08 시행 약관 · 등록 가능</span></span><span class="chip on" style="padding:4px 11px;">등록</span></div>
+            <div class="frow"><span class="fm"><span class="fn">브라보라이프플러스보험</span><span class="fs">2014.03 시행 약관 · 등록 가능</span></span><span class="chip" style="padding:4px 11px;">등록</span></div>
             <div class="frow"><span class="fm"><span class="fn">브라보라이프보험0612</span><span class="fs">약관 준비중 <span class="mark">2</span></span></span><span class="chip dim" style="padding:4px 11px;">확보 요청</span></div>
             <div class="regstep" style="margin-top:12px;"><span class="stepno">3</span> 가입 시점 <span class="fs" style="color:#77837C;">— 판이 여럿이면 물어봅니다</span></div>
           </div>
@@ -793,13 +825,13 @@
         <div class="thread-area">
           <div class="ctx">🗺 <span class="pill">차승희 보장맵</span> 계약 2건 · 담보 21개 · 확인 60% <span class="chg">＋ 약관 추가</span></div>
           <div class="mapgrp">
-            <div class="mapname">DB손보 · 브라보라이프보험0808 <span class="fs" style="color:#77837C;">2009.03 가입 · 2008.08 시행판</span></div>
+            <div class="mapname">DB손보 · 브라보라이프보험0808 <span class="fs" style="color:#77837C;">2009.03 가입 · 2008.08 시행 약관</span></div>
             <div class="brow"><span>골절진단비(치아제외)</span><span class="tag ok">가입 30만원</span></div>
             <div class="brow"><span>뇌졸중진단비</span><span class="tag ok">가입 1,000만원</span></div>
             <div class="brow"><span>상해입원일당(1일이상)</span><span class="tag wait">확인 필요 <span class="mark">1</span></span></div>
           </div>
           <div class="mapgrp">
-            <div class="mapname">KB손보 · KB다이렉트플러스운전자보험 <span class="fs" style="color:#77837C;">2024.11 가입 · 2024.10 시행판</span></div>
+            <div class="mapname">KB손보 · KB다이렉트플러스운전자보험 <span class="fs" style="color:#77837C;">2024.11 가입 · 2024.10 시행 약관</span></div>
             <div class="brow"><span>골절진단비(치아파절포함)(연간1회한)</span><span class="tag ok">가입 10만원</span></div>
             <div class="brow"><span>5대골절진단비</span><span class="tag wait">확인 필요</span></div>
             <div class="brow"><span>교통상해입원일당</span><span class="tag no">미가입 <span class="mark">2</span></span></div>
@@ -841,7 +873,7 @@
       <div class="main">
         <div class="thread-area">
           <div class="ctx">고객 <span class="pill">차승희</span> · 보장분석 2026.05.21 기준 <span class="chg">변경 ✕</span></div>
-          <div class="scopebar">📄 <span><b>DB손해보험 · 브라보라이프보험0808 · 2009.03 시행판</b></span><span class="chg">약관 변경</span></div>
+          <div class="scopebar">📄 <span><b>DB손해보험 · 브라보라이프보험0808 · 2009.03 시행 약관</b></span><span class="chg">약관 변경</span></div>
           <div class="u">계단에서 넘어져 발목 골절인데 얼마 받을 수 있어요?</div>
           <div class="ans">
             <div class="verdict"><span class="vtag ok">지급 대상</span><b>확정 40만원</b> <span class="mark">1</span></div>
@@ -857,7 +889,7 @@
               <div class="cl exc"><b>면책 — 먼저 확인</b>제5조 — 교통상해입원일당은 교통사고로 인한 입원에 한합니다. 계단 낙상은 해당하지 않습니다. <span class="loc">KB 2024.10판 제5조</span></div>
               <div class="cl"><b>지급사유</b>제3조 — 보험기간 중 상해의 직접결과로써 골절로 진단확정된 경우… <span class="loc">브라보라이프 2009.03판 제3조</span></div>
             </details>
-            <div class="src">2개 약관 · KB손보 2024.10 시행판 · DB손보 2008.08 시행판</div>
+            <div class="src">2개 약관 · KB손보 2024.10 시행 약관 · DB손보 2008.08 시행 약관</div>
             <p class="cav enroll">약관상 담보 기준이며 <b>실제 지급은 보상 심사로 확정</b>됩니다. 동일 사고에 중복지급 제한이 적용될 수 있고, 확인이 필요한 건은 합계에 넣지 않았습니다. <span class="mark">4</span></p>
           </div>
           <div class="ok-card"><b>이 상담을 차승희 약관북에 저장했습니다 <span class="mark">5</span></b><p>내맘같은어린이보험 외 2건 · 다음 상담에서 바로 열립니다</p></div>
@@ -902,7 +934,7 @@
               <div class="cl exc"><b>면책 — 먼저 확인</b>제5조 1항 6호 — 피보험자가 음주운전 또는 무면허운전을 하는 동안 발생한 손해… <span class="mark">3</span></div>
               <div class="cl"><b>지급사유</b>제3조 1항 — 피보험자가 보험기간 중 상해의 직접결과로써…</div>
             </details>
-            <div class="src">참좋은운전자상해보험 2판 (2021.04.01 시행) · DB손보</div>
+            <div class="src">참좋은운전자상해보험 2021.04 약관 (2021.04.01 시행) · DB손보</div>
             <p class="cav">실제 지급 여부는 사실관계 확인과 보상 심사에 따라 결정됩니다.</p>
           </div>
         </div>
@@ -952,27 +984,27 @@
 
   <h2>설계 규칙</h2>
   <p class="h2-sub">화면 요소는 전부 아래에서 나옵니다. 규칙이 바뀌면 화면도 바뀝니다.</p>
-  <div class="rules">
-    <div class="rule"><span class="no">R1</span><b>되묻기는 걸러낸 뒤에만</b><p>보장분석이 있거나 판이 하나뿐이거나 세션에 이미 있으면 묻지 않는다.</p></div>
-    <div class="rule"><span class="no">R2</span><b>고르게 하고, 치게 하지 않는다</b><p>상품명 자유 입력은 표기가 흔들려 검색이 깨진다. 후보는 칩으로. 많으면 보험사부터.</p></div>
-    <div class="rule"><span class="no">R3</span><b>준비중 상품도 보여준다</b><p>약관이 없어도 목록에는 나온다. 골라도 헛걸음이 아니라 확보 요청으로 이어진다.</p></div>
-    <div class="rule"><span class="no">R4</span><b>임의로 판을 고르지 않는다</b><p>시점이 확정되지 않으면 최신 판으로 답하지 않는다. 일반론이면 일반론이라고 밝힌다.</p></div>
-    <div class="rule"><span class="no">R5</span><b>면책이 먼저다</b><p>면책에 걸리면 지급사유가 있어도 뒤집지 못한다. 판정 순서도 화면 순서도 면책이 앞이다.</p></div>
-    <div class="rule"><span class="no">R6</span><b>비용은 먼저 밝히고 동의를 받는다</b><p>단가 미확정인 지금은 요청 의사만 받고 금액은 확인 후 안내한다.</p></div>
-    <div class="rule"><span class="no">R7</span><b>약관의 담보 ≠ 가입한 담보</b><p>약관에는 가입 가능한 담보가 전부 있다. 지급 답변은 가입 여부를 함께 확인한다.</p></div>
-    <div class="rule"><span class="no">R8</span><b>금액은 조건이 다 갖춰질 때만</b><p>가입금액 · 적용 판 · 지급사유 · 면책이 모두 있어야 말한다. 확정 건만 합산하고, 면책·미가입에 0원을 쓰지 않는다.</p></div>
-    <div class="rule"><span class="no">R9</span><b>막힌 건도 보여준다</b><p>면책·미가입·확인 필요 건을 숨기면 FA가 다시 확인해야 한다. 사유와 함께 목록에 남긴다.</p></div>
-    <div class="rule"><span class="no">R10</span><b>일반 답변도 완결이다</b><p>먼저 일반으로 답하고 개인화는 선택지로 둔다. 매번 약관 등록을 요구하면 도구가 무거워진다.</p></div>
-    <div class="rule"><span class="no">R11</span><b>약관은 가입을 증명하지 않는다</b><p>약관으로 채운 담보는 「확인 필요」가 기본값이다. 증권 확인이나 보장분석으로만 확정된다.</p></div>
-    <div class="rule"><span class="no">R12</span><b>등록은 빠른 길부터 보여준다</b><p>검색만 있으면 계약 6건에 열다섯 단계다. 리포트 · 대화 · 최근 이력을 앞에 두고, 쓸 수 없는 방법은 뺀다.</p></div>
-    <div class="rule"><span class="no">R13</span><b>고객은 이름 하나로 만든다</b><p>필수값은 이름뿐이고 주민번호 · 연락처는 받지 않는다. 대신 동명이인은 등록 전에 보여준다.</p></div>
-    <div class="rule"><span class="no">R14</span><b>확정 전에는 찾지 않는다</b><p>약관 1권으로 좁혀지기 전에는 검색을 걸지 않는다. 100권을 섞어놓고 닮은 것을 찾으면 아무거나 집어온다.</p></div>
-    <div class="rule"><span class="no">R15</span><b>어느 약관으로 답했는지 항상 보인다</b><p>답변 화면에 보험사 · 상품 · 판을 고정 표시한다. 보이지 않으면 FA가 고객에게 옮길 수 없고, 틀려도 알아챌 수 없다.</p></div>
-    <div class="rule"><span class="no">R16</span><b>스코프 밖은 점수가 높아도 버린다</b><p>남는 게 없으면 순위를 낮춰 채우지 않고 「해당 조항 없음」으로 끝낸다. 검색은 언제나 1등을 내놓는다.</p></div>
-    <div class="rule"><span class="no">R17</span><b>고객 폴더는 그 고객 약관으로만 답한다</b><p>폴더를 열고 물으면 그 고객이 등록한 약관 집합이 곧 검색 범위다. 남의 계약 조항이 섞일 자리가 없다.</p></div>
-    <div class="rule"><span class="no">R18</span><b>답할 수 있는 범위를 숫자로 밝힌다</b><p>계약 4건을 등록해도 약관이 2건뿐이면 「지금 답할 수 있는 건 2건」이라고 쓴다. 등록 수를 답변 가능 수로 읽게 두지 않는다.</p></div>
-    <div class="rule"><span class="no">R19</span><b>고객을 만들지 않아도 물을 수 있다</b><p>대부분은 한 건 확인하러 온다. 등록을 앞세우면 그 한 번이 사라진다. 약관 선택만으로 답변 · 근거 조항 · 면책 판정이 다 나온다.</p></div>
-  </div>
+  <div class="rulelist">
+    <div class="ruleline"><span class="rn">R1</span><span class="rt">되묻기는 걸러낸 뒤에만</span><span class="rd">보장분석이 있거나 판이 하나뿐이거나 세션에 이미 있으면 묻지 않는다.</span></div>
+    <div class="ruleline"><span class="rn">R2</span><span class="rt">고르게 하고, 치게 하지 않는다</span><span class="rd">상품명 자유 입력은 표기가 흔들려 검색이 깨진다. 후보는 칩으로. 많으면 보험사부터.</span></div>
+    <div class="ruleline"><span class="rn">R3</span><span class="rt">준비중 상품도 보여준다</span><span class="rd">약관이 없어도 목록에는 나온다. 골라도 헛걸음이 아니라 확보 요청으로 이어진다.</span></div>
+    <div class="ruleline"><span class="rn">R4</span><span class="rt">임의로 판을 고르지 않는다</span><span class="rd">시점이 확정되지 않으면 최신 판으로 답하지 않는다. 일반론이면 일반론이라고 밝힌다.</span></div>
+    <div class="ruleline"><span class="rn">R5</span><span class="rt">면책이 먼저다</span><span class="rd">면책에 걸리면 지급사유가 있어도 뒤집지 못한다. 판정 순서도 화면 순서도 면책이 앞이다.</span></div>
+    <div class="ruleline"><span class="rn">R6</span><span class="rt">비용은 먼저 밝히고 동의를 받는다</span><span class="rd">단가 미확정인 지금은 요청 의사만 받고 금액은 확인 후 안내한다.</span></div>
+    <div class="ruleline"><span class="rn">R7</span><span class="rt">약관의 담보 ≠ 가입한 담보</span><span class="rd">약관에는 가입 가능한 담보가 전부 있다. 지급 답변은 가입 여부를 함께 확인한다.</span></div>
+    <div class="ruleline"><span class="rn">R8</span><span class="rt">금액은 조건이 다 갖춰질 때만</span><span class="rd">가입금액 · 적용 판 · 지급사유 · 면책이 모두 있어야 말한다. 확정 건만 합산하고, 면책·미가입에 0원을 쓰지 않는다.</span></div>
+    <div class="ruleline"><span class="rn">R9</span><span class="rt">막힌 건도 보여준다</span><span class="rd">면책·미가입·확인 필요 건을 숨기면 FA가 다시 확인해야 한다. 사유와 함께 목록에 남긴다.</span></div>
+    <div class="ruleline"><span class="rn">R10</span><span class="rt">일반 답변도 완결이다</span><span class="rd">먼저 일반으로 답하고 개인화는 선택지로 둔다. 매번 약관 등록을 요구하면 도구가 무거워진다.</span></div>
+    <div class="ruleline"><span class="rn">R11</span><span class="rt">약관은 가입을 증명하지 않는다</span><span class="rd">약관으로 채운 담보는 「확인 필요」가 기본값이다. 증권 확인이나 보장분석으로만 확정된다.</span></div>
+    <div class="ruleline"><span class="rn">R12</span><span class="rt">등록은 빠른 길부터 보여준다</span><span class="rd">검색만 있으면 계약 6건에 열다섯 단계다. 리포트 · 대화 · 최근 이력을 앞에 두고, 쓸 수 없는 방법은 뺀다.</span></div>
+    <div class="ruleline"><span class="rn">R13</span><span class="rt">고객은 이름 하나로 만든다</span><span class="rd">필수값은 이름뿐이고 주민번호 · 연락처는 받지 않는다. 대신 동명이인은 등록 전에 보여준다.</span></div>
+    <div class="ruleline"><span class="rn">R14</span><span class="rt">확정 전에는 찾지 않는다</span><span class="rd">약관 1권으로 좁혀지기 전에는 검색을 걸지 않는다. 100권을 섞어놓고 닮은 것을 찾으면 아무거나 집어온다.</span></div>
+    <div class="ruleline"><span class="rn">R15</span><span class="rt">어느 약관으로 답했는지 항상 보인다</span><span class="rd">답변 화면에 보험사 · 상품 · 판을 고정 표시한다. 보이지 않으면 FA가 고객에게 옮길 수 없고, 틀려도 알아챌 수 없다.</span></div>
+    <div class="ruleline"><span class="rn">R16</span><span class="rt">스코프 밖은 점수가 높아도 버린다</span><span class="rd">남는 게 없으면 순위를 낮춰 채우지 않고 「해당 조항 없음」으로 끝낸다. 검색은 언제나 1등을 내놓는다.</span></div>
+    <div class="ruleline"><span class="rn">R17</span><span class="rt">고객 폴더는 그 고객 약관으로만 답한다</span><span class="rd">폴더를 열고 물으면 그 고객이 등록한 약관 집합이 곧 검색 범위다. 남의 계약 조항이 섞일 자리가 없다.</span></div>
+    <div class="ruleline"><span class="rn">R18</span><span class="rt">답할 수 있는 범위를 숫자로 밝힌다</span><span class="rd">계약 4건을 등록해도 약관이 2건뿐이면 「지금 답할 수 있는 건 2건」이라고 쓴다. 등록 수를 답변 가능 수로 읽게 두지 않는다.</span></div>
+    <div class="ruleline"><span class="rn">R19</span><span class="rt">고객을 만들지 않아도 물을 수 있다</span><span class="rd">대부분은 한 건 확인하러 온다. 등록을 앞세우면 그 한 번이 사라진다. 약관 선택만으로 답변 · 근거 조항 · 면책 판정이 다 나온다.</span></div>
+    </div>
 
   <h2>화면 ↔ 코드 매핑</h2>
   <p class="h2-sub"><code>plan_turn()</code>이 돌려주는 <code>NextAction</code>마다 그릴 컴포넌트가 하나씩 정해져 있습니다. 응답을 받는 함수도 함께 적었습니다.</p>
@@ -982,15 +1014,17 @@
       <tbody>
         <tr><td><code>ASK_INSURER</code></td><td class="d">보험사 칩 + 더보기</td><td class="d"><code>apply_choice()</code></td></tr>
         <tr><td><code>ASK_PRODUCT</code></td><td class="d">상품 칩 (준비중은 대시 테두리)</td><td class="d"><code>apply_choice()</code></td></tr>
-        <tr><td><code>ASK_CONTRACT_DATE</code></td><td class="d">판 ≤6개는 칩 / 초과는 연·월 입력만</td><td class="d"><code>apply_choice()</code> · <code>apply_contract_date()</code></td></tr>
-        <tr><td><code>ASK_EXACT_DATE</code></td><td class="d">걸친 판 2~3개만 좁혀 제시</td><td class="d"><code>apply_choice()</code></td></tr>
+        <tr><td><code>ASK_CONTRACT_DATE</code></td><td class="d">시행 약관 ≤6건은 칩 / 초과는 연·월 입력만</td><td class="d"><code>apply_choice()</code> · <code>apply_contract_date()</code></td></tr>
+        <tr><td><code>ASK_EXACT_DATE</code></td><td class="d">걸치는 약관 2~3건만 좁혀 제시</td><td class="d"><code>apply_choice()</code></td></tr>
+        <tr><td><code>TermsScope</code></td><td class="d">스코프 바 — 보험사 · 상품 · 시행 약관 고정 표시</td><td class="d"><code>require_locked()</code> · <code>confine()</code></td></tr>
+        <tr><td><code>CustomerScope</code></td><td class="d">고객 폴더 — 그 고객 약관 집합으로 검색 범위 잠금</td><td class="d"><code>confine_to_customer()</code></td></tr>
         <tr><td><code>SEARCH</code></td><td class="d">답변 카드 (담보 목록 → 조항 → 출처 → 유의)</td><td class="d">—</td></tr>
         <tr><td><code>SHOW_ENROLLMENT</code></td><td class="d">가입금액 표 + 「지급액 아님」 고지</td><td class="d">—</td></tr>
         <tr><td><code>CustomerDirectory.add()</code></td><td class="d">새 고객 만들기 — 이름(필수) + 구분 메모(선택)</td><td class="d"><code>duplicates()</code>로 동명이인 먼저 제시</td></tr>
         <tr><td><code>suggest_methods()</code></td><td class="d">등록 방법 카드 — 빠른 순, 쓸 수 없는 방법은 제외</td><td class="d">방법별 화면으로 분기</td></tr>
-        <tr><td><code>ImportPreview</code></td><td class="d">리포트에서 읽은 계약 목록 (체크 + 약관 유무 배지)</td><td class="d"><code>selected</code> · <code>ready</code> · <code>needs_terms</code></td></tr>
+        <tr><td><code>ImportPreview</code></td><td class="d">My Data 계약 목록 (체크 + 약관 유무 배지) · 2차</td><td class="d"><code>selected</code> · <code>ready</code> · <code>needs_terms</code></td></tr>
         <tr><td><code>recent_products()</code></td><td class="d">최근 등록 상품 목록 — 다른 고객에게 재사용</td><td class="d"><code>TermsLedger.link()</code></td></tr>
-        <tr><td><code>offer_personalize</code></td><td class="d">답변 하단 분기 카드 — [약관 등록하고 확인] / [이 답변으로 충분해요]</td><td class="d">등록 플로우 진입</td></tr>
+        <tr><td><code>offer_personalize</code></td><td class="d">답변 하단 분기 — [약관 등록하기] / [이 답변으로 충분해요]</td><td class="d">등록 플로우 진입</td></tr>
         <tr><td><code>CoverageMap</code></td><td class="d">보장맵 — 계약별 담보, 가입/미가입/확인 필요 3색</td><td class="d"><code>with_entry()</code> · <code>summarize_gap()</code></td></tr>
         <tr><td><code>PayoutSummary</code><br><span style="font-size:11px;color:#8B978F;">(SEARCH 답변 구성)</span></td><td class="d">판정 헤드라인 → 담보별 판정 → 면책 우선 조항 → 합계 유의</td><td class="d"><code>judge()</code> · <code>summarize()</code></td></tr>
         <tr><td><code>NOT_ENROLLED</code></td><td class="d">미가입 안내 + 증권 확인 권유</td><td class="d">—</td></tr>
