@@ -65,9 +65,19 @@ class NextAction(Enum):
     NO_TERMS_AVAILABLE = "no_terms_available"
     """해당 시점의 약관이 색인에 없다. 추측하지 않고 없다고 답한다."""
 
+    SHOW_ENROLLMENT = "show_enrollment"
+    """금액 질문에 보장분석의 **가입금액**으로 답한다.
+
+    약관으로는 금액을 답할 수 없지만(OUT_OF_SCOPE), 보장분석이 있으면
+    가입금액은 조회된 사실이므로 보여줄 수 있다.
+    지급액이 아니라 가입금액임을 반드시 함께 밝힌다."""
+
     CONFIRM_PAID_REQUEST = "confirm_paid_request"
     """등록되지 않은 약관을 확보하려면 **요청자 부담 비용**이 발생한다.
     금액을 고지하고 동의를 받는다. 동의 전에는 요청을 접수하지 않는다."""
+
+    REQUEST_CANCELLED = "request_cancelled"
+    """FA가 유료 확보 요청을 취소했다. 접수하지 않았음을 확인해 준다."""
 
     TERMS_NOT_REGISTERED = "terms_not_registered"
     """상품은 알지만 약관이 아직 등록되지 않았다.
@@ -86,6 +96,13 @@ class ConversationContext:
     매번 상품을 다시 묻지 않기 위해 여기에 들고 간다.
     """
 
+    customer_id: str | None = None
+    customer_name: str | None = None
+    """상담 대상 고객. 보장분석 · 약관북에서 열고 들어온 경우 채워진다.
+
+    확보 요청(TermsRequest)과 약관북 연결이 이 값으로 고객에 귀속된다.
+    """
+
     insurer: str | None = None
     """상담 중인 계약의 보험사. 상품 후보를 좁히는 데 쓴다."""
 
@@ -96,17 +113,27 @@ class ConversationContext:
     contract_date: ApproxDate | None = None
     edition_id: str | None = None
 
+    def with_customer(self, customer_id: str, customer_name: str = "") -> ConversationContext:
+        if customer_id == self.customer_id:
+            return self
+        # 고객이 바뀌면 그 아래 전부(보험사 · 상품 · 판)를 버린다.
+        return ConversationContext(customer_id=customer_id, customer_name=customer_name)
+
     def with_insurer(self, insurer: str) -> ConversationContext:
         if insurer == self.insurer:
             return self
-        # 보험사가 바뀌면 그 아래 상품 · 판 정보는 버린다.
-        return ConversationContext(insurer=insurer)
+        # 보험사가 바뀌면 그 아래 상품 · 판 정보는 버린다. 고객은 유지한다.
+        return ConversationContext(
+            customer_id=self.customer_id, customer_name=self.customer_name, insurer=insurer
+        )
 
     def with_product(self, product: Product) -> ConversationContext:
         if product.product_id == self.product_id:
             return self
-        # 상품이 바뀌면 그 상품에 매인 판 정보는 버린다. 보험사는 상품에서 다시 채운다.
+        # 상품이 바뀌면 그 상품에 매인 판 정보는 버린다. 고객·보험사는 다시 채운다.
         return ConversationContext(
+            customer_id=self.customer_id,
+            customer_name=self.customer_name,
             insurer=product.insurer or self.insurer,
             product_id=product.product_id,
             product_name=product.name,
@@ -194,6 +221,13 @@ class TurnPlan:
     contracts: tuple[EnrolledContract, ...] = ()
     """이번 답변이 대상으로 삼는 보유 계약. 각 계약의 상품 · 계약년월로 약관 판이 정해진다."""
 
+    pending_terms: tuple[EnrolledContract, ...] = ()
+    """걸리기는 하지만 약관이 아직 등록되지 않은 보유 계약.
+
+    일부만 등록된 상태로 답하면 FA는 나머지도 확인된 줄 안다.
+    「이 계약들은 약관이 없어 확인하지 못했다」를 반드시 함께 알린다.
+    """
+
     @property
     def benefit_scope(self) -> BenefitScope:
         """담보를 하나만 볼지, 걸리는 것을 모두 볼지.
@@ -251,6 +285,22 @@ def plan_turn(
     classification = decision.classification
 
     if not decision.in_scope:
+        # 금액 질문 자체는 범위 밖이지만, 보장분석이 있으면 「가입금액」은 조회된 사실이다.
+        # 지급액이 아님을 밝히고 가입금액으로 답한다.
+        if coverage is not None and classification.benefit_mentioned:
+            matches = coverage.find_benefits(classification.benefit_mentioned)
+            if matches:
+                return TurnPlan(
+                    action=NextAction.SHOW_ENROLLMENT,
+                    decision=decision,
+                    matches=matches,
+                    contracts=tuple(dict.fromkeys(m.contract for m in matches)),
+                    context=_with_coverage_customer(context, coverage),
+                    prompt=(
+                        "가입금액 기준으로 안내합니다. 실제 지급액은 지급사유 해당 여부와 "
+                        "심사에 따라 달라지며, 가입금액과 같지 않을 수 있습니다."
+                    ),
+                )
         return TurnPlan(
             action=NextAction.OUT_OF_SCOPE,
             decision=decision,
@@ -277,7 +327,9 @@ def plan_turn(
         product = None
         if classification.product_mentioned:
             candidates = catalog.search(classification.product_mentioned, insurer=context.insurer)
-            if len(candidates) == 1:
+            # 등록된 상품일 때만 검색 범위를 좁힌다.
+            # 미등록 상품으로 좁히면 벤더 인덱스에 없는 범위를 검색하게 된다.
+            if len(candidates) == 1 and candidates[0].indexed:
                 product = candidates[0]
                 context = context.with_product(product)
         return TurnPlan(
@@ -291,7 +343,9 @@ def plan_turn(
     # 보장분석이 붙어 있으면 상품 · 가입 시점을 되묻지 않는다.
     # 리포트에 계약별 상품명과 계약년월이 있으므로 특정이 이미 끝나 있다.
     if coverage is not None:
-        planned = _plan_with_coverage(decision, coverage, context)
+        planned = _plan_with_coverage(
+            decision, coverage, context, catalog, pricing, pending_keys or set()
+        )
         if planned is not None:
             return planned
 
@@ -407,17 +461,80 @@ def plan_turn(
     )
 
 
+def apply_choice(plan: TurnPlan, value: str) -> ConversationContext:
+    """되묻기 선택지를 고른 결과를 컨텍스트에 반영한다.
+
+    되묻기를 만들어 놓고 답을 받는 입구가 없으면 대화가 이어지지 않는다.
+    화면에서 칩을 고르면 그 `Option.value`를 여기에 넘기고,
+    돌려받은 컨텍스트로 다음 `plan_turn`을 호출한다.
+
+    선택지 밖의 값은 무시한다. 임의의 값으로 컨텍스트가 오염되면
+    엉뚱한 약관으로 답하게 된다.
+    """
+    if not any(option.value == value for option in plan.options):
+        return plan.context
+
+    if plan.action is NextAction.ASK_INSURER:
+        return plan.context.with_insurer(value)
+
+    if plan.action is NextAction.ASK_PRODUCT:
+        # 값은 product_id다. 다음 턴에서 카탈로그로 되찾는다.
+        return replace(plan.context, product_id=value, product_name=None)
+
+    if plan.action in (NextAction.ASK_CONTRACT_DATE, NextAction.ASK_EXACT_DATE):
+        # 값은 edition_id다. 판을 직접 고른 경우 시점 추정을 건너뛴다.
+        return plan.context.with_edition(value)
+
+    return plan.context
+
+
+def apply_contract_date(plan: TurnPlan, text: str) -> ConversationContext:
+    """가입 시점을 자유 입력으로 받은 결과를 반영한다.
+
+    판이 많아 칩을 띄우지 않는 상품(실손 등)에서는 이 경로로만 답이 들어온다.
+    해석되지 않는 입력은 컨텍스트를 바꾸지 않는다 — 다시 물어야 한다.
+    """
+    parsed = parse_approx_date(text)
+    if parsed is None:
+        return plan.context
+    return plan.context.with_contract_date(parsed)
+
+
+def _with_coverage_customer(
+    context: ConversationContext, coverage: CoverageProfile
+) -> ConversationContext:
+    """보장분석의 대상 고객을 대화 컨텍스트에 채운다.
+
+    이 값이 있어야 확보 요청과 약관북 연결이 고객에 귀속된다.
+    """
+    if not coverage.customer_id or context.customer_id == coverage.customer_id:
+        return context
+    return replace(
+        context,
+        customer_id=coverage.customer_id,
+        customer_name=coverage.customer_name,
+    )
+
+
 def _plan_with_coverage(
     decision: RoutingDecision,
     coverage: CoverageProfile,
     context: ConversationContext,
+    catalog: ProductCatalog,
+    pricing: TermsPricing,
+    pending: set[tuple[str, str, int | None]],
 ) -> TurnPlan | None:
     """보장분석으로 답할 수 있으면 그 계획을 돌려준다. 아니면 None.
 
     되묻기를 건너뛰는 근거는 리포트 자체다.
     계약별 상품명과 계약년월이 있으므로 약관 판이 이미 정해진다.
+
+    다만 **계약이 특정됐다고 약관이 등록된 것은 아니다.**
+    보장분석은 계약만 알려주고 약관은 벤더에 따로 등록해야 하므로,
+    미등록이면 검색으로 보내지 않고 확보 요청 경로로 넘긴다.
     """
     classification = decision.classification
+    context = _with_coverage_customer(context, coverage)
 
     # FA가 상품을 지목했으면 그 계약으로 좁힌다.
     if classification.product_mentioned:
@@ -431,40 +548,99 @@ def _plan_with_coverage(
         return None
 
     benefit = classification.benefit_mentioned
-    if not benefit:
-        # 담보를 지목하지 않았다. 걸리는 담보를 모두 봐야 하므로 계약 전체를 대상으로 검색한다.
-        return TurnPlan(
-            action=NextAction.SEARCH,
-            decision=decision,
-            sources=decision.sources,
-            contracts=contracts,
-            context=context,
-        )
 
-    matches = tuple(m for m in coverage.find_benefits(benefit) if m.contract in contracts)
+    if benefit:
+        matches = tuple(m for m in coverage.find_benefits(benefit) if m.contract in contracts)
+        if not matches:
+            # 가입한 담보가 없다. 약관을 뒤질 필요 없이 바로 답한다.
+            # 다만 조회 범위 밖 계약이 있을 수 있으므로 단정하지 않는다.
+            return TurnPlan(
+                action=NextAction.NOT_ENROLLED,
+                decision=decision,
+                contracts=contracts,
+                context=context,
+                prompt=(
+                    f"보장분석 기준으로 「{benefit}」 담보에 가입한 계약이 없습니다. "
+                    "조회되지 않는 계약(오래된 계약 · 단독실손 등)이 있을 수 있으니 "
+                    "증권으로 한 번 더 확인해 주세요."
+                ),
+            )
+        contracts = tuple(dict.fromkeys(m.contract for m in matches))
+    else:
+        matches = ()
 
-    if not matches:
-        # 가입한 담보가 없다. 약관을 뒤질 필요 없이 바로 답한다.
-        # 다만 조회 범위 밖 계약이 있을 수 있으므로 단정하지 않는다.
-        return TurnPlan(
-            action=NextAction.NOT_ENROLLED,
-            decision=decision,
-            contracts=contracts,
-            context=context,
-            prompt=(
-                f"보장분석 기준으로 「{benefit}」 담보에 가입한 계약이 없습니다. "
-                "조회되지 않는 계약(오래된 계약 · 단독실손 등)이 있을 수 있으니 "
-                "증권으로 한 번 더 확인해 주세요."
-            ),
+    # 계약은 정해졌지만 그 약관이 벤더에 등록돼 있는지는 별개다.
+    registered, missing = _split_by_registration(contracts, catalog)
+
+    if not registered:
+        # 걸린 계약의 약관이 하나도 등록돼 있지 않다. 확보 요청으로 넘긴다.
+        return _plan_contract_terms_request(
+            decision, missing[0], context, pricing, pending, coverage
         )
 
     return TurnPlan(
         action=NextAction.SEARCH,
         decision=decision,
         sources=decision.sources,
-        matches=matches,
-        contracts=tuple(m.contract for m in matches),
+        matches=tuple(m for m in matches if m.contract in registered),
+        contracts=registered,
         context=context,
+        # 보장분석으로 답한 건도 약관북에 남긴다. 이미 고객이 정해져 있다.
+        offer_customer_link=(
+            classification.question_type is QuestionType.COVERAGE and bool(context.customer_id)
+        ),
+        # 일부만 등록된 경우 나머지를 확보 대상으로 알린다.
+        pending_terms=missing,
+    )
+
+
+def _split_by_registration(
+    contracts: tuple[EnrolledContract, ...],
+    catalog: ProductCatalog,
+) -> tuple[tuple[EnrolledContract, ...], tuple[EnrolledContract, ...]]:
+    """보유 계약을 약관 등록 여부로 가른다."""
+    registered: list[EnrolledContract] = []
+    missing: list[EnrolledContract] = []
+    for contract in contracts:
+        found = catalog.search(contract.product_name, insurer=contract.insurer or None)
+        if any(p.indexed for p in found):
+            registered.append(contract)
+        else:
+            missing.append(contract)
+    return tuple(registered), tuple(missing)
+
+
+def _plan_contract_terms_request(
+    decision: RoutingDecision,
+    contract: EnrolledContract,
+    context: ConversationContext,
+    pricing: TermsPricing,
+    pending: set[tuple[str, str, int | None]],
+    coverage: CoverageProfile,
+) -> TurnPlan:
+    """보유 계약의 약관이 미등록일 때의 확보 요청.
+
+    보장분석이 상품과 계약년월을 이미 알려주므로 되물을 것이 없다.
+    바로 비용 고지 단계로 간다.
+    """
+    product = Product(
+        product_id=f"{UNREGISTERED_PREFIX}{contract.insurer}:{contract.product_name}",
+        name=contract.product_name,
+        insurer=contract.insurer,
+        indexed=False,
+    )
+    plan = _plan_unregistered(
+        decision, product, contract.contract_start, context, pricing, pending
+    )
+    if plan.terms_request is None:
+        return plan
+    return replace(
+        plan,
+        terms_request=replace(
+            plan.terms_request,
+            customer_id=coverage.customer_id,
+            customer_name=coverage.customer_name,
+        ),
     )
 
 
@@ -634,24 +810,43 @@ def _plan_unregistered(
     )
 
 
-def _plan_paid_request_accepted(
-    decision: RoutingDecision,
-    product: Product,
-    edition: PolicyEdition | None,
-    context: ConversationContext,
-    request: TermsRequest,
-) -> TurnPlan:
-    """FA가 비용에 동의한 뒤의 접수 처리."""
-    return TurnPlan(
+def resolve_paid_request(plan: TurnPlan, value: str, *, requester_id: str = "") -> TurnPlan:
+    """유료 확보 요청의 동의 · 취소를 처리한다.
+
+    `CONFIRM_PAID_REQUEST`에 대한 응답을 받는 입구다.
+    동의해야 비로소 접수되며, 그전까지 `terms_request`는 적재 대상이 아니다.
+    """
+    if plan.action is not NextAction.CONFIRM_PAID_REQUEST:
+        return plan
+
+    if value != "confirm":
+        return replace(
+            plan,
+            action=NextAction.REQUEST_CANCELLED,
+            prompt="확보 요청을 접수하지 않았습니다. 비용도 발생하지 않습니다.",
+            options=(),
+            terms_request=None,
+        )
+
+    request = plan.terms_request
+    if request is not None and requester_id:
+        request = replace(request, requester_id=requester_id)
+    if request is not None and plan.context.customer_id:
+        request = replace(
+            request,
+            customer_id=plan.context.customer_id,
+            customer_name=plan.context.customer_name or "",
+        )
+
+    name = plan.product.name if plan.product else "해당 상품"
+    return replace(
+        plan,
         action=NextAction.TERMS_NOT_REGISTERED,
-        decision=decision,
-        product=product,
-        edition=edition,
-        context=context,
         prompt=(
-            f"{product.name}의 약관 확보 요청을 접수했습니다. "
+            f"{name}의 약관 확보 요청을 접수했습니다. "
             "확인되지 않은 내용으로 답하지 않습니다. 등록이 끝나면 알려드리겠습니다."
         ),
+        options=(),
         terms_request=request,
     )
 

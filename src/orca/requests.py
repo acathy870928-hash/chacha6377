@@ -77,6 +77,14 @@ class TermsRequest:
     requester_id: str = ""
     """요청한 FA. 등록 완료 시 알림 대상이 되고, 유료 요청이면 청구 대상이다."""
 
+    customer_id: str = ""
+    customer_name: str = ""
+    """이 약관이 필요한 고객. 등록이 끝나면 이 고객의 약관북 폴더에 들어간다.
+
+    비워져 있으면 등록 후 폴더 배치를 할 수 없으므로,
+    고객 컨텍스트가 있는 상담에서는 반드시 채워서 접수한다.
+    """
+
     billable: bool = False
     """이 요청이 요청자 부담인지.
 

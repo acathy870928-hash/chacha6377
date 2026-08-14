@@ -141,6 +141,32 @@ class FakeCatalog(ProductCatalog):
         return [p for p in pool if name in p.name or p.name in name]
 
 
+#: 보장분석 픽스처의 보유 계약에 대응하는 상품들. 약관이 등록된 상태.
+KB_DRIVER = Product(
+    product_id="kb-driver",
+    name="KB다이렉트플러스운전자보험(무배당)(24.10)",
+    insurer="KB손보",
+    editions=(_edition("kb-driver", "kb-driver-1", "2024.10 시행", date(2024, 10, 1)),),
+)
+
+DB_BRAVO = Product(
+    product_id="db-bravo",
+    name="브라보라이프보험0808",
+    insurer="DB손보",
+    editions=(_edition("db-bravo", "db-bravo-1", "2008.08 시행", date(2008, 8, 1)),),
+)
+
+#: 보유 계약이지만 약관이 등록되지 않은 상품. 확보 요청 경로를 탄다.
+HANA_HEALTH = Product(
+    product_id="hana-health",
+    name="무배당더블플러스건강보험(3종)(2001)",
+    insurer="하나손보",
+    indexed=False,
+)
+
+
 @pytest.fixture
 def catalog():
-    return FakeCatalog([DRIVER, AUTOPILOT, CANCER_A, CANCER_B, LEGACY, SILSON])
+    return FakeCatalog(
+        [DRIVER, AUTOPILOT, CANCER_A, CANCER_B, LEGACY, SILSON, KB_DRIVER, DB_BRAVO, HANA_HEALTH]
+    )

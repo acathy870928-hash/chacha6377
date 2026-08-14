@@ -190,6 +190,10 @@ class CoverageProfile:
     as_of: date | None = None
     """조회 기준일. 답변에 함께 밝힌다. 이후 가입·해지분은 반영되지 않는다."""
 
+    customer_id: str = ""
+    customer_name: str = ""
+    """리포트의 대상 고객. 대화 컨텍스트와 확보 요청이 이 값으로 고객에 귀속된다."""
+
     def find_benefits(self, keyword: str) -> tuple[BenefitMatch, ...]:
         """담보명으로 가입 내역을 찾는다.
 

@@ -147,11 +147,13 @@ class TestMultipleContracts:
         )
         assert {c.insurer for c in plan.contracts} == {"DB손보"}
 
-    def test_담보를_지목하지_않으면_전_계약을_본다(self, catalog, coverage):
+    def test_담보를_지목하지_않으면_등록된_계약을_모두_본다(self, catalog, coverage):
         # 「사고 났는데 뭐 받을 수 있어요?」
         plan = _plan(catalog, coverage)
         assert plan.action is NextAction.SEARCH
-        assert len(plan.contracts) == 3
+        # 하나손보 건은 약관 미등록이라 검색 대상에서 빠지고 확보 대상으로 분리된다.
+        assert {c.insurer for c in plan.contracts} == {"KB손보", "DB손보"}
+        assert {c.insurer for c in plan.pending_terms} == {"하나손보"}
 
 
 class TestNotEnrolled:
@@ -185,3 +187,92 @@ class TestNormalize:
 
     def test_다른_담보는_구분된다(self):
         assert normalize_benefit_name("골절진단비") != normalize_benefit_name("골절수술비")
+
+
+class TestRegistrationGap:
+    """계약이 특정됐다고 약관이 등록된 것은 아니다."""
+
+    def test_보유_계약이어도_약관이_없으면_확보_요청으로_간다(self, catalog, coverage):
+        # 하나손보 건은 카탈로그에 미등록이다.
+        plan = _plan(catalog, coverage, benefit_mentioned="뇌혈관질환진단비")
+        assert plan.action is NextAction.CONFIRM_PAID_REQUEST
+        assert plan.terms_request.product_name == "무배당더블플러스건강보험(3종)(2001)"
+
+    def test_계약년월이_있으니_시점을_되묻지_않는다(self, catalog, coverage):
+        # 보장분석이 상품과 계약년월을 알려주므로 바로 비용 고지로 간다.
+        plan = _plan(catalog, coverage, benefit_mentioned="뇌혈관질환진단비")
+        assert plan.action is not NextAction.ASK_CONTRACT_DATE
+        assert plan.terms_request.contract_date.year == 2020
+
+    def test_일부만_등록되면_나머지를_알린다(self, catalog, coverage):
+        # 한 건이라도 답할 수 있으면 답하되, 확인 못 한 계약을 숨기지 않는다.
+        plan = _plan(catalog, coverage)
+        assert plan.action is NextAction.SEARCH
+        assert plan.pending_terms
+        assert plan.pending_terms[0].insurer == "하나손보"
+
+
+class TestCustomerContext:
+    def test_보장분석의_고객이_컨텍스트에_실린다(self, catalog):
+        profile = CoverageProfile(
+            contracts=(DRIVER_CONTRACT,),
+            as_of=date(2026, 5, 21),
+            customer_id="c1",
+            customer_name="차○희",
+        )
+        plan = _plan(catalog, profile, benefit_mentioned="골절진단비")
+        assert plan.context.customer_id == "c1"
+        assert plan.context.customer_name == "차○희"
+
+    def test_고객이_있으면_약관북_연결을_제안한다(self, catalog):
+        profile = CoverageProfile(
+            contracts=(DRIVER_CONTRACT,), customer_id="c1", customer_name="차○희"
+        )
+        plan = _plan(catalog, profile, benefit_mentioned="골절진단비")
+        assert plan.offer_customer_link
+
+    def test_확보_요청도_고객에_귀속된다(self, catalog):
+        profile = CoverageProfile(
+            contracts=(HEALTH_CONTRACT,), customer_id="c1", customer_name="차○희"
+        )
+        plan = _plan(catalog, profile, benefit_mentioned="뇌혈관질환진단비")
+        assert plan.terms_request.customer_id == "c1"
+        assert plan.terms_request.customer_name == "차○희"
+
+
+class TestAmountQuestion:
+    def test_보장분석이_있으면_가입금액으로_답한다(self, catalog, coverage):
+        # 약관으로는 금액을 답할 수 없지만 가입금액은 조회된 사실이다.
+        plan = _plan(
+            catalog,
+            coverage,
+            question_type=QuestionType.CONTRACT_VALUE,
+            benefit_mentioned="골절진단비",
+        )
+        assert plan.action is NextAction.SHOW_ENROLLMENT
+        assert len(plan.matches) == 3
+
+    def test_지급액이_아님을_밝힌다(self, catalog, coverage):
+        plan = _plan(
+            catalog,
+            coverage,
+            question_type=QuestionType.CONTRACT_VALUE,
+            benefit_mentioned="골절진단비",
+        )
+        assert "가입금액" in plan.prompt
+        assert "실제 지급액" in plan.prompt
+
+    def test_보장분석이_없으면_여전히_범위_밖이다(self, catalog):
+        plan = _plan(
+            catalog, question_type=QuestionType.CONTRACT_VALUE, benefit_mentioned="골절진단비"
+        )
+        assert plan.action is NextAction.OUT_OF_SCOPE
+
+    def test_가입하지_않은_담보의_금액은_답하지_않는다(self, catalog, coverage):
+        plan = _plan(
+            catalog,
+            coverage,
+            question_type=QuestionType.CONTRACT_VALUE,
+            benefit_mentioned="치아보철치료",
+        )
+        assert plan.action is NextAction.OUT_OF_SCOPE

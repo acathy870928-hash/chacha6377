@@ -31,9 +31,13 @@ from .catalog import (
 from .clarify import (
     ConversationContext,
     NextAction,
+    Option,
     ProductCatalog,
     TurnPlan,
+    apply_choice,
+    apply_contract_date,
     plan_turn,
+    resolve_paid_request,
 )
 from .pricing import (
     UNPRICED,
@@ -101,6 +105,7 @@ __all__ = [
     "EditionStatus",
     "InMemoryProductCatalog",
     "NextAction",
+    "Option",
     "PolicyEdition",
     "Product",
     "ProductCatalog",
@@ -116,6 +121,8 @@ __all__ = [
     "TurnPlan",
     "VersionSensitivity",
     "build_classification_prompt",
+    "apply_choice",
+    "apply_contract_date",
     "build_queries",
     "classify",
     "estimate_by_contract",
@@ -127,6 +134,7 @@ __all__ = [
     "plan_turn",
     "products_within_budget",
     "resolve_edition",
+    "resolve_paid_request",
     "route",
     "scope_for",
     "select_within_budget",

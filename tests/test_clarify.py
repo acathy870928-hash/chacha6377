@@ -1,7 +1,16 @@
+import pytest
+from conftest import AUTOPILOT, DRIVER, LEGACY, FakeCatalog
+
 from orca.clarify import ConversationContext, NextAction, plan_turn
 from orca.routing import Classification, route
 from orca.types import QuestionType, Source
 from orca.versioning import ApproxDate
+
+
+@pytest.fixture
+def small_catalog():
+    """보험사를 먼저 묻지 않을 만큼 후보가 적은 카탈로그."""
+    return FakeCatalog([DRIVER, AUTOPILOT, LEGACY])
 
 
 def _plan(catalog, question_type, context=None, **kwargs):
@@ -37,8 +46,8 @@ class TestNoClarificationNeeded:
 
 
 class TestAsksForProduct:
-    def test_상품이_없는_보상_질문은_상품을_되묻는다(self, catalog):
-        plan = _plan(catalog, QuestionType.COVERAGE)
+    def test_상품이_없는_보상_질문은_상품을_되묻는다(self, small_catalog):
+        plan = _plan(small_catalog, QuestionType.COVERAGE)
         assert plan.action is NextAction.ASK_PRODUCT
         assert plan.needs_user_input
         # 자유 입력 대신 인덱스에 있는 상품을 선택지로 준다.
@@ -126,17 +135,17 @@ class TestSessionContext:
 class TestUnregisteredTerms:
     """약관은 우선 일부만 등록한다. 없는 약관은 역질문으로 확정해 등록 요청으로 남긴다."""
 
-    def test_미등록_상품도_선택지에_보이되_준비중으로_표시된다(self, catalog):
+    def test_미등록_상품도_선택지에_보이되_준비중으로_표시된다(self, small_catalog):
         # 상품명 자체는 보여야 FA가 자료에 있는 상품인지 알 수 있다.
-        plan = _plan(catalog, QuestionType.COVERAGE)
+        plan = _plan(small_catalog, QuestionType.COVERAGE)
         assert plan.action is NextAction.ASK_PRODUCT
         assert "옛날든든보험" in plan.option_labels
 
         legacy = next(o for o in plan.options if o.label == "옛날든든보험")
         assert legacy.available is False
 
-    def test_등록된_약관이_선택지_앞에_온다(self, catalog):
-        plan = _plan(catalog, QuestionType.COVERAGE)
+    def test_등록된_약관이_선택지_앞에_온다(self, small_catalog):
+        plan = _plan(small_catalog, QuestionType.COVERAGE)
         available = [o.available for o in plan.options]
         assert available == sorted(available, reverse=True)
 
