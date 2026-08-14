@@ -1,0 +1,2420 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insurance AI 요구사항 정의서</title>
+<style>
+:root {
+  --paper: #FAFBFA;
+  --surface: #FFFFFF;
+  --ink: #151E1C;
+  --muted: #64716E;
+  --faint: #8B9793;
+  --rule: #E1E7E4;
+  --rule-soft: #EEF2F0;
+  --accent: #0B6E5F;
+  --accent-soft: #E8F2EF;
+  --second: #7A5C2E;
+  --second-soft: #F6F0E4;
+  --warn: #A33A22;
+  --warn-soft: #FAEDE8;
+  --shadow: 0 1px 2px rgba(21, 30, 28, .05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101615;
+    --surface: #161E1D;
+    --ink: #E7EEEB;
+    --muted: #9AA8A4;
+    --faint: #778481;
+    --rule: #27322F;
+    --rule-soft: #1D2726;
+    --accent: #52C9AF;
+    --accent-soft: #16302B;
+    --second: #C9A567;
+    --second-soft: #2C2519;
+    --warn: #E68A6E;
+    --warn-soft: #33201A;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101615;
+  --surface: #161E1D;
+  --ink: #E7EEEB;
+  --muted: #9AA8A4;
+  --faint: #778481;
+  --rule: #27322F;
+  --rule-soft: #1D2726;
+  --accent: #52C9AF;
+  --accent-soft: #16302B;
+  --second: #C9A567;
+  --second-soft: #2C2519;
+  --warn: #E68A6E;
+  --warn-soft: #33201A;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.72;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 56px 28px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── 표제 ─────────────────────────────────────────── */
+.masthead { border-bottom: 2.5px solid var(--accent); padding-bottom: 26px; margin-bottom: 34px; }
+.eyebrow {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 12px;
+}
+h1 {
+  font-size: clamp(28px, 5vw, 40px); line-height: 1.22; margin: 0 0 10px;
+  letter-spacing: -0.025em; font-weight: 800; text-wrap: balance;
+}
+.subtitle { color: var(--muted); font-size: 15px; margin: 0; }
+
+/* ── 목차 ─────────────────────────────────────────── */
+.toc {
+  border: 1px solid var(--rule); border-radius: 10px; background: var(--surface);
+  padding: 18px 22px; margin-bottom: 44px; box-shadow: var(--shadow);
+}
+.toc-h {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--faint); margin-bottom: 10px;
+}
+.toc ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 32px; }
+.toc li { break-inside: avoid; margin-bottom: 3px; font-size: 13.5px; }
+.toc a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; }
+.toc a:hover, .toc a:focus-visible { border-bottom-color: var(--accent); color: var(--accent); }
+.toc .n {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--faint); font-size: 12px; margin-right: 7px;
+}
+
+/* ── 본문 ─────────────────────────────────────────── */
+h2 {
+  font-size: 21px; font-weight: 800; letter-spacing: -0.02em;
+  margin: 60px 0 20px; padding-top: 22px; border-top: 1px solid var(--rule);
+  scroll-margin-top: 20px; text-wrap: balance;
+}
+h2:first-of-type { border-top: none; padding-top: 0; }
+hr + h2 { margin-top: 24px; padding-top: 0; border-top: none; }
+h3 {
+  font-size: 15.5px; font-weight: 750; margin: 40px 0 14px;
+  letter-spacing: -0.01em; text-wrap: balance;
+}
+h3.reqid {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px; letter-spacing: .06em; color: var(--accent);
+  font-weight: 700; margin: 0;
+}
+p { margin: 0 0 14px; max-width: 74ch; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; max-width: 74ch; }
+li { margin-bottom: 6px; }
+li > ul, li > ol { margin-top: 6px; }
+strong { font-weight: 750; }
+a { color: var(--accent); }
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .86em; background: var(--accent-soft); color: var(--accent);
+  padding: 1px 5px; border-radius: 4px;
+}
+pre {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto; margin: 0 0 20px;
+  font-size: 12.5px; line-height: 1.65;
+}
+pre code { background: none; color: var(--ink); padding: 0; font-size: inherit; }
+
+blockquote {
+  margin: 0 0 20px; padding: 14px 20px; border-left: 3px solid var(--accent);
+  background: var(--accent-soft); border-radius: 0 8px 8px 0; max-width: 74ch;
+}
+blockquote p:last-child { margin-bottom: 0; }
+
+hr { border: none; border-top: 1px solid var(--rule-soft); margin: 40px 0; }
+
+/* ── 표 ───────────────────────────────────────────── */
+.tablewrap { overflow-x: auto; margin: 0 0 22px; -webkit-overflow-scrolling: touch; }
+table {
+  border-collapse: collapse; width: 100%; min-width: 460px;
+  font-size: 13.5px; font-variant-numeric: tabular-nums;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+}
+th, td { text-align: left; vertical-align: top; padding: 9px 13px; border-bottom: 1px solid var(--rule-soft); line-height: 1.6; }
+th { background: var(--rule-soft); font-weight: 700; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+td code { font-size: 12px; }
+
+/* ── 요구사항 블록 ─────────────────────────────────── */
+.req {
+  background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0; padding: 20px 24px; margin: 0 0 12px;
+  box-shadow: var(--shadow);
+}
+.req.second { border-left-color: var(--second); }
+.reqhead {
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--rule-soft);
+}
+.reqname { font-size: 16px; font-weight: 800; letter-spacing: -0.015em; flex: 1 1 260px; }
+.chip {
+  font-size: 11px; font-weight: 700; letter-spacing: .04em; border-radius: 999px;
+  padding: 2px 9px; background: var(--rule-soft); color: var(--muted); white-space: nowrap;
+}
+.chip.stage { background: var(--accent-soft); color: var(--accent); }
+.chip.stage.second { background: var(--second-soft); color: var(--second); }
+.chip.owner { border: 1px dashed var(--rule); background: none; color: var(--faint); }
+
+.field { display: grid; grid-template-columns: 74px 1fr; gap: 14px; margin: 0 0 14px; max-width: none; }
+.field:last-child { margin-bottom: 0; }
+.field > .lab {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px; letter-spacing: .1em; color: var(--faint);
+  padding-top: 6px; text-transform: uppercase;
+}
+.field > .val { min-width: 0; }
+.field > .val > :last-child { margin-bottom: 0; }
+.field > .val p, .field > .val ul, .field > .val ol { max-width: 70ch; }
+
+@media (max-width: 640px) {
+  .wrap { padding: 36px 18px 80px; }
+  .toc ol { columns: 1; }
+  .req { padding: 16px 16px; }
+  .field { grid-template-columns: 1fr; gap: 2px; }
+  .field > .lab { padding-top: 0; }
+}
+
+footer {
+  margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--rule);
+  color: var(--faint); font-size: 12.5px;
+}
+
+@media print {
+  body { background: #fff; font-size: 10pt; }
+  .toc, .req { box-shadow: none; }
+  .req, table, blockquote, pre { break-inside: avoid; }
+  h2, h3 { break-after: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">요구사항 정의서 · 1차 오픈 2026-10-01</div>
+    <h1>Insurance AI</h1>
+    <p class="subtitle">FA용 보험 상담 AI — 요구사항 38건 (1차 33 · 2차 5)</p>
+  </header>
+  <nav class="toc">
+    <div class="toc-h">목차</div>
+    <ol><li><a href="#sec-1"><span class="n">1</span>사업 개요</a></li><li><a href="#sec-2"><span class="n">2</span>현황 및 문제점</a></li><li><a href="#sec-3"><span class="n">3</span>추진 범위</a></li><li><a href="#sec-4"><span class="n">4</span>요구사항 총괄</a></li><li><a href="#sec-5"><span class="n">5</span>요구사항 목록표</a></li><li><a href="#sec-6"><span class="n">6</span>1차 상세 요구사항 — 기능</a></li><li><a href="#sec-7"><span class="n">7</span>1차 상세 요구사항 — AI / 데이터</a></li><li><a href="#sec-8"><span class="n">8</span>1차 상세 요구사항 — 성능 / 인터페이스 / 테스트 / 보안 / 관리</a></li><li><a href="#sec-9"><span class="n">9</span>2차 상세 요구사항</a></li><li><a href="#sec-10"><span class="n">10</span>전달 전 확인해야 할 정보</a></li><li><a href="#sec-11"><span class="n">11</span>오픈 판정 — 무엇이 되면 여는가</a></li><li><a href="#sec-참고">참고</a></li></ol>
+  </nav>
+  <div class="tablewrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>사업명</td>
+<td>Insurance AI — FA 보험 상담 AI 구축</td>
+</tr>
+<tr>
+<td>발주</td>
+<td>주식회사 아이에프에이 AX팀</td>
+</tr>
+<tr>
+<td>1차 오픈</td>
+<td><strong>2026-10-01</strong> (작성일 2026-08-14 기준 약 7주)</td>
+</tr>
+<tr>
+<td>대상 사용자</td>
+<td>소속 보험설계사(FA). 고객 직접 사용은 2차</td>
+</tr>
+<tr>
+<td>데이터 소스</td>
+<td>Micky DATA(보험 일반지식) · VELUGA DATA(보험약관) <strong>2종만</strong></td>
+</tr>
+<tr>
+<td>채널</td>
+<td>데스크톱 웹</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>문서 구성</strong> — 1차(10/1)와 2차를 나누어 적었습니다.
+5장이 목록표, 6~8장이 <strong>1차 상세 요구사항</strong>, 9장이 <strong>2차 상세 요구사항</strong>입니다.
+<strong>담당 칸은 비워 두었습니다.</strong> 협의 후 채웁니다.</p>
+<p>서술 단위(분류 · 고유번호 · 명칭 · 정의 · 요구사항 · 상세기술 · 산출정보)는
+VELUGA가 제공한 「RFP 요구사항 정의 예시」를 따랐습니다.</p>
+</blockquote>
+<hr />
+<h2 id="sec-1">1. 사업 개요</h2>
+<h3>1.1 목적</h3>
+<p><strong>FA가 선배 설계사나 지점장에게 확인하던 것을 대체한다.</strong></p>
+<p>경쟁 상대는 다른 약관 검색 서비스가 아니라 <em>사람에게 묻는 방식</em>이다. 그 방식의 한계는 셋이다.
+물어볼 수 있는 시간이 정해져 있고, 답이 사람에 따라 다르고, 묻는 쪽이 아쉬워진다.
+이 시스템은 <strong>24시간 · 같은 기준 · 근거 조항 제시</strong>로 그 셋을 없앤다.</p>
+<p>목적을 셋으로 압축한다.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>목적</th>
+<th>성공 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>어느 약관으로 답했는지가 항상 보인다</strong></td>
+<td>모든 답변에 보험사 · 상품 · 판 · 조항 위치가 함께 나온다</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>틀린 「나온다」를 만들지 않는다</strong></td>
+<td>면책 조항이 지급사유보다 먼저 판정 · 표시된다</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>쓸수록 고객 자료가 쌓인다</strong></td>
+<td>확인한 약관이 고객 폴더에 누적되어 되묻기가 줄어든다</td>
+</tr>
+</tbody>
+</table></div>
+<p>가장 큰 효용은 <strong>보상</strong>에서 나온다. 지급 여부는 기억으로 답하기 가장 위험한 영역이고,
+틀리면 FA가 고객에게 잘못 안내한 것이 된다.</p>
+<h3>1.2 답변 두 층 — 1차 범위의 경계</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>1층 · 범용 (1차)</th>
+<th>2층 · 초개인화 (2차)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>근거</td>
+<td>Micky + 약관</td>
+<td>+ 보장분석</td>
+</tr>
+<tr>
+<td>답하는 것</td>
+<td>담보 정의, 지급사유, <strong>면책</strong>, 감액 조건</td>
+<td>「어디가 다쳤는데 얼마 받을 수 있어요」</td>
+</tr>
+<tr>
+<td><strong>금액</strong></td>
+<td><strong>말하지 않는다</strong></td>
+<td>조건 넷이 모두 갖춰졌을 때만</td>
+</tr>
+</tbody>
+</table></div>
+<p>금액을 말하려면 ① 보험사 · 상품 ② 가입 담보와 <strong>가입금액</strong> ③ 적용 약관 판
+④ 지급사유 · 면책 조항이 모두 있어야 한다. ①②는 보장분석에서만 온다.
+1차 범위에 보장분석이 없으므로 <strong>1차에서 금액 답변은 기능적으로 차단한다</strong>(IA-AI-005).</p>
+<hr />
+<h2 id="sec-2">2. 현황 및 문제점</h2>
+<h3>2.1 현재 업무</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>구분</th>
+<th>현재</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>보상 질문 처리</td>
+<td>FA → 선배 설계사 · 지점장 · 보상팀에 구두 확인</td>
+</tr>
+<tr>
+<td>약관 확인</td>
+<td>보험사 공시실 · 모홈 등에서 PDF를 직접 열어 검색</td>
+</tr>
+<tr>
+<td>기존 사내 AI</td>
+<td>출처 없는 일반론 답변. 「보통 …입니다」 수준에서 끝남</td>
+</tr>
+<tr>
+<td>고객 계약 정보</td>
+<td>보장분석 리포트(PDF)로 발행되나 <strong>AI와 연결돼 있지 않음</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3>2.2 「약관을 넣어두면 답한다」가 약관에서는 성립하지 않는다</h3>
+<p><strong>이 사업의 설계 전체가 이 문제 하나에서 나온다.</strong> 여기를 건너뛰면 나머지 요구사항이
+왜 이렇게 생겼는지 설명되지 않으므로 먼저 적는다.</p>
+<p><strong>(1) 사람은 「어느 약관인지」를 먼저 확정한다.</strong>
+베테랑 담당자는 조항을 찾기 전에 「그거 참좋은동행이요? 2109 개정 맞죠?」를 먼저 묻는다.
+확정되기 전에는 조항을 찾지 않고, 확정이 안 되면 <strong>답을 지어내지 않고 되묻는다.</strong>
+그다음 그 약관 <strong>한 권만</strong> 펼치고, 한 권 안에서는 조항끼리 헷갈리지 않는다.</p>
+<p><strong>(2) 그런데 일반적인 방식에는 그 1단계가 없다.</strong>
+약관 100권을 페이지 단위로 잘라 한 통에 섞어두고, 질문과 닮은 페이지를 골라 답을 만든다.
+사람으로 치면 책장을 보지 않고 뜯어놓은 페이지 더미에 손을 넣어 더듬는 것이다.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>찾는 범위</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>사람의 방식</td>
+<td>책장에서 그 책을 뽑는다 → 펼친다 → 찾는다 — <strong>1권</strong></td>
+</tr>
+<tr>
+<td>그냥 넣어둔 방식</td>
+<td>100권을 섞은 더미에서 닮은 페이지를 찾는다 — <strong>100권 전부</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>(3) 같은 조건을 사람에게 주면 사람도 못 한다.</strong>
+약관 100권의 표지를 떼고, 본문에서 상품명을 지우고, 페이지를 찢어 섞은 뒤
+「계단에서 굴러 골절됐는데 보장돼요?」라고 물으면 30년 차도 못 맞춘다.
+<strong>능력의 문제가 아니라 조건의 문제다. 조건을 바꾸면 된다.</strong></p>
+<p><strong>(4) 왜 하필 약관인가 — 서로 80~90%가 똑같은 책들이다.</strong>
+상품마다 다른 부분은 10~20%뿐이다. 검색이 하는 일은 「닮은 것 찾기」인데
+대상이 전부 닮아 있으면 아무거나 집어온다. 쌍둥이 100명 중에서 닮은 사람을 찾으라는 것과 같다.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>문서 종류</th>
+<th>문서끼리 얼마나 다른가</th>
+<th>넣어두면 답하는가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>사내 규정 · 매뉴얼</td>
+<td>각자 완전히 다름</td>
+<td>잘 됨</td>
+</tr>
+<tr>
+<td>뉴스 · 리포트</td>
+<td>주제가 전부 다름</td>
+<td>잘 됨</td>
+</tr>
+<tr>
+<td>계약서(건별)</td>
+<td>당사자 · 금액이 다름</td>
+<td>대체로 됨</td>
+</tr>
+<tr>
+<td>제품 매뉴얼(모델별)</td>
+<td>일부 겹침</td>
+<td>주의 필요</td>
+</tr>
+<tr>
+<td><strong>보험 약관</strong></td>
+<td><strong>서로 80~90% 동일</strong></td>
+<td><strong>안 됨</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>약관을 1,000권 넣어도 좋아지지 않는다. 오히려 나빠진다</strong> — 닮은 것이 더 많아진다.
+데이터를 더 넣어서 해결되는 종류의 문제가 아니다.</p>
+<p><strong>(5) 가장 위험한 것 — 검색은 「모르겠다」를 출력할 수 없다.</strong>
+사람은 모르면 「어느 상품이에요? 확인해보고 알려드릴게요」라고 말한다.
+검색은 구조상 후보를 점수순으로 내놓게 되어 있어, <strong>100권이 다 닮아도 1등은 반드시 나온다.</strong>
+그리고 그 1등으로 「상해 9급에 해당하여 50만원이 지급됩니다」라고 자신 있게 답한다.</p>
+<blockquote>
+<p><strong>틀렸을 때 틀렸다는 신호가 어디에도 남지 않는다.</strong>
+약관에서는 「80점짜리 답」이 「답 없음」보다 위험하다.
+보장 여부와 지급 금액은 민원 · 분쟁으로 직결된다.</p>
+</blockquote>
+<p><strong>(6) 해결은 사람이 하던 순서를 그대로 시키는 것이다.</strong> 새로 발명하는 것이 아니다.</p>
+<pre><code>1단계  어느 약관인지 확정한다      ← AI가 추측하지 않는다. 사용자가 고르거나 계약정보로 정해진다
+2단계  그 약관 한 권만 펼친다      ← 확정된 1권 안에서만 찾는다
+3단계  정해진 순서로 확인한다      ← 8칸 체크리스트. 면책을 건너뛸 수 없게 만든다
+4단계  근거와 함께 답한다          ← 「제5조 제2항에 따라 …」 + 못 찾은 항목은 「해당 조항 없음」
+</code></pre>
+<p>요구사항 IA-FUN-001 · IA-AI-002 · IA-FUN-004 · IA-AI-001이 각각 이 네 단계에 대응한다.</p>
+<h3>2.3 나머지 문제점</h3>
+<p><strong>(1) 답이 사람과 시간에 묶여 있다.</strong> 지점장이 자리에 없으면 답을 못 얻고, 같은 질문에 답이 달라진다.</p>
+<p><strong>(2) 약관 판을 사람이 관리할 수 없다.</strong> 보상은 <strong>계약 체결 시점의 약관</strong>이 적용된다.
+최신 약관으로 답하면 틀린 답이다. 그런데 한 상품의 판이 150개를 넘는 경우가 있고,
+상품 하나가 보장형태 · 납입방법에 따라 파일 여러 건으로 갈린다.</p>
+<p><strong>(3) 지급사유만 보고 판단하는 사고가 반복된다.</strong> 조항만 보면 보상 가능해 보이지만
+면책에 걸려 지급되지 않는 건이 있다. 지금은 이 확인이 개인의 숙련도에 달려 있다.</p>
+<p><strong>(4) 약관 확보에 비용이 든다.</strong> 약관은 벤더에 등록해야 검색되고 등록은 유료다.
+지금 가진 실적 데이터(손보 91개 · 61,297건, 생보 29개)는 <em>지금 파는 상품</em> 목록인데,
+보상 질문은 <em>이미 가입한 계약</em>에서 나온다. 두 목록이 다르다.</p>
+<h3>2.4 제약사항</h3>
+<ul>
+<li><strong>일정</strong> — 착수부터 오픈까지 약 7주. 요구사항을 1차와 2차로 갈라야 한다.</li>
+<li><strong>소스</strong> — 1차는 Micky · VELUGA 2종뿐. 보장분석 · Cloud DATA · External MCP는 범위 밖.</li>
+<li><strong>생성 위치</strong> — 답변 생성이 벤더 API 안에서 일어난다. 품질 통제 수단이 프롬프트 제어 가능 여부에 달려 있다.</li>
+<li><strong>단가 미확정</strong> — 유료 확보 흐름에서 금액을 표시할 수 없다(IA-FUN-009).</li>
+</ul>
+<hr />
+<h2 id="sec-3">3. 추진 범위</h2>
+<h3>3.1 대상 업무</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>1차 포함</th>
+<th>제외 (2차 이후)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>약관 스코프 확정(계단식 선택)</td>
+<td>계약 연동 자동 확정</td>
+</tr>
+<tr>
+<td>보상 질문 응답 (지급사유 · 면책 · 감액)</td>
+<td>보험금 청구 접수 · 심사</td>
+</tr>
+<tr>
+<td>담보 · 제도 · 용어 일반 질문 응답</td>
+<td>수수료 · 실적 등 사내 시스템 조회</td>
+</tr>
+<tr>
+<td>고객별 약관 누적(약관북) · 보장맵</td>
+<td><strong>금액 산출 · 초개인화</strong></td>
+</tr>
+<tr>
+<td>미등록 약관 확보 요청 · 검수 · 알림</td>
+<td>고객 직접 사용 · 청약 · 상품 비교</td>
+</tr>
+</tbody>
+</table></div>
+<h3>3.2 대상 사용자</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>역할</th>
+<th>하는 일</th>
+<th>1차</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FA</strong></td>
+<td>약관 선택, 질문, 고객 · 약관 등록, 확보 요청</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>관리자</strong></td>
+<td>확보 요청 승인, 예산 집행, 품질 지표 확인</td>
+<td>운영자 수기 처리로 대체 → 2차</td>
+</tr>
+<tr>
+<td>고객</td>
+<td>본인 보장 확인</td>
+<td>2차</td>
+</tr>
+</tbody>
+</table></div>
+<h3>3.3 단계 구조 — 스코프를 좁히는 수단을 늘려간다</h3>
+<p>한 번에 다 만들지 않는다. <strong>각 단계가 그 자체로 쓸모가 있다.</strong></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>확보하는 것</th>
+<th>가능해지는 것</th>
+<th>클릭</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1차</strong> FA 계단식 선택<br>보험사 → 보종 → 상품 → 판</td>
+<td>약관 1권 확정</td>
+<td>조항 조회 · 면책 확인</td>
+<td>2~3회</td>
+</tr>
+<tr>
+<td><strong>2차</strong> 계약 연동<br>증권 · 상품코드 · 계약일자</td>
+<td>약관 자동 확정</td>
+<td>「내 보험」 기준 답변</td>
+<td>0회</td>
+</tr>
+<tr>
+<td><strong>2차</strong> 보장분석 결합<br>담보 · 특약 단위 데이터</td>
+<td>가입 담보 · 보장금액</td>
+<td>금액 즉답 · 보장공백</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>마지막 단계에 오면 <strong>질문의 상당수가 약관 검색을 아예 타지 않는다.</strong>
+「얼마 나와요?」는 보장 데이터 조회만으로 답하고, 약관은 「왜 그런가 · 면책은 없나」를
+확인할 때만 펼친다. 어려운 문제를 푸는 대신 <strong>그 문제를 만나는 횟수를 줄이는 구조</strong>다.</p>
+<p><strong>1차만 해도 지금보다 낫고, 뒤 단계가 늦어져도 서비스는 그대로 돈다.</strong></p>
+<hr />
+<h2 id="sec-4">4. 요구사항 총괄</h2>
+<h3>4.1 총괄표</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>분류</th>
+<th>1차</th>
+<th>2차</th>
+<th>합계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기능</td>
+<td>10</td>
+<td>3</td>
+<td>13</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>6</td>
+<td>1</td>
+<td>7</td>
+</tr>
+<tr>
+<td>데이터</td>
+<td>2</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>성능</td>
+<td>1</td>
+<td>—</td>
+<td>1</td>
+</tr>
+<tr>
+<td>인터페이스</td>
+<td>5</td>
+<td>—</td>
+<td>5</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td>2</td>
+<td>—</td>
+<td>2</td>
+</tr>
+<tr>
+<td>보안</td>
+<td>2</td>
+<td>—</td>
+<td>2</td>
+</tr>
+<tr>
+<td>품질</td>
+<td>1</td>
+<td>—</td>
+<td>1</td>
+</tr>
+<tr>
+<td>제약사항</td>
+<td>2</td>
+<td>—</td>
+<td>2</td>
+</tr>
+<tr>
+<td>프로젝트 관리</td>
+<td>1</td>
+<td>—</td>
+<td>1</td>
+</tr>
+<tr>
+<td>프로젝트 지원</td>
+<td>1</td>
+<td>—</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>합계</strong></td>
+<td><strong>33</strong></td>
+<td><strong>5</strong></td>
+<td><strong>38</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3>4.2 전 요구사항에 걸리는 공통 규칙</h3>
+<p>개별 요구사항에 반복해 쓰지 않고 여기 한 번만 적는다. <strong>모든 요구사항이 이 규칙을 만족해야 한다.</strong>
+R1~R4가 2.2에서 나온 규칙이고, 나머지는 보상 답변의 안전 규칙이다.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>규칙</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>R1</strong></td>
+<td><strong>약관이 확정되기 전에는 검색하지 않는다</strong></td>
+<td>100권을 섞어놓고 닮은 것을 찾으면 아무거나 집어온다</td>
+</tr>
+<tr>
+<td><strong>R2</strong></td>
+<td><strong>어느 약관으로 답하고 있는지 항상 표시한다</strong></td>
+<td>보이지 않으면 FA가 고객에게 옮길 수 없고, 틀려도 무엇이 틀렸는지 모른다</td>
+</tr>
+<tr>
+<td><strong>R3</strong></td>
+<td><strong>스코프 밖 결과는 점수가 높아도 버린다</strong></td>
+<td>약관은 서로 90%가 닮아 남의 조항이 1등으로 올라온다</td>
+</tr>
+<tr>
+<td><strong>R4</strong></td>
+<td><strong>검색이 못 하는 「모르겠다」를 우리가 만든다</strong></td>
+<td>100권이 다 닮아도 1등은 반드시 나온다. 「해당 조항 없음」을 명시적 상태로 둔다</td>
+</tr>
+<tr>
+<td>R5</td>
+<td><strong>면책이 먼저다.</strong> 면책에 걸리면 지급사유가 있어도 뒤집지 못한다</td>
+<td>지급사유를 먼저 보이면 FA가 그 줄에서 읽기를 멈춘다</td>
+</tr>
+<tr>
+<td>R6</td>
+<td><strong>판을 추측하지 않는다.</strong> 시점이 특정되지 않으면 최신 판으로 답하지 않는다</td>
+<td>개정 전 가입자에게 틀린 답을 주는 것이 답을 못 하는 것보다 나쁘다</td>
+</tr>
+<tr>
+<td>R7</td>
+<td><strong>약관의 담보 ≠ 가입한 담보</strong></td>
+<td>약관에는 가입 <em>가능한</em> 담보가 전부 들어 있다</td>
+</tr>
+<tr>
+<td>R8</td>
+<td><strong>1차에서 금액을 말하지 않는다</strong></td>
+<td>1.2 참조</td>
+</tr>
+<tr>
+<td>R9</td>
+<td><strong>면책 · 미가입에 0원을 쓰지 않는다.</strong> 숫자가 아니라 사유를 둔다</td>
+<td>0원은 계산 결과처럼 보이지만 지급 자체가 성립하지 않는 것이다</td>
+</tr>
+<tr>
+<td>R10</td>
+<td><strong>비용은 먼저 밝히고 동의를 받는다.</strong> 단가 미확정 구간에서는 요청 의사만 받는다</td>
+<td>금액을 모른 채 받는 동의는 백지 동의다</td>
+</tr>
+<tr>
+<td>R11</td>
+<td><strong>최종 판단자는 사람이다.</strong> 확정은 보상 심사로 넘긴다</td>
+<td>금융분야 AI 가이드라인의 <strong>보조수단성</strong> 원칙</td>
+</tr>
+<tr>
+<td>R12</td>
+<td><strong>근거의 종류를 화면에서 구분한다</strong> — 약관 원문 / 보장 데이터(외부) / 일반지식</td>
+<td>외부 데이터가 틀렸을 때 책임 범위를 가릴 수 있어야 한다</td>
+</tr>
+<tr>
+<td>R13</td>
+<td><strong>벤더에 개인정보를 보내지 않는다</strong></td>
+<td>IA-SEC-001</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="sec-5">5. 요구사항 목록표</h2>
+<h3>5.1 1차 — 2026-10-01 오픈</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>순번</th>
+<th>구분</th>
+<th>고유번호</th>
+<th>요구사항 명</th>
+<th>담당</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>기능</td>
+<td>IA-FUN-001</td>
+<td><strong>약관 스코프 확정 — 계단식 선택</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>기능</td>
+<td>IA-FUN-002</td>
+<td>질문 분류 및 소스 라우팅</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>기능</td>
+<td>IA-FUN-003</td>
+<td>약관 판 특정 및 되묻기(보완 경로)</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>기능</td>
+<td>IA-FUN-004</td>
+<td>보상 판정 — 면책 우선 · 8칸 체크리스트</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>기능</td>
+<td>IA-FUN-005</td>
+<td>고객 등록 및 상담 컨텍스트</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>기능</td>
+<td>IA-FUN-006</td>
+<td>약관 등록 — 다중 경로</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>기능</td>
+<td>IA-FUN-007</td>
+<td>보장맵</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>기능</td>
+<td>IA-FUN-008</td>
+<td>약관북 — 고객별 폴더</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>기능</td>
+<td>IA-FUN-009</td>
+<td>미등록 약관 확보 요청 및 비용 동의</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>기능</td>
+<td>IA-FUN-010</td>
+<td>확보 파이프라인 · 검수 · 알림</td>
+<td></td>
+</tr>
+<tr>
+<td>11</td>
+<td>AI</td>
+<td>IA-AI-001</td>
+<td><strong>답변 근거 약관 표시 및 출처 제시</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>12</td>
+<td>AI</td>
+<td>IA-AI-002</td>
+<td><strong>스코프 강제 및 검색 결과 제한</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>13</td>
+<td>AI</td>
+<td>IA-AI-003</td>
+<td>약관 RAG 검색 (VELUGA)</td>
+<td></td>
+</tr>
+<tr>
+<td>14</td>
+<td>AI</td>
+<td>IA-AI-004</td>
+<td>보험 일반지식 검색 (Micky)</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td>AI</td>
+<td>IA-AI-005</td>
+<td>가드레일 — 추측 금지 · 금액 차단 · 단정 회피</td>
+<td></td>
+</tr>
+<tr>
+<td>16</td>
+<td>AI</td>
+<td>IA-AI-006</td>
+<td>AI 사용 로그 및 답변 품질 모니터링</td>
+<td></td>
+</tr>
+<tr>
+<td>17</td>
+<td>데이터</td>
+<td>IA-DAT-001</td>
+<td>보험사 · 보종 · 상품 · 판 마스터</td>
+<td></td>
+</tr>
+<tr>
+<td>18</td>
+<td>데이터</td>
+<td>IA-DAT-002</td>
+<td>약관 청크 메타데이터 요건</td>
+<td></td>
+</tr>
+<tr>
+<td>19</td>
+<td>성능</td>
+<td>IA-PER-001</td>
+<td>응답시간 · 동시접속 · 스트리밍</td>
+<td></td>
+</tr>
+<tr>
+<td>20</td>
+<td>인터페이스</td>
+<td>IA-INT-001</td>
+<td>VELUGA 약관 검색 API 연계</td>
+<td></td>
+</tr>
+<tr>
+<td>21</td>
+<td>인터페이스</td>
+<td>IA-INT-002</td>
+<td>Micky RAG 연계</td>
+<td></td>
+</tr>
+<tr>
+<td>22</td>
+<td>인터페이스</td>
+<td>IA-INT-003</td>
+<td>LLM 모델 선택 및 전환</td>
+<td></td>
+</tr>
+<tr>
+<td>23</td>
+<td>인터페이스</td>
+<td>IA-INT-004</td>
+<td>사내 인증(SSO) 및 FA · 조직 연계</td>
+<td></td>
+</tr>
+<tr>
+<td>24</td>
+<td>인터페이스</td>
+<td>IA-INT-005</td>
+<td>알림 채널 연계</td>
+<td></td>
+</tr>
+<tr>
+<td>25</td>
+<td>테스트</td>
+<td>IA-TST-001</td>
+<td>답변 품질 검증 — 골든셋</td>
+<td></td>
+</tr>
+<tr>
+<td>26</td>
+<td>테스트</td>
+<td>IA-TST-002</td>
+<td>통합 및 사용자 인수 테스트</td>
+<td></td>
+</tr>
+<tr>
+<td>27</td>
+<td>보안</td>
+<td>IA-SEC-001</td>
+<td>개인정보 최소수집 및 외부 전송 통제</td>
+<td></td>
+</tr>
+<tr>
+<td>28</td>
+<td>보안</td>
+<td>IA-SEC-002</td>
+<td>접근권한 · 담당 고객 통제 · 감사추적</td>
+<td></td>
+</tr>
+<tr>
+<td>29</td>
+<td>품질</td>
+<td>IA-QUA-001</td>
+<td>운영 안정성 · 장애 격리 · 모니터링</td>
+<td></td>
+</tr>
+<tr>
+<td>30</td>
+<td>제약사항</td>
+<td>IA-CON-001</td>
+<td>금융 · AI · 개인정보 관련 규정 준수</td>
+<td></td>
+</tr>
+<tr>
+<td>31</td>
+<td>제약사항</td>
+<td>IA-CON-002</td>
+<td>1차 범위 제약 — 소스 2종 · 금액 미답변</td>
+<td></td>
+</tr>
+<tr>
+<td>32</td>
+<td>프로젝트 관리</td>
+<td>IA-PMR-001</td>
+<td>요구사항 · 변경 · 위험 관리</td>
+<td></td>
+</tr>
+<tr>
+<td>33</td>
+<td>프로젝트 지원</td>
+<td>IA-PSR-001</td>
+<td>교육 · 운영전환 · 하자보수</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<h3>5.2 2차</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>순번</th>
+<th>구분</th>
+<th>고유번호</th>
+<th>요구사항 명</th>
+<th>담당</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>34</td>
+<td>기능</td>
+<td>IA-FUN-011</td>
+<td>계약 연동 — 약관 자동 확정</td>
+<td></td>
+</tr>
+<tr>
+<td>35</td>
+<td>기능</td>
+<td>IA-FUN-012</td>
+<td>관리자 — 확보 승인 및 예산 집행</td>
+<td></td>
+</tr>
+<tr>
+<td>36</td>
+<td>기능</td>
+<td>IA-FUN-013</td>
+<td>약관 개정 알림</td>
+<td></td>
+</tr>
+<tr>
+<td>37</td>
+<td>데이터</td>
+<td>IA-DAT-003</td>
+<td>보장분석 연동 및 <strong>담보 ↔ 조항 매핑</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>38</td>
+<td>AI</td>
+<td>IA-AI-007</td>
+<td>초개인화 — 금액 답변</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="sec-6">6. 1차 상세 요구사항 — 기능</h2>
+
+<div class="req" id="IA-FUN-001"><div class="reqhead"><h3 class="reqid">IA-FUN-001</h3><div class="reqname">약관 스코프 확정 — 계단식 선택</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>질문에 답하기 전에 어느 약관 한 권을 볼 것인지 사용자가 직접 좁혀 확정하는 기능. <strong>2.2의 1단계에 대응하며 이 시스템의 첫 관문이다</strong></p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li><strong>보험사 → 보종 → 상품명 → 가입 시점(판)</strong> 순으로 좁혀 약관 1권을 확정할 수 있어야 함</li>
+<li>스코프가 확정되지 않은 상태에서는 <strong>약관 검색을 호출하지 않아야</strong> 함</li>
+<li>확정된 스코프를 화면에 <strong>상시 표시</strong>하고 언제든 변경할 수 있어야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li><strong>「AI가 되묻는다」가 아니라 「사용자가 미리 고른다」로 만든다.</strong> 질문이 들어오는 순간 이미 1권으로 좁혀져 있으면 「찾기」 문제 자체가 사라진다. FA는 보험사 · 보종 · 상품을 이미 알고 있으므로 클릭 두세 번이면 끝나고 마찰이 거의 없다</li>
+<li><strong>진입점은 일반 답변 하단의 「고객 약관 등록하고 확인하기」 버튼이다.</strong> 일반 답변을 먼저 내주고, 더 정확한 답이 필요할 때 FA가 눌러 들어온다. 이 버튼이 곧 아래 4단계의 입구다</li>
+<li><strong>보종 단계를 넣는다</strong> — 장기 / 자동차 / 일반 / 통합 / 퇴직연금. 상품이 수백 개인 보험사에서 이 한 단계가 목록을 크게 줄인다. FA는 자기 계약의 보종을 알고 있어 묻는 비용이 거의 없다</li>
+<li>스코프 단계와 상태</li>
+</ul>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>확정된 것</th>
+<th>검색 가능</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>—</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>1</td>
+<td>보험사</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>2</td>
+<td>+ 보종</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>3</td>
+<td>+ 상품</td>
+<td>❌ 판이 여럿이면 답이 달라진다</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><strong>+ 판(시행일)</strong></td>
+<td><strong>✅ 여기서만 건다</strong></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>상품 목록이 길면 <strong>약어 · 별칭 검색을 목록 위에 보조로 얹는다.</strong> 선택을 대체하지는 않는다 — 자유 입력만 받으면 표기가 흔들려 같은 약관에 대한 요청이 여러 건으로 흩어진다</li>
+<li><strong>선택을 건너뛰고 바로 묻는 경우</strong> — 모든 상품 공통 조항으로 답할 수 있는 질문이면 그냥 답하고, 상품마다 다른 조항일 때만 선택을 요구한다(IA-FUN-002가 판별한다). 매번 선택을 강요하면 도구가 무거워진다</li>
+<li>이미 확정된 스코프가 있으면(약관북에서 열고 들어옴, 세션에 있음) 다시 고르게 하지 않는다</li>
+<li>스코프 미확정 상태로 검색이 호출되면 <strong>예외로 실패시킨다.</strong> 조용히 통과시키면 다른 상품 조항으로 답하고도 아무도 모른다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>화면정의서, 스코프 단계 정의서, 선택기 컴포넌트 명세, 단위테스트 결과서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-002"><div class="reqhead"><h3 class="reqid">IA-FUN-002</h3><div class="reqname">질문 분류 및 소스 라우팅</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>질문을 유형별로 분류해 어느 소스를 쓸지, <strong>약관 스코프 확정이 필요한지</strong>를 결정하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>질문을 8개 유형(개념 / 판매 / 상품정보 / 담보용어 / <strong>보상</strong> / 인수심사 / 절차 / 계약가치)으로 분류하여야 함</li>
+<li>유형별로 <strong>스코프 필요 여부</strong>와 사용할 소스를 결정하여야 함</li>
+<li>분류는 LLM이 수행하되 <strong>라우팅 판단은 규칙 코드로 고정</strong>하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>라우팅 표는 코드 상수로 관리하며 LLM 출력에 좌우되지 않는다. LLM이 「약관이 필요 없다」고 해도 보상 유형이면 약관 경로로 간다</li>
+<li><strong>스코프 필요 여부를 여기서 가른다</strong> — 이것이 「매번 선택을 요구하지 않는」 근거다</li>
+</ul>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>질문</th>
+<th>스코프</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>「골절진단비가 뭔가요?」 (약관 공통 정의)</td>
+<td>불필요 — 바로 답한다</td>
+</tr>
+<tr>
+<td>「음주운전 사고도 지급되나요?」 (상품 · 판마다 다름)</td>
+<td><strong>필수</strong></td>
+</tr>
+<tr>
+<td>「청구할 때 뭐 필요해요?」 (절차)</td>
+<td>불필요</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>담보 지목 범위</strong>를 함께 판별한다</li>
+<li><em>지목형</em> — 「골절진단비 나오나요」처럼 담보가 명시된 질문 → 해당 담보만 조회</li>
+<li><em>열거형</em> — 「골절됐는데 보상되나요」처럼 상황만 있는 질문 → <strong>걸릴 수 있는 담보를 모두 열거</strong>한다. 좁게 잡으면 청구 누락이 생기므로 넓게 걸고 FA가 판단하게 한다</li>
+<li>분류 실패 · 저확신 시 임의 라우팅하지 않고 스코프 확정 경로로 보낸다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>라우팅 정의서, 질문유형 분류 기준서, 분류 프롬프트 명세, 단위테스트 결과서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-003"><div class="reqhead"><h3 class="reqid">IA-FUN-003</h3><div class="reqname">약관 판 특정 및 되묻기 (보완 경로)</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>선택기를 거치지 않고 바로 질문한 경우, 최소 횟수로 되물어 스코프를 확정하는 보완 경로</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>보상 답변은 <strong>계약 체결 시점에 시행 중이던 판</strong>을 기준으로 하여야 함</li>
+<li>스코프가 확정되지 않은 경우 보험사 → 보종 → 상품 → 가입 시점 순으로 되물어야 함</li>
+<li>이미 확정된 정보는 다시 묻지 않아야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li><strong>되묻기는 기본 경로가 아니라 보완 경로다.</strong> 기본은 IA-FUN-001의 선택기다</li>
+<li><strong>되묻기는 걸러낸 뒤에만 한다.</strong> ① 세션에 이미 있음 ② 고객 폴더에 해당 계약이 있음 ③ 판이 하나뿐임 — 셋 중 하나면 묻지 않는다</li>
+<li><strong>가입 시점은 「연 · 월」까지만 받는다.</strong> 약관 시행일이 대개 매월 1일이고 개정이 분기 · 반기 시작일에 몰리므로 연 · 월만으로 판이 확정되는 경우가 대부분이다. 월 경계에 걸쳐 판이 2개 이상 남을 때만 일자를 추가로 묻는다</li>
+<li><strong>판 후보가 6개 이하일 때만 칩(버튼)으로 제시</strong>한다. 한 상품에 판이 150개를 넘는 경우가 있어 전량 나열이 불가능하므로, 초과 시에는 연 · 월 입력만 받는다</li>
+<li>상품 후보가 8개를 넘으면 나열하지 않고 보종부터 좁힌다</li>
+<li>상품명 정규화 시 배당 표기(무배당 등)만 걷어내고 <strong>괄호 안 보장형태 · 납입방법 표기는 유지</strong>한다. 「동행(사망보장형-월납)」과 「동행 Plus(월납)」은 약관 파일이 다르다</li>
+<li>이름이 정확히 일치해도 후보를 단독 확정하지 않는다</li>
+<li>되묻기 선택지에 <strong>미등록 상품도 포함</strong>하고 「약관 준비중」으로 표시한다. 목록에 아예 없으면 FA는 상품명을 잘못 말한 것인지 자료가 없는 것인지 구분하지 못한다</li>
+<li><strong>되묻는 횟수를 지표로 관리한다.</strong> 선택기가 잘 동작하면 이 값이 낮아져야 정상이다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>되묻기 흐름도, 판 해석 규칙 정의서, 상품명 정규화 규칙서, 화면정의서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-004"><div class="reqhead"><h3 class="reqid">IA-FUN-004</h3><div class="reqname">보상 판정 — 면책 우선 · 8칸 체크리스트</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>확정된 약관 안에서 조항을 정해진 순서로 확인해 지급 가능성을 판정하는 기능. <strong>2.2의 3단계에 대응한다</strong></p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>아래 <strong>8칸을 매번 평가</strong>하고, 확인하지 못한 칸은 「해당 조항 없음」으로 표시하여야 함</li>
+<li>판정은 <strong>면책을 지급사유보다 먼저</strong> 평가하여야 함</li>
+<li>판정 결과를 답변 <strong>최상단</strong>에 배치하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li><strong>체크리스트(빠뜨림 방지)와 판정 순서(조기 종료)는 다르다.</strong> 둘 다 필요하다</li>
+</ul>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>목적</th>
+<th>순서</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>확인 체크리스트</strong></td>
+<td>무엇도 건너뛰지 못하게</td>
+<td>담보 → 지급사유 → 등급표 → 금액 → <strong>면책</strong> → 대기기간 → 한도 → 결론</td>
+</tr>
+<tr>
+<td><strong>판정 순서</strong></td>
+<td>틀린 「나온다」를 막게</td>
+<td>가입 여부 → <strong>면책</strong> → 지급사유 → 감액 · 대기기간 · 한도</td>
+</tr>
+</tbody>
+</table></div>
+<p>체크리스트는 8칸을 전부 채우게 하고, 판정은 면책에서 걸리면 거기서 끝낸다.
+  <strong>면책 칸이 비어 있으면 판정을 확정하지 않는다.</strong>
+- 판정 결과 구분: <code>지급가능</code> / <code>감액·조건부</code> / <code>면책</code> / <code>미가입</code> / <code>사실확인필요</code> / <code>불명</code>
+- 사실관계에 따라 갈리는 건(음주 여부, 업무 중 여부)은 <code>면책</code>으로 단정하지 않고 <strong><code>사실확인필요</code></strong>로 표시하고 확인할 사실을 명시한다
+- 근거 조항이 하나도 없으면 <code>불명</code>이며 「지급되지 않는다」로 바꾸어 표시하지 않는다. <strong>근거 없음과 지급 불가는 다르다</strong>
+- <strong>면책 · 미가입 건의 금액 자리에 0원을 쓰지 않는다.</strong> 사유를 표시한다
+- 합계는 <code>지급가능</code> 건만 합산하고, 제외된 건수와 사유를 함께 표시한다
+- <strong>막힌 건도 숨기지 않는다.</strong> 면책 · 미가입 · 확인 필요 건을 목록에서 빼면 FA가 다시 확인해야 한다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>판정 로직 명세서, 8칸 체크리스트 정의서, 판정 결과 표기 가이드, 단위테스트 결과서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-005"><div class="reqhead"><h3 class="reqid">IA-FUN-005</h3><div class="reqname">고객 등록 및 상담 컨텍스트</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>FA가 담당 고객을 만들고, 현재 상담이 어느 고객 기준인지를 화면에 명시적으로 유지하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>고객 생성의 <strong>필수 입력값은 이름 하나</strong>여야 함. 주민등록번호 · 연락처 · 생년월일은 수집하지 않아야 함</li>
+<li>동일 이름의 담당 고객이 있으면 <strong>생성 전에 제시</strong>하여 중복 생성을 방지하여야 함</li>
+<li>상담 화면에 현재 대상 고객을 항상 표시하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>동명이인 구분은 선택 입력인 <strong>짧은 메모</strong>(예: 「92년생」)로 처리한다. 여기에도 식별정보를 담지 않는다</li>
+<li>고객 식별자는 이름과 분리해 발급한다(동명이인 · 개명 대응)</li>
+<li>고객 목록 조회는 <strong>언제나 담당 FA 단위로 한정</strong>한다. 담당이 아닌 고객은 검색으로도 나오지 않고, 식별자를 직접 지정해도 조회되지 않는다</li>
+<li>상담 중 「이 고객 기준으로 확인하기」를 눌렀을 때 고객이 없으면 <strong>그 자리에서</strong> 생성 화면을 띄운다. 다른 메뉴로 이동시키면 흐름이 끊긴다</li>
+<li>상담이 끝나면 세션 컨텍스트를 내린다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>화면정의서, 고객 데이터 항목 정의서(최소화 근거 포함), 권한 매트릭스</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-006"><div class="reqhead"><h3 class="reqid">IA-FUN-006</h3><div class="reqname">약관 등록 — 다중 경로</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>고객의 가입 계약을 보장맵에 등록하는 기능. 상황에 따라 빠른 경로를 우선 제시한다</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>등록 경로를 <strong>최소 4종</strong> 제공하고 <strong>빠른 순으로 정렬</strong>하여 제시하여야 함</li>
+<li>현재 상황에서 사용할 수 없는 경로는 목록에서 제외하여야 함</li>
+<li>등록 후 <strong>다른 상품 추가 등록</strong>을 이어서 유도하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>보험사 → 상품 검색 → 등록만 제공하면 한 건에 3단계이고, 고객 한 명이 계약을 대여섯 건 보유하므로 <strong>15단계</strong>가 된다. FA는 한 번 해보고 다시 하지 않는다</li>
+</ul>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>순</th>
+<th>경로</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>보장분석 리포트 파일 업로드</strong></td>
+<td>계약 전부가 한 번에. FA가 이미 발행받아 가지고 있는 문서다</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>대화에서 말한 상품 등록</strong></td>
+<td>이미 말한 상품을 다시 검색하게 하지 않는다</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>최근 등록한 상품에서 선택</strong></td>
+<td>인기 상품은 고객마다 겹친다(손보 실적 상위 10개 중 7개가 운전자보험)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>보험사 · 상품명 검색</td>
+<td>확실하지만 느리다. 마지막 수단</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>경로 1은 <strong>보장분석 <em>연동</em>(2차) 없이도 <em>파일</em>로 동작한다</strong></li>
+<li>업로드 결과는 <strong>저장 전에 확인 화면</strong>으로 보여준다. 잘못 읽힌 계약이 확인 없이 보장맵에 남으면 안 된다</li>
+<li>전체 선택 상태로 시작하되 개별 해제가 가능해야 한다(해지 계약 · 무관한 계약 제외)</li>
+<li><strong>「계약을 확인한 것」과 「약관이 등록된 것」을 목록에서 구분 표시</strong>한다. 이 구분을 숨기면 보장맵은 채워진 것처럼 보이는데 정작 답을 못 한다</li>
+<li>요약 문구에 등록 건수와 <strong>약관 확보 필요 건수를 함께</strong> 표기한다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>화면정의서, 리포트 파서 명세서, 업로드 파일 형식 · 검증 규칙서, 사용자 매뉴얼</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-007"><div class="reqhead"><h3 class="reqid">IA-FUN-007</h3><div class="reqname">보장맵</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>등록된 약관을 고객 → 계약 → 담보 3계층으로 펼쳐 보여주고 담보별 가입 상태를 관리하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>약관 등록으로 채워진 담보의 가입 상태 기본값은 <strong>「확인 필요」</strong>여야 함</li>
+<li><strong>「미가입」과 「확인 필요」를 구분</strong>하여야 함</li>
+<li>확정 근거(증권 확인 / 보장분석 / 수기)를 담보별로 보관하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>약관은 그 상품에서 <strong>가입할 수 있는</strong> 담보의 목록일 뿐이므로 약관만 등록한 상태를 가입으로 취급하면 안 된다(R7)</li>
+<li>미가입은 <em>확인된 사실</em>이고 확인 필요는 <em>아직 모르는 것</em>이다. 뭉개면 FA가 증권을 볼 이유를 잃는다</li>
+<li>답변에서 확인 필요 건은 합계에서 제외하되 <strong>몇 건인지 밝힌다</strong></li>
+<li>화면에서 3색으로 구분하고 계약별로 묶어 표시한다</li>
+<li>명칭은 「보장트리」(개발 용어) · 「보장분석」(외부 업체 서비스명과 충돌)을 쓰지 않는다. <strong>「보장맵을 채운다 · 비어 있다」로 미완성 상태를 말할 수 있다는 점</strong>이 이 이름을 고른 이유다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>화면정의서, 보장맵 데이터 모델 정의서, 담보 상태 전이 규칙서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-008"><div class="reqhead"><h3 class="reqid">IA-FUN-008</h3><div class="reqname">약관북 — 고객별 폴더</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>상담 중 확인한 약관을 고객별 폴더로 누적하고, 다음 상담에서 스코프 선택 없이 바로 열 수 있게 하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>답변에 사용한 약관을 <strong>고객 건으로 지정해 누적</strong>할 수 있어야 함</li>
+<li>약관북은 상담과 <strong>나란한 최상위 메뉴</strong>여야 하며, 첫 화면은 질문창이어야 함</li>
+<li>폴더에서 약관을 열면 <strong>스코프가 곧바로 확정</strong>되어야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>폴더에서 여는 것이 <strong>스코프 확정의 가장 빠른 경로</strong>다. 클릭 한 번으로 IA-FUN-001의 4단계가 끝난다</li>
+<li>「최근 상담」(대화 이력)과 약관북(고객별 약관)은 성격이 다르므로 같은 목록에 섞지 않는다</li>
+<li>폴더 정렬은 <strong>약관이 최근에 추가된 순</strong></li>
+<li>검색은 <strong>고객명과 상품명 양쪽</strong>으로 되어야 한다</li>
+<li>같은 고객 · 같은 약관은 중복 저장하지 않는다</li>
+<li>연결 출처(상담 중 저장 / 보장분석 / 유료 확보)를 보관해 <strong>비용을 들여 확보한 약관이 몇 명에게 쓰이는지</strong> 집계할 수 있게 한다</li>
+<li>상담 제목에 상품 · 판을 남긴다(예: 「차○희 · 골절 진단금 / 내맘같은어린이보험 2019.04 판」)</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>화면정의서, 데이터 모델 정의서, 검색 사양서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-009"><div class="reqhead"><h3 class="reqid">IA-FUN-009</h3><div class="reqname">미등록 약관 확보 요청 및 비용 동의</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>벤더에 색인되지 않은 약관을 FA가 확보 요청하고 비용 부담에 동의하는 절차</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>미등록 약관이어도 <strong>상품과 가입 시점을 먼저 확정한 뒤</strong> 요청을 접수하여야 함</li>
+<li>비용이 발생할 수 있음을 <strong>접수 전에</strong> 고지하고 동의를 받아야 함</li>
+<li>동일 상품 · 동일 판에 대한 선행 요청이 진행 중이면 <strong>중복 과금하지 않아야</strong> 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li><strong>단가 미확정 구간의 처리(현재 상태)</strong> — 금액을 표시하지 않고 <strong>요청 의사만</strong> 받는다</li>
+</ul>
+<blockquote>
+<p>「…확보에는 등록 비용이 발생할 수 있습니다. 요청을 남기시면 비용과 진행 여부를 확인해 안내드리겠습니다.」 <code>[확보 요청하기]</code> <code>[취소]</code></p>
+</blockquote>
+<p>접수된 요청은 <em>청구 대상 후보</em>이지 결제 동의가 아니다. 실제 청구는 금액을 안내하고 <strong>다시 동의를 받은 뒤에만</strong> 한다
+- 고지 화면에 ① 무엇에 대한 비용인지(상품명 + 판/시행일까지) ② 금액 ③ <strong>취소</strong>를 항상 함께 둔다
+- 미등록이어도 스코프 확정을 끝까지 하는 이유는 등록 단위가 「상품」이 아니라 <strong>「상품 + 판」</strong>이기 때문이다
+- 요청은 세 갈래로 처리한다</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>상황</th>
+<th>처리</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>색인에 있음</td>
+<td>스코프 확정 후 검색 · 답변</td>
+</tr>
+<tr>
+<td>마스터에 있으나 미색인</td>
+<td>시점 확인 → 없다고 안내 + 요청 기록(상품 ID 포함)</td>
+</tr>
+<tr>
+<td>마스터에도 없는 이름</td>
+<td>시점 확인 → 없다고 안내 + 요청 기록(이름만)</td>
+</tr>
+</tbody>
+</table></div>
+<p>세 번째를 「모르는 상품입니다」로 끝내지 않는다. 그렇게 하면 우리가 모르는 상품일수록 요청이 쌓이지 않아 정작 필요한 약관이 등록 목록에 영영 오르지 않는다
+- <strong>요청 시점의 원 질문을 함께 저장</strong>한다. 검수와 알림에 그대로 쓴다
+- 「확보 대상으로 등록했습니다」처럼 <strong>등록을 약속하지 않는다.</strong> 「접수했고 검토 후 안내」까지만 말한다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>화면정의서, 비용 고지 문안, 요청 상태 전이 정의서, 과금 정책서(정책 확정 후)</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-FUN-010"><div class="reqhead"><h3 class="reqid">IA-FUN-010</h3><div class="reqname">확보 파이프라인 · 검수 · 알림</div><span class="chip">기능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>접수된 요청을 약관 확보 → 색인 → 검수 → 알림까지 처리하는 운영 흐름</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>상태를 <code>접수 → 대기 → 확보 → 색인 → 검수 → 알림</code>으로 관리하고 각 단계 전이를 기록하여야 함</li>
+<li><strong>검수를 통과한 뒤에만</strong> 완료 알림을 발송하여야 함</li>
+<li>확보 실패 시에도 사유와 함께 종료를 알려야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li><strong>임베딩이 끝난 것과 답할 수 있는 것은 다르다.</strong> 파일 파싱 오류, 특약 미구분, 판 오매핑이 있으면 등록은 됐는데 답이 안 나온다. 이 상태에서 「등록됐습니다」를 알리면 FA가 다시 물어보고 또 실패한다 — 신뢰가 한 번에 깨진다</li>
+<li>검수 기준을 「임베딩 성공」이 아니라 <strong>「그 FA의 원 질문에 근거 조항이 나오는가」</strong>로 둔다</li>
+<li>검수 통과 조건에 두 가지를 포함한다</li>
+<li><strong>면책 조항이 함께 검색되는가</strong> — 지급사유는 잘 찾는데 면책을 놓치는 색인은 가장 나쁜 형태로 틀린다</li>
+<li><strong>스코프 밖 조항이 섞여 오지 않는가</strong> — 다른 상품 조항이 반환되면 색인 메타데이터나 필터가 동작하지 않는다는 뜻이다</li>
+<li>알림 규칙</li>
+<li><strong>원 질문을 알림에 함께 싣고</strong> 탭 한 번으로 그 맥락으로 돌아가게 한다</li>
+<li>같은 FA · 같은 약관은 여러 번 물었어도 <strong>1회만</strong> 알린다</li>
+<li>배치에서 여러 약관이 동시에 등록되면 <strong>FA별로 묶어 한 건</strong>으로 보낸다</li>
+<li><strong>접수 즉시</strong> 「접수했습니다」를 보여준다</li>
+<li>배치 주기는 <strong>주 1회 고정</strong>. 주기가 일정해야 예상 시점을 안내할 수 있다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>업무흐름도, 상태 전이 정의서, 검수 체크리스트, 알림 템플릿 목록, 배치 운영 절차서</p>
+</div></div></div><hr />
+<h2 id="sec-7">7. 1차 상세 요구사항 — AI / 데이터</h2>
+
+<div class="req" id="IA-AI-001"><div class="reqhead"><h3 class="reqid">IA-AI-001</h3><div class="reqname">답변 근거 약관 표시 및 출처 제시</div><span class="chip">AI</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>지금 어느 약관으로 답하고 있는지를 화면에 상시 표시하고, 각 문장의 근거를 조항 단위까지 제시하는 기능. <strong>2.2의 4단계에 대응한다</strong></p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>답변 화면에 <strong>현재 스코프(보험사 · 상품 · 판)를 상시 표시</strong>하여야 함</li>
+<li>약관 근거 문장에는 <strong>조 · 항 · 호 위치</strong>를 함께 표시하여야 함</li>
+<li><strong>근거 종류를 구분</strong>하여 표시하여야 함 — 약관 원문 / 보장 데이터(외부) / 일반지식</li>
+<li>근거를 찾지 못한 항목은 <strong>「해당 조항 없음」으로 명시</strong>하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>스코프 표시는 답변에 붙는 각주가 아니라 <strong>화면에 고정된 바(bar)</strong>다. 스크롤해도 보이고 거기서 바로 바꿀 수 있어야 한다</li>
+</ul>
+<blockquote>
+<p>📄 <strong>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행판</strong> 〔약관 변경〕</p>
+</blockquote>
+<p>이것이 없으면 FA는 답을 고객에게 옮길 수 없고, 틀렸을 때 <strong>무엇이 틀렸는지도 알 수 없다</strong>
+- 표시 구조: <strong>스코프 바 → 판정 → 담보별 결과 → 근거 조항(면책 우선) → 근거 종류 → 유의 문구</strong>
+- 근거 종류 표기</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>종류</th>
+<th>표기</th>
+<th>책임</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>약관 원문</td>
+<td>「제5조 제2항」 + 원문</td>
+<td>확정된 약관</td>
+</tr>
+<tr>
+<td>보장 데이터(외부)</td>
+<td>「보장분석 데이터 기준」 (2차)</td>
+<td><strong>외부 업체 데이터</strong></td>
+</tr>
+<tr>
+<td>일반지식</td>
+<td>「Micky DATA — 보험 일반지식」</td>
+<td>특정 상품 확정이 아님</td>
+</tr>
+</tbody>
+</table></div>
+<p>섞어 쓰면 외부 데이터가 틀렸을 때 어디까지가 우리 책임인지 가릴 수 없다(R12)
+- 조항 원문은 길므로 요약을 먼저 보이고 <strong>펼쳐보기</strong>로 원문을 제공한다. 다만 FA는 고객에게 근거로 제시해야 하므로 원문 인용을 요약으로 대체하지 않는다
+- 답변 하단에 <strong>기준일</strong>(약관 시행일 · 자료 기준일)을 표시한다
+- 톤은 실무형으로 한다. 단정하는 대신 확인이 필요한 쟁점을 짚고 최종 판단은 보상 심사로 넘긴다(R11)</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>답변 포맷 정의서, 스코프 바 화면정의서, 프롬프트 명세서, 출처 표기 규칙서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-AI-002"><div class="reqhead"><h3 class="reqid">IA-AI-002</h3><div class="reqname">스코프 강제 및 검색 결과 제한</div><span class="chip">AI</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>확정된 약관 한 권 밖으로 검색이 새어 나가지 않도록 막는 통제. <strong>2.2의 2단계에 대응하며 정확도의 마지막 방어선이다</strong></p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>스코프가 확정되지 않은 상태의 검색 호출은 <strong>실패시켜야</strong> 함</li>
+<li>반환된 결과 중 <strong>스코프 밖 조항은 점수와 무관하게 제외</strong>하여야 함</li>
+<li>유사도 하한 미만의 결과는 근거로 쓰지 않아야 함</li>
+<li>남는 근거가 없으면 <strong>「해당 조항 없음」으로 종료</strong>하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li><strong>벤더 필터를 신뢰하고 넘기지 않고 받은 쪽에서 한 번 더 건다.</strong> 필터가 없거나 헐거우면 다른 상품 조항이 그대로 답변에 실리는데, 약관은 서로 90%가 닮아 <strong>그 사실이 눈에 띄지도 않는다</strong></li>
+<li>판별 키는 <code>(보험사, 상품, 판)</code>이다. 셋 중 하나라도 다르면 버린다</li>
+<li><strong>순위를 낮춰가며 채우지 않는다.</strong> 결과가 비면 비는 것이 정답이다. 「그나마 닮은 것」을 조항으로 제시하면 R4가 무너진다</li>
+<li><strong>버린 것을 로그에 남긴다</strong> — 채택 / 스코프밖 / 점수미달 건수. 스코프 밖 반환이 계속 나오면 벤더 색인이나 필터가 동작하지 않는다는 신호이고, 이 값이 IA-FUN-010 검수의 근거가 된다</li>
+<li>유사도 하한은 설정값으로 두고 골든셋(IA-TST-001)으로 조정한다. 너무 높으면 답할 수 있는 것도 못 하고, 너무 낮으면 「닮은 것 중 1등」이 근거로 올라온다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>스코프 강제 로직 명세서, 필터 · 하한 정책서, 차단 케이스 테스트 결과서, 제외 로그 설계서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-AI-003"><div class="reqhead"><h3 class="reqid">IA-AI-003</h3><div class="reqname">약관 RAG 검색 (VELUGA)</div><span class="chip">AI</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>보험약관 벡터DB를 검색해 근거 조항과 생성 답변을 반환하는 기능. <strong>상당수는 구현 요청이 아니라 제공 여부 확인 항목이다</strong></p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>생성 답변과 함께 <strong>근거 청크(조항 원문 · 위치)</strong>를 반환하여야 함</li>
+<li>검색 시 <strong>상품 · 판 단위 메타데이터 필터</strong>를 적용할 수 있어야 함</li>
+<li><strong>판매 종료 상품의 약관</strong>을 색인하고 검색할 수 있어야 함</li>
+</ul>
+<p><strong>상세기술 — 제안사 확인 항목</strong></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>확인 항목</th>
+<th>확인이 안 되면</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>판매 종료 상품 색인 가능 여부</strong></td>
+<td>보상용 약관 자체를 살 수 없다. <strong>이 기획의 전제가 무너진다</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>근거 청크(조항 원문) 반환 여부</td>
+<td><strong>목적 1이 성립하지 않는다.</strong> 사실상 필수</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>메타데이터 필터 검색(상품 · 판 한정)</strong></td>
+<td>스코프를 확정해도 100권을 뒤진다. IA-AI-002가 사후 필터만으로 버텨야 한다</td>
+</tr>
+<tr>
+<td>4</td>
+<td>시스템 프롬프트 · 답변 형식 제어 가능 여부</td>
+<td>면책 우선 표시를 우리가 강제할 수 없다</td>
+</tr>
+<tr>
+<td>5</td>
+<td>retrieval-only 모드 유무</td>
+<td>Micky 결과와 합쳐 우리가 직접 생성하는 선택지가 닫힌다</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>유사도 점수 반환 여부</strong></td>
+<td>하한을 걸 수 없어 「닮은 것 중 1등」을 거를 수 없다</td>
+</tr>
+<tr>
+<td>7</td>
+<td>멀티턴 지원 여부</td>
+<td>되묻기 후 대화 연결 방식이 갈린다</td>
+</tr>
+<tr>
+<td>8</td>
+<td>선택 가능한 LLM 목록 · 모델별 비용 · 지연</td>
+<td>성능 목표 산정 불가</td>
+</tr>
+<tr>
+<td>9</td>
+<td>커버리지 — 보험사 · 상품 · 시점 범위</td>
+<td>초기 등록 목록을 짤 수 없다</td>
+</tr>
+<tr>
+<td>10</td>
+<td>갱신 주기 — 개정분 반영 시점</td>
+<td>시점 관리 공백 구간이 생긴다</td>
+</tr>
+<tr>
+<td>11</td>
+<td>인증 방식 · 호출 한도 · 응답 지연</td>
+<td>부하 설계 불가</td>
+</tr>
+</tbody>
+</table></div>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>API 명세서, 색인 커버리지 목록, 청크 메타데이터 스키마, 검색 품질 검증 결과서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-AI-004"><div class="reqhead"><h3 class="reqid">IA-AI-004</h3><div class="reqname">보험 일반지식 검색 (Micky)</div><span class="chip">AI</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>보험이론 · 제도 · 법령 · 담보 용어 등 <strong>스코프 없이 답할 수 있는 범위</strong>를 담당하는 자체 RAG</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>스코프 없이 답할 수 있는 질문은 <strong>선택 · 되묻기 없이 즉시</strong> 답하여야 함</li>
+<li>Micky 답변에서 <strong>금액과 특정 상품의 지급 확정을 말하지 않아야</strong> 함</li>
+<li>자료 유효기간이 지난 문서가 검색 결과에 섞이지 않아야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>「골절이 되었는데 보상될 수 있어요?」는 Micky만으로 답이 나오고 <strong>그 답으로 충분한 경우가 많다.</strong> 매번 약관 선택을 요구하면 도구가 무거워진다</li>
+<li>답변 하단에 분기를 둔다 — <code>[고객 약관 등록하고 확인하기]</code> / <code>[이 답변으로 충분해요]</code>. <strong>두 선택지를 같은 무게로</strong> 둔다. 일반 답변은 실패가 아니다</li>
+<li><strong>앞 버튼이 IA-FUN-001 스코프 선택기의 입구다.</strong> 여기서 보험사 → 보종 → 상품 → 판으로 이어진다</li>
+<li>이미 스코프가 확정된 상담에서는 분기를 띄우지 않는다</li>
+<li>자료 유효기간 · 태그 체계는 AX팀 공유 예정(TBD). 인덱스 단계에서 만료 자료를 거르는 구조를 먼저 만들어 둔다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>지식베이스 목록, 유효기간 · 태그 정책서, 인덱싱 파이프라인 명세서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-AI-005"><div class="reqhead"><h3 class="reqid">IA-AI-005</h3><div class="reqname">가드레일 — 추측 금지 · 금액 차단 · 단정 회피</div><span class="chip">AI</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>근거 없는 답변, 범위 밖 답변, 확정적 단정을 시스템 차원에서 차단하는 통제</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>근거가 없거나 확신도가 낮은 경우 <strong>임의 답변을 제한</strong>하고 확인 필요 상태로 표시하여야 함</li>
+<li><strong>1차 범위에서 금액 답변을 차단</strong>하여야 함</li>
+<li>답변 범위를 벗어난 질문(청약 · 세무 · 의료 판단 등)은 경계를 안내하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>차단은 프롬프트 지시만으로 하지 않고 <strong>라우팅 · 후처리 코드 양쪽에서</strong> 건다. 프롬프트는 확률적이고 코드는 결정적이다</li>
+<li>금액 차단 해제 조건: 보험사 · 상품 확정 + 가입 담보와 <strong>가입금액</strong> 확정 + 적용 판 확정 + 지급사유 · 면책 확인. <strong>넷 중 하나라도 없으면 금액을 말하지 않는다</strong></li>
+<li>「모른다」를 세 가지로 나눠 각각 다른 문구로 안내한다 — 자료 없음 / 스코프 안에 해당 조항 없음 / 범위 밖</li>
+<li>고위험 답변(면책 판정, 지급 가능성)에는 <strong>최종 판단자가 사람임을 화면과 로그에 명확히 남긴다</strong></li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>가드레일 정책서, 프롬프트/후처리 명세서, 차단 케이스 테스트 결과서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-AI-006"><div class="reqhead"><h3 class="reqid">IA-AI-006</h3><div class="reqname">AI 사용 로그 및 답변 품질 모니터링</div><span class="chip">AI</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>질문 · 스코프 · 검색 · 생성 전 과정을 기록하고 품질 지표를 산출하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>질문, 분류 결과, <strong>확정 스코프</strong>, 사용 소스, <strong>채택 · 제외된 근거 건수</strong>, 모델, 응답시간을 기록하여야 함</li>
+<li>아래 지표를 정기 산출하여야 함</li>
+<li>로그에 개인정보가 남지 않아야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>지표</th>
+<th>의미</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>스코프 밖 반환율</strong></td>
+<td>돌려받은 것 중 스코프 밖이던 비율</td>
+<td><strong>색인 · 필터 품질의 직접 지표</strong></td>
+</tr>
+<tr>
+<td><strong>「해당 조항 없음」 비율</strong></td>
+<td>스코프 안에서 근거를 못 찾은 비율</td>
+<td>색인 누락 · 하한 과다 판단</td>
+</tr>
+<tr>
+<td>미등록 비율</td>
+<td>보상 질문 중 「약관 없음」으로 끝난 비율</td>
+<td>등록 예산 증액 근거</td>
+</tr>
+<tr>
+<td>되묻기 발생률</td>
+<td>선택기를 건너뛰어 되물어야 했던 비율</td>
+<td>선택기 UX 검증</td>
+</tr>
+<tr>
+<td>되묻기 이탈률</td>
+<td>되물었는데 FA가 답하지 않고 나간 비율</td>
+<td>되묻기가 과한지 판단</td>
+</tr>
+<tr>
+<td>검수 실패율</td>
+<td>등록했으나 원 질문에 답하지 못한 비율</td>
+<td>색인 품질</td>
+</tr>
+<tr>
+<td>등록 1건당 해소 요청 수</td>
+<td>비용 효율</td>
+<td>예산 유지 · 축소 판단</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>스코프 밖 반환율</strong>을 최우선으로 본다. 이 값이 높으면 IA-AI-002가 막아주고는 있지만 <strong>색인이나 필터가 제 역할을 못 하고 있다는 뜻</strong>이고, 방어선이 하나뿐인 상태다</li>
+<li>FA가 답변에 「도움됨 / 틀림」을 남길 수 있게 하고, 「틀림」은 원 질문 · 스코프 · 근거 조항과 함께 검수 대상으로 쌓는다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>로그 설계서, 지표 정의서, 모니터링 대시보드 설계서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-DAT-001"><div class="reqhead"><h3 class="reqid">IA-DAT-001</h3><div class="reqname">보험사 · 보종 · 상품 · 판 마스터</div><span class="chip">데이터</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>스코프 선택기가 딛고 서는 기준 데이터와 표기 흔들림을 흡수하는 정규화 규칙</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li><strong>보험사 → 보종 → 상품 → 판(시행일)</strong> 4계층 마스터를 관리하여야 함</li>
+<li>색인 여부와 무관하게 <strong>상품명은 노출</strong>되어야 함</li>
+<li>상품명 표기 차이를 정규화해 동일 상품으로 묶어야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>원천은 ① 벤더가 보유한 상품 · 판 목록(가장 빠름) ② 협회 통합공시 · 각 보험사 공시실(커버리지 점검용). 공시는 감독규정이 정한 통일 양식을 따르므로 기계적 수집이 가능하다</li>
+<li><strong>보종 분류를 마스터에 넣는다</strong> — 장기 / 자동차 / 일반 / 통합 / 퇴직연금. 목록에 보종이 없으면 상품명 · 공시 분류에서 매핑해 채운다</li>
+<li>정규화 규칙 — 배당 표기(무배당 등) · 공백 · 특수문자는 정리하되 <strong>괄호 안 보장형태 · 납입방법 · 판 표기는 유지</strong>한다. 약관 파일이 그 단위로 갈린다</li>
+<li><strong>약어 · 별칭 사전</strong>을 별도로 둔다(IA-FUN-001의 보조 검색용). 「참좋은동행」 → 「무배당 프로미라이프 참좋은동행보험」</li>
+<li>현재 시드: 손보 91개(계약 61,297건) · 생보 29개. <strong>이 목록은 <em>지금 파는 상품</em>이므로 보상용 등록 목록과 다르다</strong></li>
+<li>판 확정 로직은 계약년월 → 시행 중이던 판으로 해석한다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>데이터 표준 정의서, ERD, 정규화 규칙서, 약어 사전, 정합성 검증 결과서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-DAT-002"><div class="reqhead"><h3 class="reqid">IA-DAT-002</h3><div class="reqname">약관 청크 메타데이터 요건</div><span class="chip">데이터</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>약관 색인의 청크가 갖추어야 할 메타데이터. <strong>답변 정확도의 상한이 여기서 정해진다</strong></p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>— 청크에 아래 항목이 실려 있어야 함</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>필수</th>
+<th>없으면 발생하는 문제</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>보험사 · 상품 식별자</td>
+<td>✅</td>
+<td><strong>스코프 필터가 불가능하다.</strong> IA-AI-002가 동작하지 않는다</td>
+</tr>
+<tr>
+<td>약관 판 · 시행일</td>
+<td>✅</td>
+<td>R6 위반. 최신 판으로 과거 계약에 답하게 된다</td>
+</tr>
+<tr>
+<td><strong>주계약 · 특약 구분(특약명)</strong></td>
+<td>✅</td>
+<td><strong>다른 특약 조항으로 답하는 오답.</strong> 한 권 안에서도 이것이 없으면 헷갈린다</td>
+</tr>
+<tr>
+<td>조 · 항 · 호 위치</td>
+<td>✅</td>
+<td>근거 제시 불가</td>
+</tr>
+<tr>
+<td><strong>조항 유형 태그</strong></td>
+<td>✅</td>
+<td>면책을 놓친다. 가장 나쁜 형태의 오답</td>
+</tr>
+<tr>
+<td>보장형태 · 납입방법</td>
+<td>권장</td>
+<td>같은 상품의 다른 파일과 혼선</td>
+</tr>
+<tr>
+<td>유사도 점수</td>
+<td>권장</td>
+<td>하한을 걸 수 없다</td>
+</tr>
+</tbody>
+</table></div>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>앞의 두 항목이 <strong>스코프의 판별 키</strong>다. 이것이 없으면 우리 쪽 필터가 무엇으로 걸러야 할지 알 수 없다</li>
+<li>조항 유형 태그 범주: <code>지급사유</code> / <code>면책</code> / <code>감액지급</code> / <code>대기기간·면책기간</code> / <code>지급제한</code>(가입 전 발병, 고지의무 위반 등)</li>
+<li><strong>질문이 「나오나요」 한 줄이어도 지급사유와 면책을 항상 함께</strong> 반환해야 한다</li>
+<li>위 항목이 갖춰지지 않은 색인은 <strong>등록해도 검수를 통과하지 못한다.</strong> 착수 전 표본 검증으로 확인한다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>청크 메타데이터 스키마, 표본 검색 결과서, 색인 품질 검증 리포트</p>
+</div></div></div><hr />
+<h2 id="sec-8">8. 1차 상세 요구사항 — 성능 / 인터페이스 / 테스트 / 보안 / 관리</h2>
+
+<div class="req" id="IA-PER-001"><div class="reqhead"><h3 class="reqid">IA-PER-001</h3><div class="reqname">응답시간 · 동시접속 · 스트리밍</div><span class="chip">성능</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>상담 · 선택 · 등록 화면의 응답시간, 처리량, 자원 사용률 기준</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>— 아래 목표를 충족하여야 함. <strong>지연의 상당 부분이 검색 API와 LLM 생성에 있으므로 구간별로 나누어 측정</strong>하여야 함</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>구간</th>
+<th>목표(정상 부하)</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>스코프 선택 단계 전환</strong></td>
+<td><strong>0.8초 이내</strong></td>
+<td>클릭 2~3회가 빨라야 선택기가 쓰인다</td>
+</tr>
+<tr>
+<td>첫 토큰 표시</td>
+<td>2초 이내</td>
+<td>스트리밍 필수</td>
+</tr>
+<tr>
+<td>일반 답변(Micky) 완료</td>
+<td>5초 이내</td>
+<td></td>
+</tr>
+<tr>
+<td>약관 답변(검색 + 생성) 완료</td>
+<td>10초 이내</td>
+<td>외부 API 지연 포함</td>
+</tr>
+<tr>
+<td>되묻기 화면(후보 목록)</td>
+<td>1.5초 이내</td>
+<td>검색 · 생성이 없다</td>
+</tr>
+<tr>
+<td>약관북 · 보장맵 조회</td>
+<td>3초 이내</td>
+<td></td>
+</tr>
+<tr>
+<td>리포트 업로드 파싱</td>
+<td>30초 이내</td>
+<td>진행 표시 필수</td>
+</tr>
+</tbody>
+</table></div>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>동시접속 목표는 <strong>[확정 필요]</strong> — FA 규모 확정 후 산정</li>
+<li>10초는 일반 조회 화면 기준(3초)과 다르다. RAG 검색 + LLM 생성이 포함되므로 동일 기준을 적용할 수 없고, 대신 <strong>스트리밍으로 체감 지연을 낮춘다</strong></li>
+<li>선택기 응답이 느리면 FA가 선택을 건너뛰고 바로 묻게 되어 되묻기 경로로 몰린다. <strong>선택기 속도가 정확도에 영향을 준다</strong></li>
+<li>배치(약관 등록 · 알림 발송)는 별도 기준으로 정의하고 사용자 화면 성능 기준에서 제외한다</li>
+<li>부하 테스트는 <strong>외부 API를 실제 호출하는 구간과 모킹 구간을 분리</strong>해 수행한다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>성능 테스트 계획서, 부하 테스트 결과서, 구간별 지연 측정 리포트, 모니터링 대시보드 설계서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-INT-001"><div class="reqhead"><h3 class="reqid">IA-INT-001</h3><div class="reqname">VELUGA 약관 검색 API 연계</div><span class="chip">인터페이스</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>약관 검색 · 생성을 수행하는 API와의 송수신 규격</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>요청에 <strong>확정된 스코프(보험사 · 상품 · 판)를 필수 파라미터로</strong> 실어야 함</li>
+<li>요청에 <strong>개인 식별정보를 싣지 않아야</strong> 함(R13)</li>
+<li>응답에 생성 답변과 <strong>근거 청크</strong>가 함께 와야 함</li>
+<li>연계 실패 시 재처리 · 오류 통보 · 대체 응답 절차를 제공하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>전송 항목을 스키마로 고정하고 <strong>필드 추가 시 테스트가 실패하도록</strong> 잠금장치를 둔다. 개인정보 분리를 문서가 아니라 코드로 강제한다</li>
+<li>전송 항목은 <strong>보험사 · 상품 · 판 · 담보명 · 정제된 상황 서술</strong>로 한정한다</li>
+<li><strong>질문 원문을 그대로 전송하지 않는다.</strong> FA가 「김○○ 고객이 계단에서…」처럼 입력하면 분리가 깨진다. 분류기가 정리한 상황 서술만 싣고 실명 호칭 · 주민번호 · 연락처는 패턴 필터로 한 번 더 거른다</li>
+<li>운영 · 개발 · 검증 환경의 엔드포인트와 테스트 데이터 기준을 분리한다</li>
+<li><strong>외부 서비스 장애가 서비스 전체 장애로 확산되지 않도록</strong> 타임아웃 · 재시도 · 회로차단을 둔다. 장애 시 Micky 단독 답변으로 축약하고 <strong>「약관 조회 불가」를 명시</strong>한다</li>
+<li>오류코드 체계와 재처리 기준을 정의한다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>인터페이스 목록, API 명세서, 전송 항목 스키마, 연계 테스트 결과서, 오류코드 정의서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-INT-002"><div class="reqhead"><h3 class="reqid">IA-INT-002</h3><div class="reqname">Micky RAG 연계</div><span class="chip">인터페이스</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>자체 보험 일반지식 RAG와의 연계 및 결과 결합</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>두 소스를 함께 써야 하는 질문에서 결과를 결합하되 <strong>출처가 섞이지 않아야</strong> 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>결합 순서는 「약관 근거 우선, 일반지식은 보조 설명」이다. 약관에 조항이 있으면 일반론이 그것을 덮어쓰지 않는다. 반대로 <strong>스코프 안에 조항이 없을 때 일반지식으로 메워 답하지 않는다</strong> — 「해당 조항 없음」과 일반론은 다른 문장이며 화면에서도 구분한다. Micky 프롬프트에 고객 데이터를 넣을 때는 외부 전송과 동일한 최소화 기준을 적용한다(외부 LLM API 사용 시 처리위탁 · 국외이전 검토 대상)</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>결합 로직 명세서, 프롬프트 명세서</p>
+</div></div></div><div class="req" id="IA-INT-003"><div class="reqhead"><h3 class="reqid">IA-INT-003</h3><div class="reqname">LLM 모델 선택 및 전환</div><span class="chip">인터페이스</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>답변 생성에 사용할 LLM을 선택 · 전환하고 비용과 품질을 관리하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>모델을 <strong>설정으로 전환</strong>할 수 있어야 하며, 모델 변경 시 골든셋 재검증을 거쳐야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>모델 · 프롬프트 · 파라미터를 코드에 하드코딩하지 않는다. 모델별 비용 · 지연 · 품질을 함께 기록해 교체 판단 근거로 삼는다. <strong>모델을 올려도 스코프 문제는 해결되지 않는다</strong> — 질문 안에 「어느 상품인지」가 안 들어 있으면 어떤 모델도 못 맞춘다. 모델 교체는 문장 품질 개선 수단이지 정확도 대책이 아니다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>모델 운영 정책서, 모델별 비교 평가서, 변경 이력 대장</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-INT-004"><div class="reqhead"><h3 class="reqid">IA-INT-004</h3><div class="reqname">사내 인증(SSO) 및 FA · 조직 연계</div><span class="chip">인터페이스</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>FA 계정 · 소속 조직 · 재직 상태를 사내 시스템에서 받아 접근 권한의 근거로 쓰는 연계</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>별도 계정을 만들지 않고 사내 인증을 사용하여야 하며, <strong>퇴사 · 소속 변경이 접근 권한에 반영</strong>되어야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>퇴직자 계정으로 고객 자료가 계속 열리는 상태를 만들지 않는다. 반영 주기와 즉시 차단 수단을 함께 정의한다. FA ↔ 담당 고객 관계의 원천과 갱신 주기를 명시한다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>연계 명세서, 계정 · 권한 전이 정의서</p>
+</div></div></div><div class="req" id="IA-INT-005"><div class="reqhead"><h3 class="reqid">IA-INT-005</h3><div class="reqname">알림 채널 연계</div><span class="chip">인터페이스</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>확보 접수 · 완료 · 실패 알림을 FA에게 전달하는 채널 연계</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>채널별 발송 여부와 <strong>발송 실패 이력</strong>을 관리하여야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>채널은 <strong>[확정 필요]</strong>(사내 메신저 / 알림톡 / 이메일 / 인앱). 인앱 알림은 1차 필수, 외부 채널은 선택. 알림 본문에 고객명 · 계약 정보 등 개인정보를 담지 않는다 — 상품명과 원 질문까지만 싣는다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>알림 템플릿 목록, 채널 연계 명세서, 발송 이력 설계서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-TST-001"><div class="reqhead"><h3 class="reqid">IA-TST-001</h3><div class="reqname">답변 품질 검증 — 골든셋</div><span class="chip">테스트</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>실제 보상 질문으로 구성한 정답셋으로 답변 품질을 반복 검증하는 절차</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>보상 질문 <strong>최소 100건</strong>의 골든셋을 구성하고, 오픈 전 · 모델 변경 시 · 약관 배치 등록 후 재실행하여야 함</li>
+<li>통과 기준을 <strong>스코프 정확도와 면책 재현율 중심</strong>으로 정하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>골든셋 구성 — 운전자보험 중심(벌금 · 형사합의금 · 부상치료비 · 자동차사고부상등급), 면책 사례(음주 · 무면허 · 고의 · 업무상), 판이 갈리는 사례(개정 전후 동일 질문), 열거형 질문</li>
+<li><strong>닮은 상품 쌍을 반드시 넣는다</strong> — 같은 보험사의 유사 상품, 같은 상품의 인접 판. 90% 닮은 문서에서 엉뚱한 조항을 집어오는지가 이 시스템의 핵심 실패 모드이므로 여기를 집중 검증한다</li>
+<li>통과 기준</li>
+</ul>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>기준</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>스코프 밖 조항 인용</strong></td>
+<td><strong>0건</strong></td>
+<td>다른 약관으로 답하면 그 답 전체가 무효다</td>
+</tr>
+<tr>
+<td><strong>면책 조항 재현율</strong></td>
+<td><strong>100%</strong></td>
+<td>면책을 놓친 답변은 가장 나쁜 형태로 틀린다</td>
+</tr>
+<tr>
+<td>판 일치율</td>
+<td>100%</td>
+<td>다른 판 조항 인용은 즉시 오답</td>
+</tr>
+<tr>
+<td>특약 오귀속</td>
+<td>0건</td>
+<td>다른 특약 조항으로 답하면 안 된다</td>
+</tr>
+<tr>
+<td>근거 조항 정확도(조 · 항 일치)</td>
+<td>95% 이상</td>
+<td>FA가 고객에게 그대로 읽어줄 수 있어야 한다</td>
+</tr>
+<tr>
+<td>근거 없는 단정</td>
+<td>0건</td>
+<td>R4</td>
+</tr>
+<tr>
+<td>금액 언급(1차)</td>
+<td>0건</td>
+<td>R8</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>「정답이 없는 질문」을 20% 이상 넣는다.</strong> 스코프 안에 조항이 없는 질문에서 <strong>실제로 「해당 조항 없음」이라고 답하는지</strong>가 검증 대상이다. 검색은 언제나 1등을 내놓으므로 이 항목이 통과하지 않으면 나머지 점수는 의미가 없다</li>
+<li>검증은 자동 채점 + 보상 실무자 표본 검토를 병행한다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>골든셋 문항표, 채점 기준서, 회귀 검증 결과서, 실무자 검토 의견서</p>
+</div></div></div><div class="req" id="IA-TST-002"><div class="reqhead"><h3 class="reqid">IA-TST-002</h3><div class="reqname">통합 및 사용자 인수 테스트</div><span class="chip">테스트</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>업무 시나리오 기반 UAT와 회귀 · 장애 대응 테스트</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>주요 시나리오 <strong>95% 이상 통과</strong>, 치명 결함 <strong>0건</strong>이어야 오픈함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>시나리오는 6~7장 기능 흐름을 그대로 따른다 — ① 스코프 선택 후 약관 답변 ② 선택 건너뛰고 질문 → 되묻기 ③ 일반 답변 ④ 고객 생성 · 약관 등록 ⑤ 리포트 업로드 ⑥ 미등록 확보 요청 ⑦ 검수 · 알림 ⑧ 외부 API 장애 시 축약 동작. UAT는 <strong>실제 FA 표본</strong>이 수행하며, <strong>선택기를 실제로 쓰는지 / 건너뛰는지</strong>를 함께 관찰한다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>테스트 계획서, 시나리오별 결과서, 결함 관리 대장, 오픈 판정 보고서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-SEC-001"><div class="reqhead"><h3 class="reqid">IA-SEC-001</h3><div class="reqname">개인정보 최소수집 및 외부 전송 통제</div><span class="chip">보안</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>취급하는 개인정보를 최소화하고, 외부로 나가는 값에서 개인정보를 분리하는 통제</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>서비스 운영에 <strong>필요하지 않은 개인정보를 수집하지 않아야</strong> 함</li>
+<li>외부 API 전송 항목에서 개인 식별정보를 <strong>구조적으로 배제</strong>하여야 함</li>
+<li>로그 · 알림에 개인정보가 남지 않아야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>수집한다</th>
+<th>수집하지 않는다</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>고객 이름(FA 구분용) · 짧은 메모</td>
+<td>주민등록번호 · 연락처 · 생년월일 · 주소</td>
+</tr>
+<tr>
+<td>보험사 · 상품 · 계약년월</td>
+<td>계약번호 · 증권번호</td>
+</tr>
+<tr>
+<td>담보명</td>
+<td>진단서 · 병력 등 민감정보</td>
+</tr>
+<tr>
+<td>(2차) 가입금액</td>
+<td>계좌 · 결제 정보</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>외부 전송 항목은 <strong>보험사 · 상품 · 판 · 담보명 · 정제된 상황 서술</strong>로 한정한다. 가입금액도 보낼 필요가 없다 — 약관은 「지급사유에 해당하는가」만 답하고 금액은 우리 쪽에서 조립할 때 붙인다</li>
+</ul>
+<pre><code>고객 데이터  ──  우리 서버에만 머문다
+      │
+      │  스코프(보험사 · 상품 · 판) + 담보명만 추출
+      ▼
+  검색 질의  ──────  외부 API (누구 것인지 모른다)
+      │
+      │  조항 원문 반환
+      ▼
+  답변 조립  ──────  우리 서버에서 계약 정보와 결합
+</code></pre>
+<ul>
+<li>이 분리를 <strong>코드로 강제</strong>한다</li>
+<li>자체 RAG(Micky)도 외부 LLM API를 쓰는 경우 동일 기준을 적용한다</li>
+<li>파일 업로드(보장분석 리포트)는 파싱 후 원본 보관 여부 · 기간을 정책으로 정한다 <strong>[확정 필요]</strong></li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>개인정보 처리방침(서비스분), 전송 항목 정의서, 정보보호계획서, 암호화 · 마스킹 설계서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-SEC-002"><div class="reqhead"><h3 class="reqid">IA-SEC-002</h3><div class="reqname">접근권한 · 담당 고객 통제 · 감사추적</div><span class="chip">보안</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>FA가 담당하지 않는 고객의 자료에 접근할 수 없도록 통제하고 조회 이력을 남기는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>담당 고객이 아닌 자료는 <strong>조회 · 검색 모두 불가</strong>하여야 함</li>
+<li>화면 단계와 데이터 접근 단계에서 <strong>이중으로</strong> 통제하여야 함</li>
+<li>누가 · 언제 · 누구의 자료를 조회했는지 기록하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>목록 조회는 언제나 FA 단위로 한정하고, 식별자를 직접 지정한 접근도 담당 여부를 재확인한다. <strong>화면에서 걸렀더라도 데이터 계층에서 한 번 더 막는다</strong></li>
+<li>감사 로그 항목: 사용자, 일시, 대상 고객 식별자, 조회 조건, 화면 ID, 사용한 소스, <strong>확정 스코프(상품 · 판)</strong></li>
+<li>화면에 <strong>현재 대상 고객과 현재 약관을 항상 표시</strong>한다. 다른 고객 · 다른 약관으로 답하고 있는 것을 아무도 모르는 상태가 가장 위험하다</li>
+<li>운영자 · 개발자 · 외주 인력의 접근은 계정 발급 · 권한 회수 · 작업 승인 · 접속 기록 보관 절차를 따른다</li>
+<li>고객 열람 · 삭제 요구 시 세션 · 저장소 · 로그에서의 처리 절차를 정의한다 <strong>[확정 필요]</strong></li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>권한 매트릭스, 감사로그 설계서, 접근로그 점검 절차서</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-QUA-001"><div class="reqhead"><h3 class="reqid">IA-QUA-001</h3><div class="reqname">운영 안정성 · 장애 격리 · 모니터링</div><span class="chip">품질</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>외부 의존(검색 API · LLM)이 있는 서비스의 가용성 확보와 장애 대응</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>외부 의존 장애 시 <strong>부분 동작</strong>해야 하며, 장애 상태를 사용자에게 명시하여야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>약관 검색 장애 시 Micky 단독 답변으로 축약하고 「약관 조회 불가」를 명시한다. <strong>조용히 일반론으로 답하면 FA가 약관 근거 답변으로 오인한다 — 가장 위험한 실패 모드다.</strong> 모니터링 대상: API 지연 · 오류율, <strong>스코프 밖 반환율</strong>, LLM 오류율 · 비용, 되묻기 이탈, 검수 실패, 큐 적체. 임계치 초과 시 알림</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>운영 안정성 계획서, 장애 대응 절차서, 모니터링 대시보드 설계서, 운영자 매뉴얼</p>
+</div></div></div><div class="req" id="IA-CON-001"><div class="reqhead"><h3 class="reqid">IA-CON-001</h3><div class="reqname">금융 · AI · 개인정보 관련 규정 준수</div><span class="chip">제약사항</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>서비스가 준수해야 할 법령 · 가이드라인과 그 이행 방식</p>
+</div></div><div class="field"><div class="lab">요구사항 · 상세기술</div><div class="val">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>근거</th>
+<th>적용 지점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI 기본법</strong> (2026-01-22 시행)</td>
+<td>금융은 <strong>고영향 AI</strong> 영역으로 거론된다. 다만 본 서비스는 신용평가 · 심사처럼 <strong>권리 · 의무를 결정하지 않고 FA를 보조</strong>한다. 이 성격을 설계와 문서로 입증한다</td>
+</tr>
+<tr>
+<td><strong>금융분야 AI 가이드라인</strong> (금융위, 통합 개정 진행)</td>
+<td><strong>보조수단성 · 신뢰성 · 설명가능성 · 보안성</strong> 원칙을 반영. 최종 판단자가 사람임을 화면과 로그에 남긴다. <strong>근거 조항 제시(IA-AI-001)가 설명가능성의 이행 수단이다</strong></td>
+</tr>
+<tr>
+<td><strong>개인정보 보호법 제37조의2</strong></td>
+<td>본 서비스는 <strong>완전히 자동화된 결정을 하지 않는다.</strong> 지급 여부는 보험사 보상 심사가 결정하고 본 서비스는 조항을 제시할 뿐이다. 이 경계를 답변 문구로 명시한다</td>
+</tr>
+<tr>
+<td>개인정보 보호법 · 신용정보법</td>
+<td>최소수집 · 목적 제한 · 위탁 · 국외이전</td>
+</tr>
+<tr>
+<td>보험업법 · 금융소비자보호법</td>
+<td>FA가 고객에게 전달할 때의 설명 책임은 FA에게 있다. 답변에 <strong>확정 표현을 쓰지 않는다</strong></td>
+</tr>
+<tr>
+<td>보험업감독규정 · 시행세칙</td>
+<td>상품공시 통일 양식이 상품 · 판 마스터의 원천 근거다</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>법령 해석과 동의 범위 판단은 <strong>법무 검토 대상</strong>이며 본 문서의 판단이 아니다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>규정 준수 점검표, AI 서비스 성격 정의서, 법무 검토 결과서</p>
+</div></div></div><div class="req" id="IA-CON-002"><div class="reqhead"><h3 class="reqid">IA-CON-002</h3><div class="reqname">1차 범위 제약 — 소스 2종 · 금액 미답변</div><span class="chip">제약사항</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>1차 오픈에서 의도적으로 제외하는 범위와 그 처리 방식</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>범위 밖 질문에 <strong>추정으로 답하지 않고 경계를 안내</strong>하여야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>소스는 Micky · VELUGA 2종뿐이다. 수수료 · 실적 · 계약 조회(Cloud DATA), 외부 자료(External MCP), 사내 규정(BumE_F)은 연결되지 않았으므로 「지금은 답할 수 없다」고 안내한다. <strong>연결 안 된 소스의 답을 일반지식으로 지어내지 않는다.</strong> 금액 미답변은 R8. 이 제약들은 2차에서 해제되므로 코드에서 <strong>설정으로 분리</strong>해 둔다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>범위 정의서, 경계 안내 문구집</p>
+</div></div></div><hr />
+
+<div class="req" id="IA-PMR-001"><div class="reqhead"><h3 class="reqid">IA-PMR-001</h3><div class="reqname">요구사항 · 변경 · 위험 관리</div><span class="chip">프로젝트 관리</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>7주 일정 안에서 범위를 확정 · 추적하고 변경을 통제하는 관리 요구사항</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>요구사항별 담당 · 우선순위 · 수용 기준 · 테스트 케이스 · 완료 상태를 추적표로 관리하여야 함. 범위 변경은 영향도 검토 후 승인 절차를 거쳐야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p><strong>일정이 7주이므로 범위 추가는 기본적으로 2차로 넘긴다.</strong> 추가하려면 같은 규모를 뺀다. 아래 위험은 개시일부터 대장에 올린다</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>위험</th>
+<th>영향</th>
+<th>대응</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>판매 종료 상품 색인 불가</strong></td>
+<td>보상용 약관 확보 불가 — <strong>기획 전제 붕괴</strong></td>
+<td>착수 즉시 확인. 부정 시 영업용(현재 판매 상품) 중심으로 방향 전환</td>
+</tr>
+<tr>
+<td><strong>메타데이터 필터 미지원</strong></td>
+<td>스코프를 확정해도 100권을 뒤진다</td>
+<td>IA-AI-002의 사후 필터로 버티되, 골든셋에서 스코프 밖 인용이 0건인지 확인. 실패 시 오픈 범위 축소</td>
+</tr>
+<tr>
+<td>단가 미확정</td>
+<td>유료 확보 흐름에 금액 표시 불가</td>
+<td>요청 의사만 받는 흐름으로 오픈</td>
+</tr>
+<tr>
+<td>프롬프트 제어 불가</td>
+<td>답변 톤 · 면책 우선 강제 불가</td>
+<td>retrieval-only 모드로 전환해 자체 생성. 없으면 사전 품질 검수 강화</td>
+</tr>
+<tr>
+<td>색인 품질 미달(특약 미구분)</td>
+<td>답변 정확도 상한이 낮게 고정</td>
+<td>착수 전 표본 검증. 미달 시 검증 통과 상품군으로 범위 축소</td>
+</tr>
+<tr>
+<td>선택기를 FA가 건너뜀</td>
+<td>되묻기 경로로 몰려 이탈</td>
+<td>선택 단계 응답 0.8초 이내 유지, 약어 검색 보조, 공통 조항 질문은 선택 요구하지 않음</td>
+</tr>
+<tr>
+<td>7주 일정</td>
+<td>범위 초과</td>
+<td>1차 33건 외 전부 2차</td>
+</tr>
+</tbody>
+</table></div>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>요구사항 추적표, 변경관리대장, 위험관리대장, 주간 보고서</p>
+</div></div></div><div class="req" id="IA-PSR-001"><div class="reqhead"><h3 class="reqid">IA-PSR-001</h3><div class="reqname">교육 · 운영전환 · 하자보수</div><span class="chip">프로젝트 지원</span><span class="chip stage">1차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>FA · 운영자 교육과 오픈 후 안정화 지원</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>오픈 전 FA 대상 사용 안내와 운영자 교육을 실시하여야 하며, 오픈 후 안정화 기간과 하자보수 범위를 명시하여야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>FA 교육의 핵심은 기능 사용법이 아니라 <strong>경계 이해</strong>다 — ① <strong>왜 약관을 먼저 골라야 하는지</strong>(안 고르면 왜 답이 틀리는지) ② 1차에서 금액을 답하지 않는 이유 ③ 「확인 필요」와 「미가입」의 차이 ④ 답변이 최종 판단이 아니라는 점. ①을 이해하지 못하면 선택기를 귀찮은 절차로 여겨 건너뛴다. 운영자 교육은 확보 요청 처리 · 검수 · 알림 발송 절차를 다룬다. 오픈 후 <strong>2주 집중 모니터링</strong> 기간을 둔다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>사용자 매뉴얼, 운영자 매뉴얼, 교육 자료 · 실시 결과, 운영전환 체크리스트, 하자보수 계획서</p>
+</div></div></div><hr />
+<h2 id="sec-9">9. 2차 상세 요구사항</h2>
+<p>1차 오픈 이후 순차 추진한다. <strong>1차만으로도 서비스는 그대로 돌며, 2차는 스코프를 좁히는
+수단을 늘려 클릭을 줄이고 답할 수 있는 질문을 넓히는 단계다.</strong></p>
+
+<div class="req second" id="IA-FUN-011"><div class="reqhead"><h3 class="reqid">IA-FUN-011</h3><div class="reqname">계약 연동 — 약관 자동 확정</div><span class="chip">기능</span><span class="chip stage second">2차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>계약 정보(증권 · 상품코드 · 계약일자)를 불러와 사용자가 고르지 않아도 약관이 확정되게 하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>증권 목록에서 계약 하나를 고르면 <strong>스코프가 자동 확정</strong>되어야 함</li>
+<li>자동 확정된 스코프도 화면에 표시하고 변경할 수 있어야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li>1차의 계단식 선택(클릭 2~3회)을 <strong>클릭 0회</strong>로 만드는 단계다. 상품코드와 계약일자가 함께 오므로 <strong>약관 판을 역추적</strong>할 수 있다</li>
+<li>자동 확정이라도 <strong>무엇으로 확정됐는지 보인다.</strong> 자동일수록 표시가 더 중요하다 — 사용자가 고르지 않았으므로 틀렸을 때 알아챌 단서가 화면뿐이다</li>
+<li>계약 정보가 불완전하면(상품코드 누락, 계약일자 없음) 자동 확정하지 않고 1차의 선택기로 넘긴다. <strong>부분 정보로 추측하지 않는다</strong></li>
+<li>개인정보 흐름의 동의 범위와 위수탁 관계를 사전에 확인한다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>연계 명세서, 스코프 자동 확정 규칙서, 화면정의서, 동의 · 위수탁 검토 결과서</p>
+</div></div></div><hr />
+
+<div class="req second" id="IA-FUN-012"><div class="reqhead"><h3 class="reqid">IA-FUN-012</h3><div class="reqname">관리자 — 확보 승인 및 예산 집행</div><span class="chip">기능</span><span class="chip stage second">2차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>쌓인 확보 요청을 수요 순으로 묶어 예산 범위에서 승인하는 관리자 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>요청을 <strong>보험사 + 상품 + 가입 연도</strong> 단위로 묶어 후보로 제시하고, 예산(파일 수) 범위에서 수요 순으로 승인 대상을 선정할 수 있어야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>묶는 단위가 곧 비용 단위다. 판 하나를 등록하면 그 판을 기다린 요청이 함께 풀린다. 승인 규칙 — <strong>요청자가 2명 미만이면 자동 승인하지 않는다</strong>(한 사람이 열 번 물어도 단독 요청이면 비용 근거가 약하다). <strong>상품 마스터에서 식별되지 않은 이름은 자동 승인 대상이 아니다</strong>(오타일 수 있으므로 사람이 본다). 수요 점수는 <strong>요청 건수보다 요청한 FA 수를 무겁게</strong> 본다 — 열 사람이 한 번씩 물어본 쪽이 조직 전체로 더 자주 막히고 있다는 뜻이다. <strong>1차에서는 운영자가 요청 목록을 조회해 수기 처리한다</strong></p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>관리자 화면정의서, 승인 규칙 명세서, 예산 집행 대장 양식</p>
+</div></div></div><div class="req second" id="IA-FUN-013"><div class="reqhead"><h3 class="reqid">IA-FUN-013</h3><div class="reqname">약관 개정 알림</div><span class="chip">기능</span><span class="chip stage second">2차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>담당 상품의 새 판이 시행됐을 때 그 상품을 자주 조회한 FA에게 알리는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val"><p>새 판 시행을 감지해 대상 FA에게 통지하고, 기존 색인의 재색인 대상을 잡아야 함</p>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val"><p>새 판이 시행되면 기존 색인은 과거 판만 담고 있으므로 시점 관리에 공백이 생긴다. 공시실 시행일을 주기적으로 확인해 재색인 대상을 잡는다. <strong>개정이 분기 · 반기 시작일에 몰리므로 분기 점검이면 대부분 잡힌다.</strong> 1차에서는 이 알림이 없어도 되지만, 있는 판으로만 답하고 <strong>판을 표시</strong>하므로 틀린 답이 되지는 않는다</p>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>개정 감지 절차서, 재색인 대상 선정 규칙, 알림 템플릿</p>
+</div></div></div><hr />
+
+<div class="req second" id="IA-DAT-003"><div class="reqhead"><h3 class="reqid">IA-DAT-003</h3><div class="reqname">보장분석 연동 및 담보 ↔ 조항 매핑</div><span class="chip">데이터</span><span class="chip stage second">2차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>보장분석 데이터를 구조화해 적재하고, 외부 담보코드와 우리 약관 조항을 잇는 매핑을 관리하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>계약별 보험사 · 상품명 · 계약년월 · 가입담보 · <strong>가입금액</strong>을 추출하여야 함</li>
+<li><strong>외부 담보코드 ↔ 약관 조항 매핑표</strong>를 관리하여야 함</li>
+<li>등록 목록 산출용 집계는 <strong>개인을 식별하지 않는 형태</strong>로만 보관하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li><strong>매핑표가 이 요구사항의 실제 작업량이다.</strong> 업체의 담보코드 체계와 우리 약관 조항은 이름도 단위도 다르므로 잇는 표가 새로 필요하다. 이 표가 없으면 「가입금액은 아는데 어느 조항인지 모르는」 상태가 된다</li>
+<li><strong>외부 데이터 의존을 명시한다.</strong> 업체 데이터가 틀리면 우리 답도 틀린다. 그래서 답변에서 <strong>담보 데이터로 답한 부분과 약관 원문으로 답한 부분을 구분해 표시</strong>하고(R12), 책임 범위를 계약서에 명시한다</li>
+<li>개인정보 흐름(연동 → 업체 → 우리)의 3자 제공 · 위수탁 동의 범위를 확인한다</li>
+<li>등록 목록 산출은 (보험사 + 상품 + 계약년월 + 건수) 형태로만 집계한다. 이 집계값은 개인정보가 아니다</li>
+<li><strong>비용 관점의 근거</strong> — 과금이 파일 단위이므로 상품 단위 구매는 <code>보장형태 × 납입방법 × 판</code> 배수만큼 낭비가 곱해진다. 반면 리포트가 지목한 계약은 조합이 이미 하나로 정해져 <strong>계약당 필요한 파일이 정확히 1건</strong>이다</li>
+</ul>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>상품당 파일 배수</th>
+<th>200파일로 담을 상품</th>
+<th>손보 계약 커버리지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1건</td>
+<td>120개(전체)</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>3건</td>
+<td>66개</td>
+<td>77.6%</td>
+</tr>
+<tr>
+<td>6건</td>
+<td>33개</td>
+<td><strong>26.3%</strong></td>
+</tr>
+</tbody>
+</table></div>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>파서 명세서, <strong>담보 ↔ 조항 매핑표</strong>, 집계 스키마, 외부 데이터 책임 범위 합의서, 정합성 검증 결과서</p>
+</div></div></div><hr />
+
+<div class="req second" id="IA-AI-007"><div class="reqhead"><h3 class="reqid">IA-AI-007</h3><div class="reqname">초개인화 — 금액 답변</div><span class="chip">AI</span><span class="chip stage second">2차</span><span class="chip owner">담당 —</span></div>
+
+<div class="field"><div class="lab">정의</div><div class="val"><p>가입 담보 · 가입금액이 확정된 계약에 대해 예상 지급액까지 답하는 기능</p>
+</div></div><div class="field"><div class="lab">요구사항</div><div class="val">
+<ul>
+<li>조건 넷(보험사 · 상품 / 가입 담보와 가입금액 / 적용 판 / 지급사유 · 면책)이 <strong>모두 갖춰졌을 때만</strong> 금액을 표시하여야 함</li>
+<li>확정 건만 합산하고, 제외된 건수와 사유를 함께 표시하여야 함</li>
+</ul>
+</div></div><div class="field"><div class="lab">상세기술</div><div class="val">
+<ul>
+<li><strong>여기서 질문의 상당수가 약관 검색을 아예 타지 않게 된다.</strong> 「얼마 나와요?」는 보장 데이터 조회만으로 답하고, 약관은 「왜 그런가 · 면책은 없나」를 확인할 때만 펼친다. 어려운 문제를 푸는 대신 <strong>그 문제를 만나는 횟수를 줄이는 구조</strong>다</li>
+<li>다만 <strong>면책 확인은 건너뛸 수 없다.</strong> 금액이 나온다는 것과 지급된다는 것은 다르며, 금액만 보여주면 FA가 면책을 확인하지 않는다</li>
+<li>면책 · 미가입 건의 금액 자리에 <strong>0원을 쓰지 않는다</strong>(R9)</li>
+<li>같은 담보가 여러 계약에 흩어져 있으면 함께 제시한다 — <strong>청구 누락을 잡는 것이 이 단계의 가장 큰 효용</strong>이다</li>
+<li>금액 표시는 예상치이며 확정은 보상 심사임을 함께 표기한다</li>
+</ul>
+</div></div><div class="field"><div class="lab">산출정보</div><div class="val"><p>금액 산출 로직 명세서, 표시 규칙서, 유의 문구집, 단위테스트 결과서</p>
+</div></div></div><hr />
+<h2 id="sec-10">10. 전달 전 확인해야 할 정보</h2>
+<p><strong>10.1은 채워지지 않으면 계획 자체가 흔들린다.</strong></p>
+<h3>10.1 약관 검색 제공 측에 받아야 할 값 — 우선순위 순</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>항목</th>
+<th>왜 먼저인가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>판매 종료 상품 색인 가능 여부</strong></td>
+<td>불가하면 보상용 약관을 살 수 없다. <strong>이 기획의 전제가 무너진다</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>상품 · 판 단위 메타데이터 필터 지원 여부</strong></td>
+<td>스코프 확정의 효과가 여기서 갈린다. 없으면 사후 필터 하나로만 버텨야 한다</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>약관 파일 1건당 단가와 과금 단위</strong></td>
+<td>판당 / 용량 / 구간 정액 중 무엇인지에 따라 등록 전략이 전부 달라진다</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>상품당 약관 파일 수(배수)</strong></td>
+<td>「동행」 하나의 실제 약관 목록만 받아도 배수가 나온다. 배수 6이면 200파일에 손보 상품이 4개만 들어간다</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>판도 파일 수에 곱해지는가</strong></td>
+<td>곱해지면 실손 계열(판 150개 초과)은 전량 등록이 불가능하다</td>
+</tr>
+<tr>
+<td>6</td>
+<td>근거 청크 반환 여부</td>
+<td>반환 안 되면 근거 조항을 제시할 수 없다</td>
+</tr>
+<tr>
+<td>7</td>
+<td>유사도 점수 반환 여부</td>
+<td>하한을 걸 수 없다</td>
+</tr>
+<tr>
+<td>8</td>
+<td>프롬프트 · 답변 형식 제어 가능 여부</td>
+<td>면책 우선 표시를 강제할 수 있는지</td>
+</tr>
+<tr>
+<td>9</td>
+<td>retrieval-only 모드 유무</td>
+<td>있으면 우리가 직접 생성하는 선택지가 열린다</td>
+</tr>
+<tr>
+<td>10</td>
+<td>청크 메타데이터 실측 (IA-DAT-002 표)</td>
+<td><strong>상품 · 판 식별자와 특약 구분이 핵심</strong></td>
+</tr>
+<tr>
+<td>11</td>
+<td>색인 커버리지 · 갱신 주기</td>
+<td>초기 등록 목록 산정</td>
+</tr>
+<tr>
+<td>12</td>
+<td>멀티턴 지원, 모델 목록 · 비용 · 지연, 인증 · 호출 한도</td>
+<td>설계 · 성능 산정</td>
+</tr>
+</tbody>
+</table></div>
+<h3>10.2 내부에서 확정해야 할 값</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>필요한 것</th>
+<th>미확정 시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>보종 분류 기준</strong></td>
+<td>마스터의 보종을 무엇으로 매길지</td>
+<td>스코프 2단계가 동작하지 않는다</td>
+</tr>
+<tr>
+<td><strong>초기 등록 목록</strong></td>
+<td>회사 부담분(200파일 상당)에 무엇을 넣을지</td>
+<td>실적 목록으로만 채우면 <strong>영업용 약관을 사고 보상 질문은 못 덮는다</strong></td>
+</tr>
+<tr>
+<td><strong>1차 오픈 종목</strong></td>
+<td>운전자보험 단독 권장 — 실적 상위 10개 중 7개, 담보 표준화, 판이 적다</td>
+<td>전 종목을 얕게 열면 품질 검증이 불가능하다</td>
+</tr>
+<tr>
+<td><strong>선구매 부담 분담</strong></td>
+<td>먼저 요청한 FA가 뒤따르는 FA 몫까지 부담하는 구조를 둘지</td>
+<td>자주 쓰이는 약관일수록 처음 요청자만 돈을 낸다</td>
+</tr>
+<tr>
+<td><strong>환불 조건</strong></td>
+<td>확보 실패 외에 검수 미통과도 환불 대상인지</td>
+<td>요청자 책임이 아닌 실패에 과금된다</td>
+</tr>
+<tr>
+<td><strong>FA 1인당 월 요청 한도</strong></td>
+<td>둘지 말지</td>
+<td>소수 FA가 예산을 크게 소진할 수 있다</td>
+</tr>
+<tr>
+<td><strong>파일 원본 보관</strong></td>
+<td>업로드한 리포트 원본을 남길지 · 얼마나</td>
+<td>보관 책임이 정의되지 않는다</td>
+</tr>
+<tr>
+<td><strong>알림 채널</strong></td>
+<td>사내 메신저 / 알림톡 / 이메일 / 인앱</td>
+<td>IA-INT-005 산정 불가</td>
+</tr>
+<tr>
+<td><strong>FA 규모 · 피크 동시접속</strong></td>
+<td>인원과 사용 패턴</td>
+<td>성능 목표 산정 불가</td>
+</tr>
+</tbody>
+</table></div>
+<h3>10.3 법무 · 계약 검토가 필요한 것 — 설계로 해결되지 않는다</h3>
+<ol>
+<li><strong>동의 범위</strong> — 고객이 보장분석에 동의할 때의 이용 목적에 「AI 상담 지원」이 포함되는가</li>
+<li><strong>개인정보 흐름</strong> — 연동 → 업체 → 우리. 3자 제공 · 위수탁 동의 범위 (2차)</li>
+<li><strong>외부 데이터 책임 소재</strong> — 업체 데이터가 틀려 우리 답이 틀렸을 때의 책임 범위를 계약서에 명시 (2차)</li>
+<li><strong>보관 기간</strong> — 데이터를 얼마나 보유할 것인가</li>
+<li><strong>외부 전송 값의 성격</strong> — 개인정보가 아니라는 판단의 확인. IA-SEC-001의 전송 항목 표가 근거 자료다</li>
+<li><strong>고객 열람 · 삭제 요구</strong> — 세션 · 저장소 · 로그에서 어떻게 지울 것인가</li>
+<li><strong>고영향 AI 해당 여부</strong> — AI 기본법상 해당하는지, 해당 시 이행 사항</li>
+</ol>
+<blockquote>
+<p><strong>동의 범위가 확인되기 전에도 1차는 진행할 수 있다.</strong> 1차 범위에 보장분석 연동이 없고,
+리포트는 FA가 직접 올리는 파일이며, 저장 없이 <strong>세션에서만 쓰는 방식</strong>을 선택할 수 있다.</p>
+</blockquote>
+<hr />
+<h2 id="sec-11">11. 오픈 판정 — 무엇이 되면 여는가</h2>
+<p>7주 안에 전부 완성되지 않을 수 있다. <strong>무엇이 안 되면 열지 않는지</strong>를 먼저 정한다.</p>
+<h3>열지 못하는 조건 (하나라도 걸리면 연기)</h3>
+<ul>
+<li><strong>확정된 약관 밖의 조항을 인용한 답변이 1건이라도</strong> 나온다</li>
+<li><strong>스코프가 확정되지 않은 채 보상 답변이</strong> 나간다</li>
+<li>골든셋에서 <strong>면책 조항을 놓치는 답변이 1건이라도</strong> 나온다</li>
+<li>스코프 안에 조항이 없는데 <strong>「해당 조항 없음」 대신 그럴듯한 답을</strong> 만든다</li>
+<li>다른 판 · 다른 특약의 조항을 근거로 답한다</li>
+<li><strong>답변 화면에 어느 약관으로 답했는지 표시되지 않는다</strong></li>
+<li>담당하지 않는 고객의 자료가 조회된다</li>
+<li>외부 API 전송 값에 개인 식별정보가 포함된다</li>
+</ul>
+<h3>없어도 여는 것 (2차로 넘김)</h3>
+<ul>
+<li>계약 연동 자동 확정 — 계단식 선택으로 시작</li>
+<li>관리자 승인 화면 — 운영자 수기 처리로 대체</li>
+<li>보장분석 API 연동 — 파일 업로드만으로 시작</li>
+<li>금액 답변(초개인화) — 애초에 1차 범위 밖</li>
+<li>약관 개정 알림 — 분기 점검으로 대체</li>
+<li>외부 알림 채널 — 인앱 알림만으로 시작</li>
+</ul>
+<h3>축소해서 여는 것</h3>
+<ul>
+<li><strong>종목을 운전자보험으로 좁혀 연다.</strong> 전 종목을 얕게 여는 것보다, 한 종목에서 「FA가 고객에게 그대로 읽어줄 수 있는 수준」을 만드는 편이 낫다</li>
+<li>확보 요청은 <strong>요청 의사만 받는 형태</strong>로 연다(단가 확정 전)</li>
+</ul>
+<hr />
+<h2 id="sec-참고">참고</h2>
+<h3>근거 문서 (사내)</h3>
+<p><code>docs/product.md</code> 제품 정의 · 답변 두 층 · 면책 우선 |
+<code>src/orca/scope.py</code> 스코프 강제 · 검색 결과 제한 |
+<code>docs/plan.md</code> 도입 기획 · 우선순위 |
+<code>docs/data-architecture.md</code> 데이터 소스 · 확인 항목 |
+<code>docs/pipeline.md</code> 확보 → 색인 → 검수 → 알림 |
+<code>docs/rollout.md</code> 등록 전략 · 비용 부담 |
+<code>docs/cost.md</code> 파일 단위 과금 계산 |
+<code>docs/privacy.md</code> 개인정보 분리 설계 |
+<code>docs/clarification-flow.md</code> 되묻기 |
+<code>docs/routing.md</code> 라우팅 |
+<code>docs/coverage-analysis.md</code> 보장분석 활용 |
+<code>docs/market.md</code> 시장 분석 |
+<code>docs/mockups/insurance-ai.html</code> 화면 설계</p>
+<h3>외부 근거</h3>
+<ul>
+<li><a href="https://www.lawtimes.co.kr/news/articleView.html?idxno=216500">AI 기본법 2026년 시행 — 법률신문</a></li>
+<li><a href="https://www.fsc.go.kr/no010101/87142">금융권 AX 가속화 및 금융분야 AI 가이드라인 개정안 — 금융위원회</a></li>
+<li><a href="https://www.kimchang.com/ko/insights/detail.kc?sch_section=4&amp;idx=33825">금융분야 AI 가이드라인 개정안 공개 — 김·장 법률사무소</a></li>
+<li><a href="https://casenote.kr/%EB%B2%95%EB%A0%B9/%EA%B0%9C%EC%9D%B8%EC%A0%95%EB%B3%B4_%EB%B3%B4%ED%98%B8%EB%B2%95/%EC%A0%9C37%EC%A1%B0%EC%9D%982">개인정보 보호법 제37조의2 자동화된 결정에 대한 정보주체의 권리</a></li>
+<li><a href="https://www.law.go.kr/admRulLsInfoP.do?admRulSeq=2100000220196">보험업감독규정 — 국가법령정보센터</a></li>
+<li><a href="https://pub.insure.or.kr/">생명보험협회 공시실</a> · <a href="https://eclean.knia.or.kr/eclean/recr010m">손해보험협회 E-클린보험서비스</a></li>
+</ul>
+  <footer>
+    주식회사 아이에프에이 AX팀 · 2026-08-14 작성 · 담당 칸은 협의 후 채웁니다.<br>
+    화면 속 고객명 · 대화는 가상이며 상품명은 시드 데이터 기준입니다.
+  </footer>
+</div>
+</body>
+</html>
