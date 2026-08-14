@@ -37,7 +37,7 @@ def trim(path):
 SHOTS = [
     ('entry',    '고객 폴더'),
     ('branch',   '가입한 상품 기준으로 확인할까요?'),
-    ('scope',    '검색해서 고릅니다'),
+    ('scope',    '세 건이 잡힙니다'),
     ('register', 'My Data 가져오기'),
     ('coverage', '보장맵</span> 계약 2건'),
     ('ask',      '음주운전 사고인데 보험금 나오나요?'),
@@ -59,24 +59,23 @@ for name, marker in SHOTS:
                        capture_output=True)
         print(f'{name+suffix:16s}', trim(f'{OUT}/app_{name}{suffix}.png'))
 
-# ── 가로 크롭 ──────────────────────────────────────────
-# 슬라이드 이미지 상자는 12.1 × 4.9인치, 즉 가로:세로 2.47이다.
-# 화면 전체를 넣으면 높이에 걸려 글자가 작아지므로, 각 화면에서 결정적인
-# 구간만 그 비율로 잘라 슬라이드 폭을 전부 쓰게 한다.
-TARGET = 2.47
-STARTS = {          # 어디서부터 자를지 — 전체 높이 대비
-    'branch':   0.10,   # 담보 목록 + 분기 카드
-    'scope':    0.14,   # 상품 검색 결과 + 가입 시점 + 스코프 바
-    'ask':      0.42,   # 판정 카드 + 근거 조항
-    'entry':    0.02,   # 고객 폴더 목록
-    'register': 0.03,   # 등록 경로 세 갈래
-    'coverage': 0.05,   # 계약별 담보
-}
+# ── UI 전면 배치용 밴드 ──────────────────────────────
+# 슬라이드에서 UI가 주인공이 되려면 화면이 폭 12.7인치를 다 써야 한다.
+# 이미지 영역은 12.3 × 5.35인치(비율 2.3). 화면이 그보다 길면 잘라내는 대신
+# 위 · 아래 여러 장으로 나눈다 — 내용을 버리지 않고 전부 크게 보여준다.
+import math
 
-for name, a in STARTS.items():
+BAND = 2.35
+for name in ('branch', 'scope', 'ask', 'entry', 'register', 'coverage'):
     src = Image.open(f'{OUT}/app_{name}_main.png').convert('RGB')
-    need = int(src.width / TARGET)
-    top = min(int(src.height * a), max(0, src.height - need))
-    src.crop((0, top, src.width, min(src.height, top + need))).save(f'{OUT}/app_{name}_wide.png')
-    im = Image.open(f'{OUT}/app_{name}_wide.png')
-    print(f'{name:9s} {im.size}  aspect {im.width/im.height:.2f}')
+    band_h = int(src.width / BAND)
+    n = 1 if src.height <= band_h * 1.3 else math.ceil(src.height / band_h)
+    for k in range(n):
+        if n == 1:
+            crop = src
+        else:
+            # 밴드 시작점을 고르게 분배해 이음매 없이 전체를 덮는다
+            top = round(k * (src.height - band_h) / (n - 1))
+            crop = src.crop((0, top, src.width, top + band_h))
+        crop.save(f'{OUT}/app_{name}_p{k+1}.png')
+    print(f'{name:9s} {src.height}px → {n}장')

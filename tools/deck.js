@@ -80,52 +80,60 @@ function card(s, o) {
 }
 
 /* 화면 슬라이드 */
+// 화면 한 장이 길면 여러 슬라이드로 나눈다. UI가 주인공이므로 폭을 다 쓴다.
 function screen(eyebrow, title, sub, shot, notes) {
-  const s = p.addSlide(); s.background={color:C.paper};
-  s.addText(eyebrow, { x:0.6, y:0.32, w:12.1, h:0.24, fontFace:F.b, fontSize:11, color:C.deep, bold:true, charSpacing:2 });
-  s.addText(title, { x:0.6, y:0.56, w:8.6, h:0.46, fontFace:F.h, fontSize:24, bold:true, color:C.ink });
-  s.addText(sub, { x:0.6, y:1.04, w:12.1, h:0.3, fontFace:F.b, fontSize:12, color:C.mute });
-  // 결정적인 구간만 가로로 잘라 슬라이드 폭을 다 쓴다 — 그래야 글자가 읽힌다
-  fit(s, shot + '_wide', { x:0.6, y:1.42, w:12.1, h:4.56 });
-  notes.forEach(([t,d],i)=>{
-    const x = 0.6 + i*4.09;
-    card(s, { x, y:6.14, w:3.85, h:0.86 });
-    s.addShape(p.ShapeType.roundRect, { x, y:6.14, w:0.07, h:0.86, rectRadius:0.03, fill:{color:C.green}, line:{color:C.green} });
-    s.addText(t, { x:x+0.24, y:6.22, w:3.4, h:0.28, fontFace:F.h, fontSize:11.5, bold:true, color:C.ink });
-    s.addText(d, { x:x+0.24, y:6.5, w:3.4, h:0.46, fontFace:F.b, fontSize:9.5, color:C.body, lineSpacing:13 });
+  const parts = [];
+  for (let k = 1; ; k++) {
+    if (!fs.existsSync(path.join(HERE, `app_${shot}_p${k}.png`))) break;
+    parts.push(`${shot}_p${k}`);
+  }
+  parts.forEach((name, k) => {
+    const s = p.addSlide(); s.background={color:C.paper};
+    const label = eyebrow + (parts.length > 1 ? `  ·  ${k+1}/${parts.length}` : '');
+    s.addText(label, { x:0.5, y:0.24, w:8.6, h:0.22, fontFace:F.b, fontSize:10.5, color:C.deep, bold:true, charSpacing:1.8 });
+    s.addText(k === 0 ? title : title, { x:0.5, y:0.46, w:9.4, h:0.4, fontFace:F.h, fontSize:20, bold:true, color:C.ink });
+    if (k === 0) s.addText(sub, { x:0.5, y:0.88, w:12.3, h:0.28, fontFace:F.b, fontSize:11.5, color:C.mute });
+    // UI 전면 — 폭 12.3인치
+    fit(s, name, { x:0.5, y:k === 0 ? 1.2 : 0.98, w:12.3, h:k === 0 ? 5.36 : 5.58 });
+    // 설명은 이 장에 해당하는 것만 한 줄로
+    const mine = notes.filter((_, idx) => idx % parts.length === k);
+    mine.forEach((t, idx) => {
+      const y = 6.62 + idx*0.0;
+      s.addShape(p.ShapeType.roundRect, { x:0.5, y:6.6, w:0.06, h:0.5, rectRadius:0.03, fill:{color:C.green}, line:{color:C.green} });
+      s.addText(t, { x:0.72, y:6.6, w:11.6, h:0.5, fontFace:F.b, fontSize:11.5, color:C.body, valign:'middle' });
+    });
+    foot(s);
   });
-  foot(s);
 }
 
 screen('화면 ① 일반 답변', '먼저 일반으로 답하고, 개인화는 고르게 합니다',
-  '「골절되면 보상되나요?」는 일반지식만으로 답이 나옵니다. 여기서 「이 답변으로 충분해요」로 끝내거나, 「약관 등록하기」로 넘어갑니다.', 'branch',
-  [['일반 답변은 실패가 아니다','「이 답변으로 충분해요」를 같은 무게로 둡니다.'],
-   ['입구는 약관이지 고객이 아니다','상품을 고르면 그 약관 기준으로 답이 바뀝니다.'],
-   ['여기서 금액은 말하지 않는다','담보 · 지급 조건 · 면책은 상품과 판마다 다릅니다.']]);
+  '「골절되면 보상되나요?」는 일반지식만으로 답이 나옵니다. 여기서 「이 답변으로 충분해요」로 끝내거나 「약관 등록하기」로 넘어갑니다.', 'branch',
+  ['걸릴 수 있는 담보를 넓게 열거합니다 — 좁게 잡으면 청구를 놓칩니다.',
+   '「이 답변으로 충분해요」를 같은 무게로 둡니다. 일반 답변은 실패가 아닙니다.']);
 
-screen('화면 ② 「약관 등록하기」를 누르면', '찾기 전에 정확한 상품을 짚어냅니다',
-  '보험사는 치거나 눌러 고르고, 상품은 검색으로 매칭합니다. 약관 시점까지 정해져야 검색이 열립니다.', 'scope',
-  [['보종은 묻지 않는다','상품명을 이미 알고 있으니 검색이 더 빠릅니다.'],
-   ['겹치는 상품을 함께 본다','「참좋은동행」과 「동행Ⅱ」는 다른 약관입니다.'],
-   ['실손은 판이 아니라 세대로','1~4세대가 보상 갈래를 정합니다. 약관 150건이 필요 없습니다.']]);
+screen('화면 ② 약관 짚어내기', '대화하면서 정확한 상품을 짚어냅니다',
+  '별도 화면으로 빠지지 않습니다. 챗봇이므로 AI가 묻고 FA가 고르는 것이 곧 대화입니다.', 'scope',
+  ['AI가 보험사를 묻고 칩으로 고릅니다. 고른 값은 사용자 말풍선으로 남습니다.',
+   '보종은 묻지 않습니다. 상품명을 치면 매칭되고, 겹치는 상품을 나란히 놓습니다.',
+   '「보상은 가입 시점의 약관을 따릅니다」 — 왜 묻는지를 함께 말합니다.']);
 
 screen('화면 ③ 답변', '면책을 먼저 판정하고 조항으로 근거를 답니다',
   '고객을 만들지 않고 그냥 묻는 경로입니다. 대부분의 상담이 여기서 끝납니다.', 'ask',
-  [['면책이 먼저다','지급사유를 먼저 보이면 아래 면책은 읽히지 않습니다.'],
-   ['근거를 조항으로 제시한다','제5조 1항 6호까지 짚어야 고객에게 읽어줄 수 있습니다.'],
-   ['어느 약관인지 항상 보인다','안 보이면 틀려도 알아챌 수 없습니다.']]);
+  ['확정 전에는 되물어 좁힙니다 — 보험사 → 상품 → 가입 시점.',
+   '면책을 맨 위에 놓고 조항 위치까지 답니다. 어느 약관인지 하단에 항상 표시합니다.']);
 
 screen('화면 ④ 약관북', '고객 폴더를 열면 질문 범위가 그 고객으로 잠깁니다',
   '이 화면이 차별점의 실체입니다. 상담할수록 고객별 약관이 쌓입니다.', 'entry',
-  [['폴더가 곧 검색 범위다','그 고객 약관 4건 안에서만 찾습니다.'],
-   ['청구 누락을 잡는다','담보가 여러 계약에 걸치면 모두 보여줍니다.'],
-   ['답할 수 있는 수를 밝힌다','약관이 2건뿐이면 「답할 수 있는 건 2건」이라고 씁니다.']]);
+  ['그 고객 약관 안에서만 찾습니다. 담보가 여러 계약에 걸치면 모두 보여줍니다.']);
 
-screen('화면 ⑤ 약관 등록', '지금은 하나씩 넣습니다. My Data가 열리면 한 번에 들어옵니다',
-  '경로를 빠른 순으로 놓되, 아직 안 열린 것은 두되 잠급니다.', 'register',
-  [['안 열린 길도 보여준다','곧 열릴 경로가 있다는 사실 자체가 안내입니다.'],
-   ['이미 말한 상품은 다시 안 찾는다','지금 가장 빠른 길입니다.'],
-   ['「최근 등록한 상품」은 뺐다','다른 고객 계약을 끌어오게 됩니다.']]);
+screen('화면 ⑤ 약관 등록', '지금은 하나씩. My Data가 열리면 한 번에 들어옵니다',
+  '안 열린 경로도 화면에 두되 잠급니다 — 곧 열릴 길이 있다는 사실 자체가 안내입니다.', 'register',
+  ['「최근 등록한 상품」은 뺐습니다 — 다른 고객 계약을 끌어오게 됩니다.']);
+
+screen('화면 ⑥ 보장맵', '약관이 담보로 펼쳐지되, 가입 여부는 따로입니다',
+  '약관은 가입 「가능한」 담보의 목록일 뿐입니다. 기본값은 「확인 필요」입니다.', 'coverage',
+  ['「미가입」은 확인된 사실이고 「확인 필요」는 아직 모르는 것입니다.',
+   '면책 · 미가입 · 확인 필요 건도 숨기지 않고 사유와 함께 남깁니다.']);
 
 /* 닫는 장 */ {
   const s = p.addSlide(); s.background={color:C.dark};

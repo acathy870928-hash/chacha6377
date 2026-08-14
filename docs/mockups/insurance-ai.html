@@ -615,8 +615,8 @@
 
   <section class="flow">
     <span class="flow-tag">FLOW B — 약관 스코프 확정</span>
-    <h3>찾기 전에 정확한 상품으로 짚어낸다</h3>
-    <p class="why">약관은 서로 <b>80~90%가 똑같은 책들</b>이다. 100권을 섞어놓고 「닮은 것」을 찾게 하면 아무거나 집어온다. 그래서 <b>질문을 받기 전에 상품과 판을 정확히 짚어</b> 약관 1권을 확정한다. 보험사와 상품만 고르면 되고, 보종은 묻지 않는다 — <code>TermsScope</code> · <code>require_locked()</code></p>
+    <h3>대화하면서 정확한 상품을 짚어낸다</h3>
+    <p class="why">약관은 서로 <b>80~90%가 똑같은 책들</b>이라 섞어놓고 찾으면 아무거나 집어온다. 그래서 답하기 전에 약관 1권을 짚어낸다. <b>별도 화면으로 빠지지 않고 대화 안에서 끝낸다</b> — 챗봇이므로 묻고 고르는 것이 곧 대화다 — <code>TermsScope</code> · <code>require_locked()</code></p>
     <div class="app">
       <div class="side">
         <div class="brand"><span class="logo">IA</span><span><b>Insurance AI</b><span>Better decisions, clearly.</span></span></div>
@@ -625,36 +625,44 @@
       </div>
       <div class="main">
         <div class="thread-area">
-          <div class="ctx">📄 <span class="pill">어느 약관으로 볼까요</span> 보험사 → 상품 검색 → 가입 시점<span class="chg">닫기 ✕</span></div>
-          <div class="ladder">
-            <div class="rung done"><span class="rlab">보험사</span><span class="rval">DB손해보험</span><span class="chg2">변경</span></div>
-            <div class="rung now" style="flex-direction:column;align-items:stretch;gap:7px;">
-              <div style="display:flex;align-items:center;gap:9px;"><span class="rlab">상품 <span class="mark">2</span></span><span class="rval">검색해서 고릅니다</span></div>
-              <div class="sidesearch" style="margin:0;">🔍 참좋은동행</div>
-              <div class="frow" style="padding:8px 4px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험</span><span class="fs">장기 · 약관 3건</span></span><span class="chip on" style="padding:4px 11px;">선택됨</span></div>
-              <div class="frow" style="padding:8px 4px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험Ⅱ</span><span class="fs">장기 · 약관 5건</span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
-              <div class="frow" style="padding:8px 4px;border-bottom:none;"><span class="fm"><span class="fn">참좋은운전자상해보험</span><span class="fs">장기 · 약관 2건 <span class="mark">3</span></span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
-            </div>
-            <div class="rung now"><span class="rlab">가입 시점</span><span class="rchips"><span class="chip">2018.03</span><span class="chip on">2021.09</span><span class="chip">2023.01</span><span class="chip dim">직접 입력</span></span></div>
-            <p class="cav" style="margin:2px 0 0;">실손의료보험이면 판 대신 <b>세대</b>를 고릅니다 — 1세대 / 2세대 / 3세대(착한실손) / 4세대 <span class="mark">6</span></p>
+          <div class="u">골절이 되었는데 보상될 수 있어요?</div>
+          <div class="a">골절진단비 담보에 가입돼 있으면 보상 가능합니다. <b>가입한 상품 기준으로 확인하려면</b> 어느 보험사인가요? <span class="mark">1</span></div>
+          <div class="chips">
+            <span class="chip">삼성화재</span><span class="chip on">DB손해보험</span><span class="chip">KB손보</span>
+            <span class="chip">현대해상</span><span class="chip">메리츠</span><span class="chip dim">더보기 +8</span>
+            <span class="chip dim">🔍 직접 입력</span>
           </div>
+          <div class="u">DB손해보험</div>
+          <div class="a">상품명을 입력하시면 찾아 드릴게요. <span class="fs" style="color:#77837C;">약어도 됩니다</span> <span class="mark">2</span></div>
+          <div class="u">참좋은동행</div>
+          <div class="a" style="max-width:96%;">세 건이 잡힙니다. 어느 상품인가요? <span class="mark">3</span>
+            <div class="frow" style="padding:8px 2px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험</span><span class="fs">장기 · 약관 3건</span></span><span class="chip on" style="padding:4px 11px;">선택됨</span></div>
+            <div class="frow" style="padding:8px 2px;"><span class="fm"><span class="fn">무배당 프로미라이프 참좋은동행보험Ⅱ</span><span class="fs">장기 · 약관 5건</span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
+            <div class="frow" style="padding:8px 2px;border-bottom:none;"><span class="fm"><span class="fn">참좋은운전자상해보험</span><span class="fs">장기 · 약관 2건</span></span><span class="chip" style="padding:4px 11px;">선택</span></div>
+          </div>
+          <div class="u">무배당 프로미라이프 참좋은동행보험</div>
+          <div class="a">이 상품은 약관이 세 번 개정됐습니다. 보상은 <b>가입 시점의 약관</b>을 따릅니다. 언제 가입한 계약인가요? <span class="mark">4</span></div>
+          <div class="chips">
+            <span class="chip">2018.03</span><span class="chip on">2021.09</span><span class="chip">2023.01</span><span class="chip dim">연 · 월 직접 입력</span>
+          </div>
+          <p class="cav" style="margin:0;">실손의료보험이면 약관 대신 <b>세대</b>를 묻습니다 — 1세대 / 2세대 / 3세대(착한실손) / 4세대 <span class="mark">5</span></p>
           <div class="scopebar">📄 <span><b>DB손해보험 · 무배당 프로미라이프 참좋은동행보험 · 2021.09 시행 약관</b></span><span class="chg">약관 변경</span></div>
-          <div class="ok-card"><b>이 약관 1권 안에서만 찾습니다 <span class="mark">4</span></b>
+          <div class="ok-card"><b>이제 이 약관 안에서만 답합니다</b>
             <p>다른 상품 · 다른 시점 약관의 조항은 점수가 높아도 답변에 쓰지 않습니다.</p>
-            <div class="chips" style="margin-top:10px;"><span class="chip on">약관 선택 완료 <span style="font-weight:400;opacity:.8;">— 바로 질문</span></span><span class="chip">고객 등록 후 이 약관 등록하기 <span class="mark">5</span></span></div>
+            <div class="chips" style="margin-top:10px;"><span class="chip on">이어서 질문하기</span><span class="chip">이 고객 약관으로 저장 <span class="mark">6</span></span></div>
           </div>
         </div>
-        <div class="composer"><span class="plus">＋</span> 이제 물어보세요 — 「계단에서 굴러 골절됐는데 보장돼요?」 <span class="send">↑</span></div>
+        <div class="composer"><span class="plus">＋</span> 이어서 물어보세요 — 「계단에서 굴러 골절됐는데 보장돼요?」 <span class="send">↑</span></div>
       </div>
     </div>
     <div class="notes">
-      <div class="note"><span class="mark">1</span><p><b>보험사는 치거나 눌러서 고른다.</b><small>이름을 알면 그대로 치고, 모르면 눌러 목록에서 고른다. 어느 쪽이든 <b>목록에 있는 값으로만 확정</b>된다 — 자유 입력만 받으면 「디비손보」 · 「DB손해」로 표기가 흔들려 같은 약관이 갈라진다.</small></p></div>
-      <div class="note"><span class="mark">2</span><p><b>보종은 묻지 않는다. 상품 검색으로 바로 간다.</b><small>보종을 한 단계 더 두면 FA가 「내 계약이 장기인가 통합인가」를 멈춰서 생각하게 된다. 상품명은 이미 알고 있으므로 <b>치면 매칭되는 편이 빠르다.</b> 보종은 검색 결과에 꼬리표로만 붙인다.</small></p></div>
-      <div class="note"><span class="mark">3</span><p>이름이 겹치는 상품을 함께 보여준다.<small>「참좋은동행」과 「참좋은동행Ⅱ」, 「참좋은운전자상해」는 다른 약관이다. 한 건만 자동 선택하지 않고 <b>후보를 나란히 놓아 FA가 고르게</b> 한다. 판 개수를 함께 보여줘 다음 단계를 예고한다.</small></p></div>
-      <div class="note"><span class="mark">4</span><p>약관 시점까지 정해져야 잠긴다.<small>상품까지만으로는 검색을 걸지 않는다. 보상은 <b>계약 시점의 판</b>이 적용되므로 판이 다르면 답이 달라진다. 시행 약관이 6건을 넘으면 칩 대신 연 · 월 입력만 받는다.</small></p></div>
-      <div class="note"><span class="mark">5</span><p><b>고객을 만들지 않아도 여기서 끝난다.</b><small>「약관 선택 완료」가 <b>기본값</b>이다 — 그대로 질문으로 가고 고객 등록이 없다. 「고객 등록 후 이 약관 등록하기」는 <b>이어서 상담할 고객일 때만</b> 고른다. 순서를 바꾸면 한 건만 물어보려던 FA가 등록 화면에서 이탈한다.</small></p></div>
-      <div class="note"><span class="mark">6</span><p><b>실손은 판이 아니라 세대로 고른다.</b><small>실손은 판이 150개를 넘지만 보상 판정의 갈래는 <b>1~4세대 표준약관</b>이 정한다. 약관을 늘어놓는 대신 세대 넷을 칩으로 주면 끝난다. 등록도 세대 대표 약관만 사면 되므로 <b>파일 수 대비 효율이 가장 좋다.</b> 다만 갱신 · 전환으로 세대가 바뀌므로 「가입 시점」이 아니라 「지금 적용 중인 세대」를 물어야 한다.</small></p></div>
-      <div class="note"><span class="mark">✓</span><p>공통 조항 질문은 이 화면을 띄우지 않는다.<small>「골절진단비가 뭔가요」는 모든 상품 공통이라 그냥 답한다. 상품마다 다른 조항일 때만 선택을 요구한다 — 매번 강요하면 도구가 무거워진다.</small></p></div>
+      <div class="note"><span class="mark">1</span><p><b>폼이 아니라 대화다.</b><small>선택기를 별도 화면으로 띄우면 「입력하러 가는」 일이 된다. 챗봇에서는 <b>AI가 묻고 FA가 고르는 것</b>이 자연스럽다. 고른 값은 사용자 말풍선으로 남아 <b>무엇을 골랐는지 이력에 보인다.</b></small></p></div>
+      <div class="note"><span class="mark">2</span><p>보종은 묻지 않는다. 상품명을 바로 받는다.<small>한 단계를 더 두면 「내 계약이 장기인가 통합인가」를 멈춰서 생각하게 된다. 상품명은 이미 알고 있으므로 <b>치면 매칭되는 편이 빠르다.</b> 약어도 받고, 보종은 결과에 꼬리표로만 붙인다.</small></p></div>
+      <div class="note"><span class="mark">3</span><p>이름이 겹치는 상품을 나란히 놓는다.<small>「참좋은동행」과 「참좋은동행Ⅱ」, 「참좋은운전자상해」는 다른 약관이다. 한 건만 자동 선택하지 않는다. <b>약관 건수를 함께 보여줘</b> 다음 질문을 예고한다.</small></p></div>
+      <div class="note"><span class="mark">4</span><p>왜 묻는지를 함께 말한다.<small>「보상은 가입 시점의 약관을 따릅니다」를 붙이면 FA가 <b>귀찮은 절차가 아니라 필요한 확인</b>으로 받아들인다. 약관이 한 건뿐이면 이 질문 자체를 하지 않는다.</small></p></div>
+      <div class="note"><span class="mark">5</span><p>실손은 약관이 아니라 세대를 묻는다.<small>1~4세대 표준약관이 보상 갈래를 정하므로 150건을 늘어놓을 필요가 없다. 갱신 · 전환으로 세대가 바뀌므로 「지금 적용 중인 세대」를 묻는다.</small></p></div>
+      <div class="note"><span class="mark">6</span><p><b>고객을 만들지 않아도 여기서 끝난다.</b><small>「이어서 질문하기」가 기본값이다 — 고객 등록 없이 그대로 묻는다. 「이 고객 약관으로 저장」은 <b>이어서 상담할 고객일 때만</b> 고른다.</small></p></div>
+      <div class="note"><span class="mark">✓</span><p>공통 조항 질문은 이 대화를 시작하지 않는다.<small>「골절진단비가 뭔가요」는 모든 상품 공통이라 그냥 답한다. 상품마다 다른 조항일 때만 묻는다.</small></p></div>
     </div>
   </section>
 
