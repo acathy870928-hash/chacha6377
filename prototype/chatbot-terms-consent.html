@@ -1,0 +1,1697 @@
+<title>챗봇 약관 동의 프로토타입</title>
+
+<style>
+  :root {
+    --paper:      #F3F5F3;
+    --surface:    #FFFFFF;
+    --surface-2:  #EAEEEB;
+    --ink:        #16211F;
+    --ink-soft:   #55635E;
+    --ink-faint:  #8A9791;
+    --line:       #DCE3E0;
+    --line-soft:  #E9EEEB;
+    --jade:       #0F6E5C;
+    --jade-soft:  #E3F0EC;
+    --jade-press: #0B5748;
+    --cinnabar:   #B4342A;
+    --cinnabar-soft: #FBEAE7;
+    --shadow-sm:  0 1px 2px rgba(22, 33, 31, .06), 0 4px 12px rgba(22, 33, 31, .05);
+    --shadow-lg:  0 2px 6px rgba(22, 33, 31, .08), 0 24px 48px rgba(22, 33, 31, .12);
+    --scrim:      rgba(22, 33, 31, .42);
+
+    --sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+            "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", "Menlo", "Consolas", monospace;
+
+    --r-sm: 8px;
+    --r-md: 14px;
+    --r-lg: 22px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0E1413;
+      --surface:    #171F1D;
+      --surface-2:  #202A27;
+      --ink:        #E7EEEA;
+      --ink-soft:   #A2B0AB;
+      --ink-faint:  #74827D;
+      --line:       #2A3633;
+      --line-soft:  #222D2A;
+      --jade:       #4CC3A6;
+      --jade-soft:  #14312B;
+      --jade-press: #6BD5BB;
+      --cinnabar:   #E97D6D;
+      --cinnabar-soft: #35201D;
+      --shadow-sm:  0 1px 2px rgba(0, 0, 0, .4), 0 4px 12px rgba(0, 0, 0, .3);
+      --shadow-lg:  0 2px 6px rgba(0, 0, 0, .5), 0 24px 48px rgba(0, 0, 0, .45);
+      --scrim:      rgba(0, 0, 0, .6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0E1413;
+    --surface:    #171F1D;
+    --surface-2:  #202A27;
+    --ink:        #E7EEEA;
+    --ink-soft:   #A2B0AB;
+    --ink-faint:  #74827D;
+    --line:       #2A3633;
+    --line-soft:  #222D2A;
+    --jade:       #4CC3A6;
+    --jade-soft:  #14312B;
+    --jade-press: #6BD5BB;
+    --cinnabar:   #E97D6D;
+    --cinnabar-soft: #35201D;
+    --shadow-sm:  0 1px 2px rgba(0, 0, 0, .4), 0 4px 12px rgba(0, 0, 0, .3);
+    --shadow-lg:  0 2px 6px rgba(0, 0, 0, .5), 0 24px 48px rgba(0, 0, 0, .45);
+    --scrim:      rgba(0, 0, 0, .6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--jade);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 28px 120px;
+  }
+
+  /* ---------- 공통 타이포 ---------- */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(30px, 4.4vw, 46px);
+    line-height: 1.18;
+    letter-spacing: -.02em;
+    font-weight: 700;
+    margin: 10px 0 0;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-size: 23px;
+    letter-spacing: -.015em;
+    font-weight: 700;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    margin: 0 0 6px;
+  }
+
+  p { margin: 0; }
+  .lede { color: var(--ink-soft); max-width: 62ch; }
+
+  /* ---------- 헤더 ---------- */
+  header.page {
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 26px;
+  }
+
+  .chip {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: .04em;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 11px;
+  }
+
+  .chip b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- 섹션 ---------- */
+  section.block {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 48px;
+    padding: 56px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .rail { position: sticky; top: 28px; align-self: start; }
+  .rail .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--cinnabar);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .rail p {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin-top: 12px;
+  }
+
+  .body-col { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+
+  /* ---------- 흐름도 ---------- */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .flow-step {
+    flex: 1 1 150px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 14px 15px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .flow-step .step-n {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    color: var(--ink-faint);
+  }
+
+  .flow-step .step-t { font-weight: 650; font-size: 14.5px; margin-top: 4px; }
+  .flow-step .step-d { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 3px; }
+  .flow-step.gate { border-color: var(--cinnabar); background: var(--cinnabar-soft); }
+  .flow-step.gate .step-n { color: var(--cinnabar); }
+
+  /* ---------- 목업 프레임 ---------- */
+  .frames {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 34px;
+    align-items: flex-start;
+  }
+
+  .frame-unit { display: flex; flex-direction: column; gap: 12px; width: 360px; max-width: 100%; }
+
+  .frame-cap {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+
+  .phone {
+    width: 360px;
+    max-width: 100%;
+    height: 720px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 30px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    isolation: isolate;
+  }
+
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: .04em;
+    flex: none;
+  }
+
+  .app-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px 12px;
+    flex: none;
+  }
+
+  .icon-btn {
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border: 0; background: transparent;
+    color: var(--ink-soft);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 17px;
+    line-height: 1;
+  }
+  .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
+
+  .app-bar-title { font-size: 14px; font-weight: 650; letter-spacing: -.01em; }
+
+  .screen-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px 22px 20px;
+  }
+
+  /* ---------- 화면 A 내용 ---------- */
+  .hero-mark {
+    width: 46px; height: 46px;
+    border-radius: 13px;
+    background: var(--jade-soft);
+    color: var(--jade);
+    display: grid; place-items: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .screen-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -.022em;
+    line-height: 1.34;
+    margin: 0;
+  }
+
+  .screen-sub {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin: 8px 0 20px;
+  }
+
+  /* 전체 동의 */
+  .agree-all {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 15px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    font: inherit;
+    color: var(--ink);
+    transition: background .16s ease, border-color .16s ease;
+  }
+  .agree-all:hover { border-color: var(--jade); }
+  .agree-all[aria-checked="true"] { background: var(--jade-soft); border-color: var(--jade); }
+  .agree-all .t { font-size: 15.5px; font-weight: 700; letter-spacing: -.01em; }
+  .agree-all .s { font-size: 12px; color: var(--ink-soft); display: block; font-weight: 400; margin-top: 1px; }
+
+  .divider-note {
+    display: flex; align-items: center; gap: 10px;
+    margin: 18px 0 6px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  .divider-note::after {
+    content: ""; height: 1px; flex: 1; background: var(--line-soft);
+  }
+
+  .terms-list { display: flex; flex-direction: column; gap: 2px; }
+
+  .term-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 11px 4px;
+    border-radius: var(--r-sm);
+  }
+
+  .term-check {
+    flex: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    width: 24px; height: 24px;
+  }
+
+  .box {
+    width: 21px; height: 21px;
+    border-radius: 6px;
+    border: 1.6px solid var(--line);
+    background: var(--surface);
+    display: grid; place-items: center;
+    color: transparent;
+    font-size: 12px;
+    transition: background .14s ease, border-color .14s ease, color .14s ease;
+  }
+  .term-check:hover .box { border-color: var(--jade); }
+  [aria-checked="true"] .box {
+    background: var(--jade);
+    border-color: var(--jade);
+    color: #fff;
+  }
+  :root[data-theme="dark"] [aria-checked="true"] .box { color: #0E1413; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) [aria-checked="true"] .box { color: #0E1413; }
+  }
+
+  .term-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    cursor: pointer;
+    letter-spacing: -.01em;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin-right: 5px;
+    white-space: nowrap;
+  }
+  .tag.req { color: var(--cinnabar); }
+  .tag.opt { color: var(--ink-faint); }
+
+  .term-note {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-top: 2px;
+  }
+
+  .term-more {
+    flex: none;
+    border: 0;
+    background: transparent;
+    color: var(--ink-faint);
+    font-family: var(--sans);
+    font-size: 12.5px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    padding: 2px 2px;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  .term-more:hover { color: var(--jade); }
+
+  .term-row.invalid { background: var(--cinnabar-soft); }
+
+  .inline-error {
+    display: none;
+    gap: 7px;
+    align-items: flex-start;
+    font-size: 12.5px;
+    color: var(--cinnabar);
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+  .inline-error.on { display: flex; }
+
+  .fine-print {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    line-height: 1.6;
+    margin-top: 18px;
+  }
+
+  /* 하단 고정 CTA */
+  .cta-dock {
+    flex: none;
+    padding: 12px 22px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line-soft);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cta {
+    width: 100%;
+    padding: 15px 18px;
+    border: 0;
+    border-radius: var(--r-md);
+    background: var(--jade);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    cursor: pointer;
+    transition: background .15s ease, transform .08s ease;
+  }
+  :root[data-theme="dark"] .cta { color: #0B1412; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .cta { color: #0B1412; }
+  }
+  .cta:hover { background: var(--jade-press); }
+  .cta:active { transform: translateY(1px); }
+  .cta[data-state="off"] {
+    background: var(--surface-2);
+    color: var(--ink-faint);
+  }
+
+  .cta-hint {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    text-align: center;
+    min-height: 17px;
+  }
+  .cta-hint.warn { color: var(--cinnabar); }
+
+  /* 흔들림 */
+  @keyframes nudge {
+    0%, 100% { transform: translateX(0); }
+    22% { transform: translateX(-5px); }
+    46% { transform: translateX(4px); }
+    72% { transform: translateX(-2px); }
+  }
+  .nudge { animation: nudge .34s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    .nudge { animation: none; }
+    * { scroll-behavior: auto !important; }
+  }
+
+  /* ---------- 완료(날인) 상태 ---------- */
+  .done-view {
+    position: absolute;
+    inset: 0;
+    background: var(--surface);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    padding: 40px;
+    z-index: 4;
+  }
+  .done-view.on { display: flex; }
+
+  .stamp {
+    width: 86px; height: 86px;
+    border: 2.5px solid var(--cinnabar);
+    border-radius: 50%;
+    color: var(--cinnabar);
+    display: grid;
+    place-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    line-height: 1.25;
+    transform: rotate(-7deg);
+    opacity: .92;
+  }
+  .done-view.on .stamp { animation: stampIn .32s cubic-bezier(.2, 1.3, .5, 1); }
+  @keyframes stampIn {
+    from { transform: rotate(-7deg) scale(1.5); opacity: 0; }
+    to   { transform: rotate(-7deg) scale(1); opacity: .92; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .done-view.on .stamp { animation: none; }
+  }
+
+  .done-view .d-t { font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+  .done-view .d-s { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .ghost-btn {
+    margin-top: 6px;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: .06em;
+    cursor: pointer;
+  }
+  .ghost-btn:hover { border-color: var(--jade); color: var(--jade); }
+
+  /* ---------- 전문 모달 ---------- */
+  .sheet-scrim {
+    position: absolute;
+    inset: 0;
+    background: var(--scrim);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+    z-index: 5;
+  }
+  .sheet-scrim.on { opacity: 1; pointer-events: auto; }
+
+  .sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(101%);
+    transition: transform .26s cubic-bezier(.2, .8, .3, 1);
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    max-height: 86%;
+  }
+  .sheet.on { transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .sheet { transition: none; }
+  }
+
+  .grabber {
+    width: 38px; height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+    margin: 9px auto 2px;
+    flex: none;
+  }
+
+  .sheet-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 20px 10px;
+    border-bottom: 1px solid var(--line-soft);
+    flex: none;
+  }
+  .sheet-head h4 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -.015em; }
+  .sheet-head .v {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    letter-spacing: .06em;
+    display: block;
+    margin-top: 3px;
+  }
+
+  .sheet-body {
+    overflow-y: auto;
+    padding: 16px 20px 20px;
+    font-size: 13px;
+    line-height: 1.72;
+    color: var(--ink-soft);
+    flex: 1 1 auto;
+  }
+  .sheet-body h5 {
+    margin: 16px 0 4px;
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .sheet-body h5:first-child { margin-top: 0; }
+  .sheet-body ul { margin: 4px 0 0; padding-left: 17px; }
+  .sheet-body li { margin-bottom: 3px; }
+
+  .mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .mini-table th, .mini-table td {
+    border: 1px solid var(--line);
+    padding: 7px 9px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .mini-table th {
+    background: var(--surface-2);
+    color: var(--ink);
+    font-weight: 650;
+    white-space: nowrap;
+  }
+
+  .sheet-foot {
+    flex: none;
+    padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line-soft);
+  }
+
+  /* ---------- 화면 B: 대화 중 재동의 ---------- */
+  .chat-area {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 8px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bubble {
+    max-width: 78%;
+    padding: 11px 14px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    border-radius: 16px;
+    letter-spacing: -.005em;
+  }
+  .bubble.bot {
+    align-self: flex-start;
+    background: var(--surface-2);
+    color: var(--ink);
+    border-bottom-left-radius: 5px;
+  }
+  .bubble.me {
+    align-self: flex-end;
+    background: var(--jade);
+    color: #fff;
+    border-bottom-right-radius: 5px;
+  }
+  :root[data-theme="dark"] .bubble.me { color: #0B1412; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .bubble.me { color: #0B1412; }
+  }
+
+  .day-mark {
+    align-self: center;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    letter-spacing: .08em;
+    padding: 2px 0 4px;
+  }
+
+  .composer {
+    flex: none;
+    border-top: 1px solid var(--line-soft);
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .composer .fake-input {
+    flex: 1 1 auto;
+    background: var(--surface-2);
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+  .composer.locked .fake-input { color: var(--ink-faint); }
+  .send-dot {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--jade);
+    color: #fff;
+    display: grid; place-items: center;
+    font-size: 14px;
+    flex: none;
+  }
+  .composer.locked .send-dot { background: var(--surface-2); color: var(--ink-faint); }
+
+  /* ---------- 화면 C: 인라인 동의 카드 ---------- */
+  .inline-card {
+    align-self: flex-start;
+    max-width: 90%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    border-bottom-left-radius: 5px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .inline-card .ic-head {
+    padding: 13px 15px 10px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .inline-card .ic-title { font-size: 14px; font-weight: 700; letter-spacing: -.012em; }
+  .inline-card .ic-sub { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; margin-top: 4px; }
+  .inline-card .ic-list { padding: 10px 15px 12px; display: flex; flex-direction: column; gap: 7px; }
+  .ic-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    font-size: 12.5px;
+    color: var(--ink);
+  }
+  .ic-item .lk {
+    font-size: 12px; color: var(--ink-faint);
+    text-decoration: underline; text-underline-offset: 3px;
+    background: none; border: 0; cursor: pointer; font-family: var(--sans);
+    padding: 0;
+  }
+  .ic-item .lk:hover { color: var(--jade); }
+  .inline-card .ic-actions {
+    display: flex; gap: 8px; padding: 0 15px 14px;
+  }
+  .btn-mini {
+    flex: 1 1 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+  }
+  .btn-mini.primary { background: var(--jade); border-color: var(--jade); color: #fff; }
+  :root[data-theme="dark"] .btn-mini.primary { color: #0B1412; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn-mini.primary { color: #0B1412; }
+  }
+  .btn-mini:hover { border-color: var(--jade); color: var(--jade); }
+  .btn-mini.primary:hover { background: var(--jade-press); color: #fff; }
+  :root[data-theme="dark"] .btn-mini.primary:hover { color: #0B1412; }
+
+  /* ---------- 스펙 표 ---------- */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+  table.spec {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  table.spec th, table.spec td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  table.spec thead th {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  table.spec tbody tr:last-child td { border-bottom: 0; }
+  table.spec td.state { font-family: var(--mono); font-size: 12px; color: var(--ink); white-space: nowrap; }
+  table.spec td.copy { color: var(--ink); }
+  table.spec td.desc { color: var(--ink-soft); }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .06em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .pill.req { color: var(--cinnabar); border-color: var(--cinnabar); background: var(--cinnabar-soft); }
+  .pill.ok  { color: var(--jade); border-color: var(--jade); background: var(--jade-soft); }
+
+  /* ---------- 체크리스트 ---------- */
+  .check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .check-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 18px 19px;
+    box-shadow: var(--shadow-sm);
+  }
+  .check-card ul { margin: 8px 0 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .check-card li {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .check-card li::before {
+    content: "✓";
+    color: var(--jade);
+    font-size: 12px;
+    line-height: 1.5;
+    flex: none;
+  }
+  .check-card li b { color: var(--ink); font-weight: 650; }
+
+  .note-box {
+    border-left: 2px solid var(--cinnabar);
+    background: var(--cinnabar-soft);
+    padding: 14px 16px;
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .note-box b { font-weight: 700; }
+
+  footer.page {
+    padding: 40px 0 0;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: .06em;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+
+  @media (max-width: 860px) {
+    section.block { grid-template-columns: 1fr; gap: 20px; padding: 44px 0; }
+    .rail { position: static; }
+    .wrap { padding: 0 18px 80px; }
+    header.page { padding: 48px 0 32px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="page">
+    <p class="eyebrow">Prototype · v0.1 · 모바일 우선</p>
+    <h1>챗봇 약관 동의 화면</h1>
+    <p class="lede" style="margin-top:14px">
+      챗봇에 처음 들어온 사용자가 대화를 시작하기 전에 거치는 동의 화면입니다.
+      필수·선택을 분리해서 받고, 선택을 거절해도 챗봇은 그대로 쓸 수 있게 설계했습니다.
+      아래 목업은 실제로 눌러볼 수 있습니다.
+    </p>
+    <div class="meta-row">
+      <span class="chip"><b>대상</b> 최초 진입 사용자 / 약관 개정 시 기존 사용자</span>
+      <span class="chip"><b>화면</b> 3안 비교</span>
+      <span class="chip"><b>기준</b> 360 × 720</span>
+      <span class="chip"><b>근거</b> 개인정보보호법 제22조 · 정보통신망법 제50조</span>
+    </div>
+  </header>
+
+  <!-- 1. 흐름 -->
+  <section class="block">
+    <div class="rail">
+      <span class="num">01 / 흐름</span>
+      <h2>어디에 붙는가</h2>
+      <p>동의는 로그인 직후가 아니라 <b>챗봇 진입 직전</b>에 붙입니다. 챗봇을 쓸 사람에게만 챗봇 약관을 묻기 위해서입니다.</p>
+    </div>
+    <div class="body-col">
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-n">STEP 1</div>
+          <div class="step-t">챗봇 진입</div>
+          <div class="step-d">홈·상세·고객센터의 챗봇 버튼 탭</div>
+        </div>
+        <div class="flow-step gate">
+          <div class="step-n">GATE</div>
+          <div class="step-t">동의 여부 확인</div>
+          <div class="step-d">미동의 또는 약관 버전 변경 시 동의 화면 노출</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-n">STEP 2</div>
+          <div class="step-t">동의 화면</div>
+          <div class="step-d">필수 4 · 선택 2, 항목별 전문 확인</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-n">STEP 3</div>
+          <div class="step-t">대화 시작</div>
+          <div class="step-d">동의 시각·버전을 서버에 기록</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-n">STEP 4</div>
+          <div class="step-t">언제든 철회</div>
+          <div class="step-d">설정 &gt; 챗봇 &gt; 약관 및 동의 관리</div>
+        </div>
+      </div>
+      <div class="note-box">
+        <b>되돌아가는 길을 막지 않습니다.</b> 동의 화면에서 뒤로가기를 누르면 챗봇만 닫히고 이전 화면으로 돌아갑니다.
+        동의하지 않았다고 로그아웃시키거나 앱 사용을 막지 않습니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 화면 A + B -->
+  <section class="block">
+    <div class="rail">
+      <span class="num">02 / 화면</span>
+      <h2>3안 비교</h2>
+      <p>A는 최초 진입, B는 이미 대화하던 사용자의 약관 개정, C는 동의 부담을 최소화한 경량안입니다. A를 기본안으로 제안합니다.</p>
+      <p style="margin-top:14px"><span class="pill ok">권장</span> A · 전체 화면</p>
+    </div>
+
+    <div class="body-col">
+      <div class="frames">
+
+        <!-- ============ 화면 A ============ -->
+        <div class="frame-unit">
+          <div class="frame-cap">A · 전체 화면 동의 — 최초 진입</div>
+          <div class="phone" id="phoneA">
+            <div class="status-bar"><span>9:41</span><span>▮▮▮ ⏻</span></div>
+            <div class="app-bar">
+              <button class="icon-btn" type="button" title="닫기" aria-label="닫기">←</button>
+              <span class="app-bar-title">챗봇 시작하기</span>
+            </div>
+
+            <div class="screen-scroll">
+              <div class="hero-mark" aria-hidden="true">◎</div>
+              <h3 class="screen-title">대화를 시작하기 전에<br>몇 가지만 확인해 주세요</h3>
+              <p class="screen-sub">
+                AI 상담사 ‘하루’와 나눈 대화는 답변을 만드는 데 사용됩니다.
+                필수 항목에 동의하면 바로 대화를 시작할 수 있어요.
+              </p>
+
+              <button class="agree-all" type="button" role="checkbox" aria-checked="false" id="allBtn">
+                <span class="box" aria-hidden="true">✓</span>
+                <span>
+                  <span class="t">약관 전체에 동의합니다</span>
+                  <span class="s">선택 항목 포함 · 개별로도 고를 수 있어요</span>
+                </span>
+              </button>
+
+              <div class="divider-note">필수 항목</div>
+              <div class="terms-list" id="termsList">
+
+                <div class="term-row" data-row>
+                  <button class="term-check" type="button" role="checkbox" aria-checked="false"
+                          data-req="1" data-key="tos" aria-labelledby="lb-tos">
+                    <span class="box" aria-hidden="true">✓</span>
+                  </button>
+                  <label class="term-label" id="lb-tos" data-for="tos">
+                    <span class="tag req">필수</span>챗봇 서비스 이용약관
+                  </label>
+                  <button class="term-more" type="button" data-open="tos">보기</button>
+                </div>
+
+                <div class="term-row" data-row>
+                  <button class="term-check" type="button" role="checkbox" aria-checked="false"
+                          data-req="1" data-key="privacy" aria-labelledby="lb-privacy">
+                    <span class="box" aria-hidden="true">✓</span>
+                  </button>
+                  <label class="term-label" id="lb-privacy" data-for="privacy">
+                    <span class="tag req">필수</span>개인정보 수집·이용 동의
+                    <span class="term-note">대화 내용, 접속 기록을 답변 생성과 상담 이력 관리에 사용하고 탈퇴 30일 뒤 지웁니다.</span>
+                  </label>
+                  <button class="term-more" type="button" data-open="privacy">보기</button>
+                </div>
+
+                <div class="term-row" data-row>
+                  <button class="term-check" type="button" role="checkbox" aria-checked="false"
+                          data-req="1" data-key="ai" aria-labelledby="lb-ai">
+                    <span class="box" aria-hidden="true">✓</span>
+                  </button>
+                  <label class="term-label" id="lb-ai" data-for="ai">
+                    <span class="tag req">필수</span>AI 답변의 한계 확인
+                    <span class="term-note">답변이 틀릴 수 있고, 의료·법률·금융 판단의 근거로는 쓸 수 없습니다.</span>
+                  </label>
+                  <button class="term-more" type="button" data-open="ai">보기</button>
+                </div>
+
+                <div class="term-row" data-row>
+                  <button class="term-check" type="button" role="checkbox" aria-checked="false"
+                          data-req="1" data-key="age" aria-labelledby="lb-age">
+                    <span class="box" aria-hidden="true">✓</span>
+                  </button>
+                  <label class="term-label" id="lb-age" data-for="age">
+                    <span class="tag req">필수</span>만 14세 이상입니다
+                  </label>
+                </div>
+              </div>
+
+              <div class="divider-note">선택 항목</div>
+              <div class="terms-list" id="optList">
+
+                <div class="term-row" data-row>
+                  <button class="term-check" type="button" role="checkbox" aria-checked="false"
+                          data-req="0" data-key="train" aria-labelledby="lb-train">
+                    <span class="box" aria-hidden="true">✓</span>
+                  </button>
+                  <label class="term-label" id="lb-train" data-for="train">
+                    <span class="tag opt">선택</span>대화 내용을 품질 개선에 활용
+                    <span class="term-note">동의하지 않아도 챗봇은 그대로 쓸 수 있어요.</span>
+                  </label>
+                  <button class="term-more" type="button" data-open="train">보기</button>
+                </div>
+
+                <div class="term-row" data-row>
+                  <button class="term-check" type="button" role="checkbox" aria-checked="false"
+                          data-req="0" data-key="ads" aria-labelledby="lb-ads">
+                    <span class="box" aria-hidden="true">✓</span>
+                  </button>
+                  <label class="term-label" id="lb-ads" data-for="ads">
+                    <span class="tag opt">선택</span>혜택·이벤트 소식 받기
+                    <span class="term-note">앱 푸시와 이메일로 보냅니다. 언제든 끌 수 있어요.</span>
+                  </label>
+                  <button class="term-more" type="button" data-open="ads">보기</button>
+                </div>
+              </div>
+
+              <p class="inline-error" id="errA">
+                <span aria-hidden="true">!</span>
+                <span>필수 항목에 모두 동의해야 대화를 시작할 수 있어요.</span>
+              </p>
+
+              <p class="fine-print">
+                동의 내역은 설정 &gt; 챗봇 &gt; 약관 및 동의 관리에서 언제든 확인하고 철회할 수 있습니다.
+                필수 항목을 철회하면 챗봇 이용이 중단됩니다.
+              </p>
+            </div>
+
+            <div class="cta-dock">
+              <button class="cta" type="button" id="ctaA" data-state="off">동의하고 대화 시작</button>
+              <p class="cta-hint" id="hintA">필수 항목 4개가 남았어요</p>
+            </div>
+
+            <!-- 완료 -->
+            <div class="done-view" id="doneA">
+              <div class="stamp">동의<br>완료</div>
+              <p class="d-t">준비됐어요</p>
+              <p class="d-s" id="doneSummary">필수 4개 동의 · 2026-08-17 09:41<br>약관 버전 v2.3</p>
+              <button class="ghost-btn" type="button" id="resetA">처음부터 다시</button>
+            </div>
+
+            <!-- 전문 시트 -->
+            <div class="sheet-scrim" id="scrimA"></div>
+            <div class="sheet" id="sheetA" role="dialog" aria-modal="true" aria-labelledby="sheetTitleA">
+              <div class="grabber" aria-hidden="true"></div>
+              <div class="sheet-head">
+                <div>
+                  <h4 id="sheetTitleA">약관 전문</h4>
+                  <span class="v" id="sheetMetaA">v2.3 · 2026-08-01 시행</span>
+                </div>
+                <button class="icon-btn" type="button" id="closeSheetA" aria-label="닫기">✕</button>
+              </div>
+              <div class="sheet-body" id="sheetBodyA"></div>
+              <div class="sheet-foot">
+                <button class="cta" type="button" id="sheetAgreeA">읽었고 동의합니다</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ 화면 B ============ -->
+        <div class="frame-unit">
+          <div class="frame-cap">B · 바텀시트 — 약관 개정 재동의</div>
+          <div class="phone" id="phoneB">
+            <div class="status-bar"><span>9:41</span><span>▮▮▮ ⏻</span></div>
+            <div class="app-bar">
+              <button class="icon-btn" type="button" aria-label="닫기">←</button>
+              <span class="app-bar-title">AI 상담사 하루</span>
+            </div>
+
+            <div class="chat-area">
+              <div class="day-mark">2026. 8. 17.</div>
+              <div class="bubble bot">지난번 배송 문의는 잘 해결되셨나요?</div>
+              <div class="bubble me">네, 잘 받았어요. 반품도 되나요?</div>
+              <div class="bubble bot">반품 관련해서 안내드릴게요. 그전에 확인할 게 하나 있어요.</div>
+            </div>
+
+            <div class="composer locked">
+              <div class="fake-input">약관 동의 후 이어서 대화할 수 있어요</div>
+              <div class="send-dot" aria-hidden="true">↑</div>
+            </div>
+
+            <div class="sheet-scrim on" id="scrimB"></div>
+            <div class="sheet on" id="sheetB" role="dialog" aria-modal="true" aria-labelledby="sheetTitleB">
+              <div class="grabber" aria-hidden="true"></div>
+              <div class="sheet-head">
+                <div>
+                  <h4 id="sheetTitleB">약관이 바뀌었어요</h4>
+                  <span class="v">V2.2 → V2.3 · 2026-08-01 시행</span>
+                </div>
+              </div>
+              <div class="sheet-body">
+                <p style="color:var(--ink);margin:0 0 12px">
+                  대화 내용 보관 기간이 <b>90일에서 30일로</b> 짧아지고, 상담 이력 조회 항목이 추가됐어요.
+                  이어서 대화하려면 바뀐 약관에 동의해 주세요.
+                </p>
+                <h5>바뀐 부분만 보기</h5>
+                <table class="mini-table">
+                  <tr><th>보관 기간</th><td>탈퇴 후 90일 → <b style="color:var(--jade)">30일</b></td></tr>
+                  <tr><th>수집 항목</th><td>대화 내용, 접속 기록 <b>+ 상담 이력</b></td></tr>
+                  <tr><th>처리 위탁</th><td>변동 없음</td></tr>
+                </table>
+                <div class="terms-list" style="margin-top:14px">
+                  <div class="term-row" data-row>
+                    <button class="term-check" type="button" role="checkbox" aria-checked="false"
+                            data-req="1" data-key="tos2" aria-labelledby="lb-tos2">
+                      <span class="box" aria-hidden="true">✓</span>
+                    </button>
+                    <label class="term-label" id="lb-tos2" data-for="tos2">
+                      <span class="tag req">필수</span>개정 이용약관 및 개인정보 처리방침
+                    </label>
+                    <button class="term-more" type="button" data-open="tos">전문</button>
+                  </div>
+                </div>
+              </div>
+              <div class="sheet-foot" style="display:flex;flex-direction:column;gap:8px">
+                <button class="cta" type="button" id="ctaB" data-state="off">동의하고 이어서 대화</button>
+                <button class="btn-mini" type="button" id="laterB" style="width:100%">나중에 하기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ 화면 C ============ -->
+        <div class="frame-unit">
+          <div class="frame-cap">C · 인라인 카드 — 경량안</div>
+          <div class="phone" id="phoneC">
+            <div class="status-bar"><span>9:41</span><span>▮▮▮ ⏻</span></div>
+            <div class="app-bar">
+              <button class="icon-btn" type="button" aria-label="닫기">←</button>
+              <span class="app-bar-title">AI 상담사 하루</span>
+            </div>
+
+            <div class="chat-area" id="chatC">
+              <div class="day-mark">2026. 8. 17.</div>
+              <div class="bubble bot">안녕하세요, AI 상담사 하루예요. 무엇을 도와드릴까요?</div>
+
+              <div class="inline-card" id="cardC">
+                <div class="ic-head">
+                  <div class="ic-title">대화를 시작하려면 동의가 필요해요</div>
+                  <div class="ic-sub">아래 필수 항목에 동의하면 바로 이어집니다. 선택 항목은 나중에 설정에서 켜도 돼요.</div>
+                </div>
+                <div class="ic-list">
+                  <div class="ic-item"><span><span class="tag req">필수</span>챗봇 서비스 이용약관</span><button class="lk" type="button" data-open="tos">보기</button></div>
+                  <div class="ic-item"><span><span class="tag req">필수</span>개인정보 수집·이용</span><button class="lk" type="button" data-open="privacy">보기</button></div>
+                  <div class="ic-item"><span><span class="tag req">필수</span>AI 답변의 한계 · 만 14세 이상</span><button class="lk" type="button" data-open="ai">보기</button></div>
+                </div>
+                <div class="ic-actions">
+                  <button class="btn-mini" type="button" id="detailC">항목별로 고르기</button>
+                  <button class="btn-mini primary" type="button" id="agreeC">모두 동의</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="composer locked" id="composerC">
+              <div class="fake-input" id="inputC">동의 후 입력할 수 있어요</div>
+              <div class="send-dot" aria-hidden="true">↑</div>
+            </div>
+
+            <div class="sheet-scrim" id="scrimC"></div>
+            <div class="sheet" id="sheetC" role="dialog" aria-modal="true" aria-labelledby="sheetTitleC">
+              <div class="grabber" aria-hidden="true"></div>
+              <div class="sheet-head">
+                <div>
+                  <h4 id="sheetTitleC">약관 전문</h4>
+                  <span class="v" id="sheetMetaC">v2.3 · 2026-08-01 시행</span>
+                </div>
+                <button class="icon-btn" type="button" id="closeSheetC" aria-label="닫기">✕</button>
+              </div>
+              <div class="sheet-body" id="sheetBodyC"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="note-box">
+        <b>3안 중 A를 기본안으로 씁니다.</b> C는 탭 수가 가장 적지만 필수 항목을 한 번에 묶어 받기 때문에
+        개인정보 수집 동의를 다른 항목과 분리해서 받아야 하는 요건을 만족하기 어렵습니다.
+        C는 ‘모두 동의’ 옆에 ‘항목별로 고르기’를 반드시 함께 두고, 실제 동의 기록은 항목 단위로 남깁니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 상태 -->
+  <section class="block">
+    <div class="rail">
+      <span class="num">03 / 상태</span>
+      <h2>버튼과 문구</h2>
+      <p>같은 화면이 상황에 따라 다르게 보입니다. 개발에 넘길 때 이 표가 기준입니다.</p>
+    </div>
+    <div class="body-col">
+      <div class="table-scroll">
+        <table class="spec">
+          <thead>
+            <tr>
+              <th>상태</th><th>버튼</th><th>안내 문구</th><th>동작</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="state">initial</td>
+              <td><span class="pill">비활성</span></td>
+              <td class="copy">필수 항목 4개가 남았어요</td>
+              <td class="desc">진입 직후. 아무것도 선택되지 않은 상태</td>
+            </tr>
+            <tr>
+              <td class="state">partial</td>
+              <td><span class="pill">비활성</span></td>
+              <td class="copy">필수 항목 <b>n</b>개가 남았어요</td>
+              <td class="desc">남은 개수를 실시간으로 갱신</td>
+            </tr>
+            <tr>
+              <td class="state">ready</td>
+              <td><span class="pill ok">활성</span></td>
+              <td class="copy">선택 항목은 나중에 바꿀 수 있어요</td>
+              <td class="desc">필수 4개 완료. 선택 동의 여부와 무관</td>
+            </tr>
+            <tr>
+              <td class="state">blocked</td>
+              <td><span class="pill req">비활성 + 흔들림</span></td>
+              <td class="copy">필수 항목에 모두 동의해야 시작할 수 있어요</td>
+              <td class="desc">비활성 버튼을 눌렀을 때. 미체크 행으로 스크롤 후 강조</td>
+            </tr>
+            <tr>
+              <td class="state">under14</td>
+              <td><span class="pill req">차단</span></td>
+              <td class="copy">만 14세 미만은 보호자 동의가 필요해요</td>
+              <td class="desc">연령 항목 미체크로 진행 시도 시 보호자 동의 안내로 이동</td>
+            </tr>
+            <tr>
+              <td class="state">revised</td>
+              <td><span class="pill ok">활성</span></td>
+              <td class="copy">바뀐 내용만 모아서 보여드려요</td>
+              <td class="desc">화면 B. 이전 버전과의 차이를 표로 먼저 제시</td>
+            </tr>
+            <tr>
+              <td class="state">submitting</td>
+              <td><span class="pill">로딩</span></td>
+              <td class="copy">동의 내용을 저장하고 있어요</td>
+              <td class="desc">중복 탭 방지. 최대 5초 후 실패 처리</td>
+            </tr>
+            <tr>
+              <td class="state">error</td>
+              <td><span class="pill req">활성</span></td>
+              <td class="copy">저장하지 못했어요. 다시 시도해 주세요</td>
+              <td class="desc">체크 상태는 그대로 유지</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll">
+        <table class="spec">
+          <thead>
+            <tr><th>항목</th><th>구분</th><th>거절하면</th><th>기록 값</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="copy">챗봇 서비스 이용약관</td><td><span class="pill req">필수</span></td><td class="desc">챗봇 이용 불가</td><td class="state">tos_v2.3</td></tr>
+            <tr><td class="copy">개인정보 수집·이용</td><td><span class="pill req">필수</span></td><td class="desc">챗봇 이용 불가</td><td class="state">privacy_v2.3</td></tr>
+            <tr><td class="copy">AI 답변의 한계 확인</td><td><span class="pill req">필수</span></td><td class="desc">챗봇 이용 불가</td><td class="state">ai_notice_v1.1</td></tr>
+            <tr><td class="copy">만 14세 이상</td><td><span class="pill req">필수</span></td><td class="desc">보호자 동의 절차로 분기</td><td class="state">age_14_over</td></tr>
+            <tr><td class="copy">대화 내용 품질 개선 활용</td><td><span class="pill">선택</span></td><td class="desc">영향 없음. 학습 대상에서 제외</td><td class="state">train_optin</td></tr>
+            <tr><td class="copy">혜택·이벤트 소식</td><td><span class="pill">선택</span></td><td class="desc">영향 없음. 발송 대상 제외</td><td class="state">marketing_optin</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 원칙 -->
+  <section class="block" style="border-bottom:0">
+    <div class="rail">
+      <span class="num">04 / 원칙</span>
+      <h2>넘기기 전 확인</h2>
+      <p>디자인·개발·법무가 각각 확인할 항목입니다.</p>
+    </div>
+    <div class="body-col">
+      <div class="check-grid">
+        <div class="check-card">
+          <h3>법적 요건</h3>
+          <ul>
+            <li><b>필수와 선택을 분리</b>해 표시하고, 선택 항목은 기본 해제 상태로 둡니다.</li>
+            <li>선택 동의를 거절해도 <b>챗봇 이용을 막지 않습니다</b>.</li>
+            <li>수집 항목·목적·보유 기간을 화면에서 <b>펼치지 않고도</b> 요약으로 읽을 수 있게 합니다.</li>
+            <li>만 14세 미만은 <b>보호자 동의 경로</b>로 분기합니다.</li>
+            <li>동의 시각, 약관 버전, 항목별 동의 여부를 <b>서버에 개별 기록</b>합니다.</li>
+            <li>철회 경로를 화면 안에 명시합니다.</li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3>접근성</h3>
+          <ul>
+            <li>체크 영역은 <b>44 × 44 이상</b>, 라벨을 눌러도 체크됩니다.</li>
+            <li>체크 상태를 색으로만 알리지 않고 <b>체크 표시</b>를 함께 씁니다.</li>
+            <li>스크린리더가 <b>필수/선택</b>을 항목 이름과 함께 읽습니다.</li>
+            <li>키보드 Tab 순서는 전체 동의 → 필수 → 선택 → 버튼.</li>
+            <li>애니메이션은 <code>prefers-reduced-motion</code>에서 꺼집니다.</li>
+            <li>본문 대비 4.5:1 이상, 라이트·다크 모두 검증.</li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3>문구 원칙</h3>
+          <ul>
+            <li>‘동의’ 대신 <b>무슨 일이 일어나는지</b>를 먼저 씁니다.</li>
+            <li>비활성 버튼 옆에는 항상 <b>무엇이 남았는지</b> 알립니다.</li>
+            <li>선택 항목에는 <b>거절해도 된다</b>고 직접 씁니다.</li>
+            <li>법령 조문 번호는 전문에만 두고 <b>요약에는 쓰지 않습니다</b>.</li>
+            <li>‘개인정보 처리방침에 따라’ 같은 <b>내용 없는 문장</b>을 쓰지 않습니다.</li>
+          </ul>
+        </div>
+        <div class="check-card">
+          <h3>다음 단계</h3>
+          <ul>
+            <li>보호자 동의 화면(만 14세 미만) 별도 설계</li>
+            <li>설정 &gt; 약관 및 동의 관리 화면 설계</li>
+            <li>약관 본문 CMS 연동 · 버전 관리 규칙 정의</li>
+            <li>동의 이탈률 측정 이벤트 정의</li>
+            <li>법무 검토 후 문구 확정</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page">
+    <span>챗봇 약관 동의 프로토타입 v0.1</span>
+    <span>·</span>
+    <span>목업은 실제 동작하는 클릭 프로토타입입니다</span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- 약관 전문 데이터 ---------- */
+  var DOCS = {
+    tos: {
+      title: "챗봇 서비스 이용약관",
+      meta: "v2.3 · 2026-08-01 시행",
+      html:
+        '<h5>제1조 (목적)</h5><p>이 약관은 회사가 제공하는 AI 챗봇 상담 서비스(이하 “서비스”)의 이용 조건과 절차, 회사와 이용자의 권리·의무를 정합니다.</p>' +
+        '<h5>제2조 (서비스의 성격)</h5><p>서비스는 인공지능 언어모델이 생성한 답변을 제공합니다. 답변은 참고용이며, 회사는 답변의 정확성·완전성을 보증하지 않습니다.</p>' +
+        '<h5>제3조 (이용자의 의무)</h5><ul><li>타인의 개인정보나 신용정보를 대화창에 입력하지 않습니다.</li><li>서비스를 이용해 불법 정보를 생성·유통하지 않습니다.</li><li>자동화 수단으로 대량 요청을 보내지 않습니다.</li></ul>' +
+        '<h5>제4조 (이용 제한)</h5><p>회사는 제3조를 위반한 이용자의 서비스 이용을 사전 통지 없이 제한할 수 있으며, 제한 사유와 기간을 지체 없이 알립니다.</p>' +
+        '<h5>제5조 (약관의 변경)</h5><p>회사는 약관을 변경할 수 있고, 변경 시 시행일 7일 전(이용자에게 불리한 변경은 30일 전)까지 서비스 안에서 알립니다.</p>'
+    },
+    privacy: {
+      title: "개인정보 수집·이용 동의",
+      meta: "v2.3 · 2026-08-01 시행",
+      html:
+        '<p>아래 내용을 확인하고 동의해 주세요. 동의를 거부할 수 있으나, 거부하면 챗봇 상담을 이용할 수 없습니다.</p>' +
+        '<table class="mini-table">' +
+        '<tr><th>수집 항목</th><td>대화 내용, 첨부 파일, 접속 기록(IP·기기 정보·접속 시각), 상담 이력</td></tr>' +
+        '<tr><th>이용 목적</th><td>답변 생성, 상담 이력 관리, 오·남용 방지, 서비스 장애 대응</td></tr>' +
+        '<tr><th>보유 기간</th><td>회원 탈퇴 후 30일까지. 관계 법령에 따라 보존이 필요한 경우 해당 기간</td></tr>' +
+        '<tr><th>처리 위탁</th><td>클라우드 인프라 운영(국내 리전), 언어모델 추론 처리</td></tr>' +
+        '</table>' +
+        '<h5>주의</h5><p>주민등록번호, 계좌번호, 카드번호 등은 대화창에 입력하지 마세요. 입력된 경우 확인 즉시 삭제합니다.</p>'
+    },
+    ai: {
+      title: "AI 답변의 한계 확인",
+      meta: "v1.1 · 2026-08-01 시행",
+      html:
+        '<h5>답변이 틀릴 수 있습니다</h5><p>AI는 사실이 아닌 내용을 사실처럼 말할 수 있습니다. 금액·기간·정책처럼 중요한 내용은 공식 안내나 상담원을 통해 다시 확인해 주세요.</p>' +
+        '<h5>이런 판단의 근거로 쓸 수 없습니다</h5><ul><li>질병의 진단·치료 등 의료적 판단</li><li>소송·계약 등 법률적 판단</li><li>투자·대출 등 금융 의사결정</li></ul>' +
+        '<h5>사람 상담원 연결</h5><p>대화 중 언제든 “상담원 연결”이라고 입력하면 사람 상담원에게 연결됩니다. 운영 시간은 평일 09:00–18:00입니다.</p>'
+    },
+    train: {
+      title: "대화 내용을 품질 개선에 활용",
+      meta: "선택 항목 · 언제든 철회 가능",
+      html:
+        '<p>동의하면 대화 내용에서 개인을 알아볼 수 있는 정보를 지운 뒤, 답변 품질을 높이는 데 활용합니다.</p>' +
+        '<table class="mini-table">' +
+        '<tr><th>활용 범위</th><td>비식별 처리된 대화 텍스트</td></tr>' +
+        '<tr><th>활용 목적</th><td>오답 유형 분석, 답변 품질 개선</td></tr>' +
+        '<tr><th>철회 방법</th><td>설정 &gt; 챗봇 &gt; 약관 및 동의 관리에서 끄기</td></tr>' +
+        '</table>' +
+        '<h5>동의하지 않아도 됩니다</h5><p>이 항목에 동의하지 않아도 챗봇의 모든 기능을 그대로 이용할 수 있습니다.</p>'
+    },
+    ads: {
+      title: "혜택·이벤트 소식 받기",
+      meta: "선택 항목 · 언제든 철회 가능",
+      html:
+        '<p>새로운 기능, 할인, 이벤트 소식을 앱 푸시와 이메일로 보내드립니다.</p>' +
+        '<table class="mini-table">' +
+        '<tr><th>발송 수단</th><td>앱 푸시, 이메일</td></tr>' +
+        '<tr><th>발송 빈도</th><td>월 2회 이내</td></tr>' +
+        '<tr><th>수신 거부</th><td>설정 &gt; 알림에서 끄기 또는 메일 하단 수신거부</td></tr>' +
+        '</table>' +
+        '<h5>동의하지 않아도 됩니다</h5><p>주문·배송·보안처럼 꼭 필요한 안내는 이 동의와 관계없이 발송됩니다.</p>'
+    }
+  };
+
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  function setChecked(el, on) {
+    el.setAttribute("aria-checked", on ? "true" : "false");
+  }
+  function isChecked(el) {
+    return el.getAttribute("aria-checked") === "true";
+  }
+
+  /* ================= 화면 A ================= */
+  var phoneA = $("#phoneA");
+  var allBtn = $("#allBtn");
+  var ctaA = $("#ctaA");
+  var hintA = $("#hintA");
+  var errA = $("#errA");
+  var doneA = $("#doneA");
+
+  var boxesA = $$('.term-check', phoneA);
+  var requiredA = boxesA.filter(function (b) { return b.dataset.req === "1"; });
+
+  function remainingA() {
+    return requiredA.filter(function (b) { return !isChecked(b); }).length;
+  }
+
+  function syncA() {
+    var left = remainingA();
+    var all = boxesA.every(isChecked);
+    setChecked(allBtn, all);
+
+    if (left === 0) {
+      ctaA.dataset.state = "on";
+      hintA.textContent = "선택 항목은 나중에 설정에서 바꿀 수 있어요";
+      hintA.classList.remove("warn");
+      errA.classList.remove("on");
+      $$(".term-row", phoneA).forEach(function (r) { r.classList.remove("invalid"); });
+    } else {
+      ctaA.dataset.state = "off";
+      hintA.textContent = "필수 항목 " + left + "개가 남았어요";
+      hintA.classList.remove("warn");
+    }
+  }
+
+  boxesA.forEach(function (b) {
+    b.addEventListener("click", function () {
+      setChecked(b, !isChecked(b));
+      b.closest(".term-row").classList.remove("invalid");
+      syncA();
+    });
+  });
+
+  $$(".term-label[data-for]", phoneA).forEach(function (lb) {
+    lb.addEventListener("click", function () {
+      var target = $$('.term-check[data-key="' + lb.dataset.for + '"]', phoneA)[0];
+      if (target) { target.click(); }
+    });
+  });
+
+  allBtn.addEventListener("click", function () {
+    var next = !isChecked(allBtn);
+    boxesA.forEach(function (b) { setChecked(b, next); });
+    $$(".term-row", phoneA).forEach(function (r) { r.classList.remove("invalid"); });
+    syncA();
+  });
+
+  ctaA.addEventListener("click", function () {
+    if (ctaA.dataset.state === "off") {
+      errA.classList.add("on");
+      hintA.textContent = "필수 항목에 모두 동의해야 시작할 수 있어요";
+      hintA.classList.add("warn");
+      ctaA.classList.remove("nudge");
+      void ctaA.offsetWidth;
+      ctaA.classList.add("nudge");
+
+      var first = null;
+      requiredA.forEach(function (b) {
+        if (!isChecked(b)) {
+          b.closest(".term-row").classList.add("invalid");
+          if (!first) { first = b; }
+        }
+      });
+      if (first) {
+        first.closest(".term-row").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
+    var optIn = boxesA.filter(function (b) { return b.dataset.req === "0" && isChecked(b); }).length;
+    $("#doneSummary").innerHTML =
+      "필수 4개 동의 · 선택 " + optIn + "개 동의<br>약관 버전 v2.3 · 2026-08-17 09:41 기록됨";
+    doneA.classList.add("on");
+  });
+
+  $("#resetA").addEventListener("click", function () {
+    boxesA.forEach(function (b) { setChecked(b, false); });
+    doneA.classList.remove("on");
+    errA.classList.remove("on");
+    $(".screen-scroll", phoneA).scrollTop = 0;
+    syncA();
+  });
+
+  /* ---- 화면 A 전문 시트 ---- */
+  var sheetA = $("#sheetA");
+  var scrimA = $("#scrimA");
+  var pendingKey = null;
+
+  function openSheetA(key) {
+    var doc = DOCS[key];
+    if (!doc) { return; }
+    pendingKey = key;
+    $("#sheetTitleA").textContent = doc.title;
+    $("#sheetMetaA").textContent = doc.meta;
+    $("#sheetBodyA").innerHTML = doc.html;
+    $("#sheetBodyA").scrollTop = 0;
+    sheetA.classList.add("on");
+    scrimA.classList.add("on");
+    $("#closeSheetA").focus();
+  }
+
+  function closeSheetA() {
+    sheetA.classList.remove("on");
+    scrimA.classList.remove("on");
+  }
+
+  $$('.term-more[data-open]', phoneA).forEach(function (btn) {
+    btn.addEventListener("click", function () { openSheetA(btn.dataset.open); });
+  });
+  $("#closeSheetA").addEventListener("click", closeSheetA);
+  scrimA.addEventListener("click", closeSheetA);
+  $("#sheetAgreeA").addEventListener("click", function () {
+    var target = $$('.term-check[data-key="' + pendingKey + '"]', phoneA)[0];
+    if (target && !isChecked(target)) {
+      setChecked(target, true);
+      target.closest(".term-row").classList.remove("invalid");
+      syncA();
+    }
+    closeSheetA();
+  });
+
+  /* ================= 화면 B ================= */
+  var phoneB = $("#phoneB");
+  var ctaB = $("#ctaB");
+  var boxB = $('.term-check[data-key="tos2"]', phoneB);
+
+  boxB.addEventListener("click", function () {
+    setChecked(boxB, !isChecked(boxB));
+    ctaB.dataset.state = isChecked(boxB) ? "on" : "off";
+  });
+  $('.term-label[data-for="tos2"]', phoneB).addEventListener("click", function () { boxB.click(); });
+
+  ctaB.addEventListener("click", function () {
+    if (ctaB.dataset.state === "off") {
+      ctaB.classList.remove("nudge");
+      void ctaB.offsetWidth;
+      ctaB.classList.add("nudge");
+      boxB.closest(".term-row").classList.add("invalid");
+      return;
+    }
+    $("#sheetB").classList.remove("on");
+    $("#scrimB").classList.remove("on");
+    var composer = $(".composer", phoneB);
+    composer.classList.remove("locked");
+    $(".fake-input", composer).textContent = "메시지를 입력하세요";
+    var chat = $(".chat-area", phoneB);
+    var b = document.createElement("div");
+    b.className = "bubble bot";
+    b.textContent = "확인 감사합니다. 반품은 수령일로부터 7일 안에 신청할 수 있어요.";
+    chat.appendChild(b);
+    chat.scrollTop = chat.scrollHeight;
+  });
+
+  $("#laterB").addEventListener("click", function () {
+    $("#sheetB").classList.remove("on");
+    $("#scrimB").classList.remove("on");
+    var chat = $(".chat-area", phoneB);
+    var b = document.createElement("div");
+    b.className = "bubble bot";
+    b.textContent = "알겠어요. 동의 전까지는 새 대화를 시작할 수 없지만, 지난 대화는 계속 볼 수 있어요.";
+    chat.appendChild(b);
+    chat.scrollTop = chat.scrollHeight;
+  });
+
+  /* ================= 화면 C ================= */
+  var phoneC = $("#phoneC");
+  var sheetC = $("#sheetC");
+  var scrimC = $("#scrimC");
+
+  function openSheetC(key) {
+    var doc = DOCS[key];
+    if (!doc) { return; }
+    $("#sheetTitleC").textContent = doc.title;
+    $("#sheetMetaC").textContent = doc.meta;
+    $("#sheetBodyC").innerHTML = doc.html;
+    $("#sheetBodyC").scrollTop = 0;
+    sheetC.classList.add("on");
+    scrimC.classList.add("on");
+    $("#closeSheetC").focus();
+  }
+  function closeSheetC() {
+    sheetC.classList.remove("on");
+    scrimC.classList.remove("on");
+  }
+
+  $$("[data-open]", phoneC).forEach(function (btn) {
+    btn.addEventListener("click", function () { openSheetC(btn.dataset.open); });
+  });
+  $("#closeSheetC").addEventListener("click", closeSheetC);
+  scrimC.addEventListener("click", closeSheetC);
+
+  $("#agreeC").addEventListener("click", function () {
+    var card = $("#cardC");
+    card.remove();
+    var chat = $("#chatC");
+    var me = document.createElement("div");
+    me.className = "bubble me";
+    me.textContent = "필수 항목에 동의했어요";
+    chat.appendChild(me);
+    var bot = document.createElement("div");
+    bot.className = "bubble bot";
+    bot.textContent = "동의해 주셔서 감사합니다. 이제 무엇이든 물어보세요.";
+    chat.appendChild(bot);
+    chat.scrollTop = chat.scrollHeight;
+    var composer = $("#composerC");
+    composer.classList.remove("locked");
+    $("#inputC").textContent = "메시지를 입력하세요";
+  });
+
+  $("#detailC").addEventListener("click", function () {
+    $("#phoneA").scrollIntoView({ behavior: "smooth", block: "center" });
+    $("#phoneA").classList.remove("nudge");
+    void $("#phoneA").offsetWidth;
+    $("#phoneA").classList.add("nudge");
+  });
+
+  /* ---- 공통: ESC로 시트 닫기 ---- */
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      closeSheetA();
+      closeSheetC();
+    }
+  });
+
+  syncA();
+})();
+</script>
