@@ -1,0 +1,561 @@
+<title>라피 답변 근거 진단</title>
+
+<style>
+  @page { size: A4; margin: 10mm 11mm; }
+
+  :root {
+    --ground:    #ECEEF0;
+    --surface:   #FFFFFF;
+    --surface-2: #E3E7EA;
+    --ink:       #191C21;
+    --ink-soft:  #545C66;
+    --ink-faint: #8A929B;
+    --line:      #D8DDE2;
+    --line-soft: #E8ECEF;
+
+    --grounded:    #1F6B4A;
+    --grounded-bg: #E5F0EA;
+    --generated:   #A9781C;
+    --generated-bg:#F7EEDC;
+    --blocked:     #B0392C;
+    --blocked-bg:  #FAE8E5;
+
+    --sans: "Pretendard", "NanumBarunGothic", -apple-system, BlinkMacSystemFont,
+            "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --mono: "DejaVu Sans Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #101317;
+      --surface:   #191E23;
+      --surface-2: #222930;
+      --ink:       #E7EBEF;
+      --ink-soft:  #A3ACB5;
+      --ink-faint: #737C85;
+      --line:      #2B333A;
+      --line-soft: #232A31;
+      --grounded:    #56C08E;
+      --grounded-bg: #12301F;
+      --generated:   #D9A55C;
+      --generated-bg:#33280F;
+      --blocked:     #E5786A;
+      --blocked-bg:  #35211D;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #101317;
+    --surface:   #191E23;
+    --surface-2: #222930;
+    --ink:       #E7EBEF;
+    --ink-soft:  #A3ACB5;
+    --ink-faint: #737C85;
+    --line:      #2B333A;
+    --line-soft: #232A31;
+    --grounded:    #56C08E;
+    --grounded-bg: #12301F;
+    --generated:   #D9A55C;
+    --generated-bg:#33280F;
+    --blocked:     #E5786A;
+    --blocked-bg:  #35211D;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 8.9pt;
+    line-height: 1.48;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  :focus-visible { outline: 2px solid var(--grounded); outline-offset: 2px; }
+
+  .sheet {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px 18px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  /* ---------- 헤더 ---------- */
+  .head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    border-bottom: 1.6pt solid var(--ink);
+    padding-bottom: 6px;
+  }
+  .head .kicker {
+    margin: 0 0 2px;
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .head h1 {
+    margin: 0;
+    font-size: 15.5pt;
+    font-weight: 750;
+    letter-spacing: -.025em;
+    line-height: 1.15;
+  }
+  .head .meta {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: .05em;
+    color: var(--ink-faint);
+    text-align: right;
+    line-height: 1.7;
+  }
+
+  /* ---------- 진단 ---------- */
+  .verdict {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--blocked);
+    border-radius: 2px 7px 7px 2px;
+    padding: 7px 11px;
+  }
+  .verdict p { margin: 0; font-size: 8.9pt; line-height: 1.45; }
+  .verdict p + p { margin-top: 3px; font-size: 8.6pt; color: var(--ink-soft); }
+  .verdict b { font-weight: 700; }
+
+  /* ---------- 섹션 라벨 ---------- */
+  .sl { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .sl .n {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: .12em;
+    color: var(--ink-faint);
+  }
+  .sl h2 { margin: 0; font-size: 10pt; font-weight: 700; letter-spacing: -.015em; }
+  .sl .hint { margin-left: auto; font-size: 8pt; color: var(--ink-faint); text-align: right; }
+
+  /* ---------- 3모드 ---------- */
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .mode {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 2.5px solid var(--line);
+    border-radius: 2px 2px 7px 7px;
+    padding: 6px 10px 7px;
+  }
+  .mode.gen { border-top-color: var(--generated); }
+  .mode.blk { border-top-color: var(--blocked); }
+  .mode.gnd { border-top-color: var(--grounded); }
+  .mode .mt {
+    font-size: 9.4pt; font-weight: 700; letter-spacing: -.01em;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 6px;
+  }
+  .mode .turns { font-family: var(--mono); font-size: 7.5pt; color: var(--ink-faint); white-space: nowrap; }
+  .mode p { margin: 2px 0 0; font-size: 8.1pt; line-height: 1.45; color: var(--ink-soft); }
+  .mode.gen .mt { color: var(--generated); }
+  .mode.blk .mt { color: var(--blocked); }
+  .mode.gnd .mt { color: var(--grounded); }
+
+  /* ---------- 흐름도 ---------- */
+  .flow {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px 9px;
+  }
+
+  .bar {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 8pt;
+    letter-spacing: .06em;
+    padding: 3.5px 9px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .bar.tail { border-style: dashed; color: var(--ink-soft); }
+
+  .tick {
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 10pt;
+    line-height: 1;
+    padding: 1px 0;
+  }
+
+  .branch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .lane {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 5px 8px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .lane.left  { background: var(--grounded-bg); border-color: var(--grounded); }
+  .lane.right { background: var(--generated-bg); border-color: var(--generated); }
+
+  .lane-h {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 1px;
+  }
+  .lane.left  .lane-h { color: var(--grounded); }
+  .lane.right .lane-h { color: var(--generated); }
+
+  .node {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 3px 7px;
+    font-size: 7.7pt;
+    line-height: 1.34;
+  }
+  .node b { font-weight: 700; }
+  .node .sub { display: block; font-size: 7.2pt; color: var(--ink-soft); margin-top: 1px; }
+
+  .node.stop {
+    background: var(--blocked-bg);
+    border-color: var(--blocked);
+    color: var(--blocked);
+    font-weight: 700;
+  }
+  .node.stop .sub { color: var(--blocked); font-weight: 400; opacity: .85; }
+
+  .node.flag {
+    border-color: var(--blocked);
+    border-width: 1.5px;
+    background: var(--surface);
+  }
+  .node.flag .tagx {
+    display: inline-block;
+    background: var(--blocked);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 7pt;
+    letter-spacing: .06em;
+    padding: 0 4px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: 1px;
+  }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+
+  .cond {
+    font-family: var(--mono);
+    font-size: 7.4pt;
+    color: var(--ink-soft);
+    text-align: center;
+    letter-spacing: .04em;
+  }
+
+  /* ---------- 증거 ---------- */
+  .ev { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .ev-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 6px 10px 7px;
+  }
+  .ev-card .en {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    letter-spacing: .1em;
+    color: var(--blocked);
+  }
+  .ev-card h3 { margin: 2px 0 3px; font-size: 9pt; font-weight: 700; letter-spacing: -.01em; }
+  .ev-card p { margin: 0; font-size: 8pt; line-height: 1.45; color: var(--ink-soft); }
+  .ev-card q {
+    display: block;
+    font-family: var(--mono);
+    font-size: 7.6pt;
+    background: var(--surface-2);
+    border-radius: 3px;
+    padding: 2px 6px;
+    margin-top: 3px;
+    color: var(--ink);
+    quotes: none;
+    line-height: 1.5;
+  }
+
+  /* ---------- 표 ---------- */
+  .duo { display: grid; grid-template-columns: 1.05fr 1fr; gap: 9px; align-items: start; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.3pt;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  th, td { padding: 3.5px 8px; text-align: left; border-bottom: 1px solid var(--line-soft); line-height: 1.45; }
+  tbody tr:last-child td { border-bottom: 0; }
+  thead th {
+    font-family: var(--mono);
+    font-size: 7.2pt;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+  }
+  td.k { color: var(--ink); font-weight: 650; white-space: nowrap; }
+  td.same { color: var(--ink-soft); }
+  th.g { color: var(--grounded); }
+  th.a { color: var(--generated); }
+
+  .eq {
+    font-family: var(--mono);
+    font-size: 7.4pt;
+    color: var(--blocked);
+    white-space: nowrap;
+  }
+
+  /* ---------- 개선 ---------- */
+  .fixes { display: flex; flex-direction: column; gap: 4px; }
+  .fix {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 2.5px solid var(--grounded);
+    border-radius: 2px 6px 6px 2px;
+    padding: 4.5px 9px;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .fix .fn {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    color: var(--grounded);
+    flex: none;
+    font-weight: 700;
+  }
+  .fix .ft { font-size: 8.6pt; line-height: 1.5; }
+  .fix .ft b { font-weight: 700; }
+  .fix .ft span { color: var(--ink-soft); }
+
+  .sample {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    line-height: 1.6;
+  }
+  .sample .g { color: var(--grounded); font-weight: 700; }
+  .sample .a { color: var(--generated); font-weight: 700; }
+  .sample .r { color: var(--blocked); font-weight: 700; }
+  .sample .t { color: var(--ink-soft); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 6px;
+    font-family: var(--mono);
+    font-size: 7.2pt;
+    letter-spacing: .05em;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+
+  @media print {
+    body { background: #fff; }
+    /* A4 1장에 확실히 담기도록 전체 축소 */
+    .sheet { max-width: none; padding: 0; gap: 5px; zoom: .88; }
+    .flow, .ev-card, .mode, table, .fix, .verdict, .sample { break-inside: avoid; }
+  }
+
+  @media (max-width: 720px) {
+    .modes, .ev { grid-template-columns: 1fr; }
+    .duo, .branch, .split { grid-template-columns: 1fr; }
+    .head .meta { text-align: left; }
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="head">
+    <div>
+      <p class="kicker">라이프리 AI(라피) · 답변 동작 분석</p>
+      <h1>넓게 물으면 뻔하고, 좁게 물으면 답한다</h1>
+    </div>
+    <div class="meta">
+      표본 · 실제 대화 9턴<br>
+      2026-08-18 · v1
+    </div>
+  </header>
+
+  <div class="verdict">
+    <p>답이 <b>구체적이라고 해서 약관을 읽은 것은 아닙니다.</b> 검색이 아무것도 못 찾아도 챗봇은 사전 지식으로 답을 만들고, 그 답은 약관을 읽은 답과 <b>말투·형식·확신도가 완전히 같습니다.</b></p>
+    <p>사용자에게는 두 답을 구분할 단서가 없습니다. 이것이 이 챗봇의 핵심 결함입니다.</p>
+  </div>
+
+  <section>
+    <div class="sl">
+      <span class="n">01</span>
+      <h2>하나처럼 보이지만 세 갈래다</h2>
+      <span class="hint">출력 모양과 문체가 뚜렷이 다름</span>
+    </div>
+    <div class="modes">
+      <div class="mode gen">
+        <div class="mt"><span>일반 상담</span><span class="turns">턴 1·2·3·7·8·9</span></div>
+        <p>자유 생성 + 📌 섹션 구조. 고객 미지정도 답변. <b>출처 표기 없음.</b></p>
+      </div>
+      <div class="mode blk">
+        <div class="mt"><span>게이트</span><span class="turns">턴 4</span></div>
+        <p>“고객이 선택되지 않아 제공할 수 없습니다.” 문체가 이질적 — 조건 분기의 고정 메시지.</p>
+      </div>
+      <div class="mode gnd">
+        <div class="mt"><span>보장분석</span><span class="turns">턴 6</span></div>
+        <p>4단 고정 템플릿 + 계약 DB. 권장금액이 전부 라운드 숫자 → <b>룰 테이블</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sl">
+      <span class="n">02</span>
+      <h2>처리 흐름</h2>
+      <span class="hint">출력에서 역추론 — 구현을 확인한 것은 아님</span>
+    </div>
+
+    <div class="flow">
+      <div class="bar">질문 입력 → 의도 분류</div>
+      <div class="tick">▼</div>
+
+      <div class="branch">
+
+        <div class="lane left">
+          <div class="lane-h">보장분석 · 예상보험금 요청</div>
+          <div class="cond">고객이 선택되었는가?</div>
+          <div class="split">
+            <div class="node stop">NO · 차단<span class="sub">고정 안내 문구</span></div>
+            <div class="node">YES<span class="sub">계약 DB 조회</span></div>
+          </div>
+          <div class="tick">▼</div>
+          <div class="node">룰 테이블 대조 <span class="sub">권장 보장금액 산출</span></div>
+          <div class="node">4단 템플릿 렌더 <span class="sub">현황 · 분석 · 제안 · 상담포인트</span></div>
+        </div>
+
+        <div class="lane right">
+          <div class="lane-h">일반 상담</div>
+          <div class="cond">질문에서 검색 키가 추출되는가?</div>
+          <div class="split">
+            <div class="node">없음<span class="sub">검색 스킵</span></div>
+            <div class="node">있음<span class="sub">약관 검색 시도</span></div>
+          </div>
+          <div class="tick">▼</div>
+          <div class="node flag">
+            <span class="tagx">결함</span>히트가 없어도 <b>그대로 생성</b>
+            <span class="sub">“못 찾았습니다”가 없음 → 사전 지식이 조용히 대체</span>
+          </div>
+          <div class="node">LLM 생성 <span class="sub">근거 등급·출처 표기 없이 출력</span></div>
+        </div>
+
+      </div>
+
+      <div class="tick">▼</div>
+      <div class="bar tail">고정 후속질문 접미사 부착 — 턴 7·8·9 마지막 문장이 토씨까지 동일</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sl">
+      <span class="n">03</span>
+      <h2>약관을 읽지 않았다는 증거</h2>
+    </div>
+    <div class="ev">
+      <div class="ev-card">
+        <div class="en">증거 1 · 턴 8</div>
+        <h3>자료를 요구했는데 자료가 없다</h3>
+        <p>질문이 “자료가 있을까요”였는데 파일명·상품명·조문 번호·판이 하나도 제시되지 않았습니다.</p>
+      </div>
+      <div class="ev-card">
+        <div class="en">증거 2 · 턴 9</div>
+        <h3>약관 인용에 “예시”가 붙어 있다</h3>
+        <p>실제 조문이 아니라 업계 표준 문구의 재구성입니다.</p>
+        <q>“약관 내 대장점막내암 규정 예시”</q>
+      </div>
+      <div class="ev-card">
+        <div class="en">증거 3 · 턴 2</div>
+        <h3>가정법으로 답한다</h3>
+        <p>특약 목록을 읽었다면 “포함되어 있다면”이라고 쓸 이유가 없습니다.</p>
+        <q>“주로 구성되어 있으며 / 포함되어 있다면”</q>
+      </div>
+    </div>
+  </section>
+
+  <div class="duo">
+
+    <section>
+      <div class="sl">
+        <span class="n">04</span>
+        <h2>사용자는 구분할 수 없다</h2>
+      </div>
+      <table>
+        <thead>
+          <tr><th></th><th class="g">약관 근거</th><th class="a">사전 지식</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="k">말투</td><td class="same">단정적</td><td class="same">단정적</td><td class="eq">동일</td></tr>
+          <tr><td class="k">형식</td><td class="same">📌 섹션</td><td class="same">📌 섹션</td><td class="eq">동일</td></tr>
+          <tr><td class="k">출처</td><td class="same">없음</td><td class="same">없음</td><td class="eq">동일</td></tr>
+          <tr><td class="k">후속질문</td><td class="same">고정 문구</td><td class="same">고정 문구</td><td class="eq">동일</td></tr>
+        </tbody>
+      </table>
+      <div class="verdict" style="margin-top:7px;border-left-color:var(--blocked)">
+        <p style="font-size:8.6pt">설계사가 턴 2의 답변을 고객에게 전달하면, 그건 그 고객의 증권이 아니라 <b>2018년 무렵 일반론</b>입니다. 특약 구성이 다르면 안내가 틀리고, 보험에서 이는 <b>불완전판매 리스크</b>입니다.</p>
+      </div>
+      <div class="sample" style="margin-top:7px">
+        <span class="t">— 개선 후 답변 예 —</span><br>
+        <span class="g">[약관 원문]</span> KB닥터실속건강보험(19.04) 제12조<br>
+        <span class="t">&nbsp;&nbsp;“…점막하층까지는 침범하지 않은 상태…”</span><br>
+        <span class="a">[업계 일반]</span> <span class="t">2011.04 이후 다수사가 유사암 분류</span><br>
+        <span class="r">[미확인]</span> <span class="t">고객님 계약의 실제 특약 구성</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="sl">
+        <span class="n">05</span>
+        <h2>개선</h2>
+        <span class="hint">① 이 가장 효과 큼</span>
+      </div>
+      <div class="fixes">
+        <div class="fix"><span class="fn">01</span><span class="ft"><b>근거 등급을 블록 단위로 표기</b> <span>— 약관 원문 / 업계 일반 / 미확인</span></span></div>
+        <div class="fix"><span class="fn">02</span><span class="ft"><b>검색이 비면 비었다고 말하기</b> <span>— 조용한 대체 금지. 프롬프트 규칙으로 상당 부분 해결</span></span></div>
+        <div class="fix"><span class="fn">03</span><span class="ft"><b>식별자가 부족하면 되묻기</b> <span>— 답을 만들기 전에 증권·특약 목록을 요청</span></span></div>
+        <div class="fix"><span class="fn">04</span><span class="ft"><b>출처보기를 라피에도</b> <span>— iFA AI에 이미 있는 기능</span></span></div>
+        <div class="fix"><span class="fn">05</span><span class="ft"><b>후속질문을 맥락 기반으로</b> <span>— 고객 미등록이면 등록 유도가 맞음</span></span></div>
+      </div>
+
+
+    </section>
+
+  </div>
+
+  <footer>
+    <span>모드 분리 자체는 옳은 설계 — 문제는 보장분석엔 엄격하고 일반상담엔 느슨한 비대칭. 앞서 정리한 ‘시점 오염’과 같은 뿌리로, 문장의 출처를 시스템이 추적하지 않는다.</span>
+  </footer>
+
+</div>
