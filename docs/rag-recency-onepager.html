@@ -1,0 +1,701 @@
+<title>챗봇 시점 오염 정리안</title>
+
+<style>
+  :root {
+    --ground:    #EDEFF1;
+    --surface:   #FFFFFF;
+    --surface-2: #E4E8EB;
+    --ink:       #171C22;
+    --ink-soft:  #5A646E;
+    --ink-faint: #8C959E;
+    --line:      #D9DFE4;
+    --line-soft: #E7EBEE;
+    --fresh:     #0B6E7F;
+    --fresh-bg:  #E0EFF1;
+    --stale:     #A8641B;
+    --stale-bg:  #F5EBDD;
+    --shadow:    0 1px 2px rgba(23, 28, 34, .05), 0 6px 18px rgba(23, 28, 34, .06);
+
+    --sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+            "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #0E1216;
+      --surface:   #171D22;
+      --surface-2: #202830;
+      --ink:       #E6EBEF;
+      --ink-soft:  #A0AAB4;
+      --ink-faint: #6F7982;
+      --line:      #2A333B;
+      --line-soft: #222A31;
+      --fresh:     #4FC3D4;
+      --fresh-bg:  #10333A;
+      --stale:     #D9A05B;
+      --stale-bg:  #33260F;
+      --shadow:    0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px rgba(0, 0, 0, .35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #0E1216;
+    --surface:   #171D22;
+    --surface-2: #202830;
+    --ink:       #E6EBEF;
+    --ink-soft:  #A0AAB4;
+    --ink-faint: #6F7982;
+    --line:      #2A333B;
+    --line-soft: #222A31;
+    --fresh:     #4FC3D4;
+    --fresh-bg:  #10333A;
+    --stale:     #D9A05B;
+    --stale-bg:  #33260F;
+    --shadow:    0 1px 2px rgba(0, 0, 0, .4), 0 6px 18px rgba(0, 0, 0, .35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+
+  :focus-visible { outline: 2px solid var(--fresh); outline-offset: 2px; }
+
+  .sheet {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 34px 22px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* ---------- 헤더 ---------- */
+  .head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+  }
+
+  .head h1 {
+    margin: 4px 0 0;
+    font-size: clamp(25px, 3.4vw, 34px);
+    letter-spacing: -.028em;
+    font-weight: 750;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+
+  .head-meta {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .06em;
+    color: var(--ink-faint);
+    text-align: right;
+    line-height: 1.75;
+  }
+
+  /* ---------- 진단 ---------- */
+  .verdict {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--fresh);
+    border-radius: 3px 10px 10px 3px;
+    padding: 15px 20px;
+    box-shadow: var(--shadow);
+  }
+  .verdict p { margin: 0; font-size: 15.5px; line-height: 1.65; }
+  .verdict b { font-weight: 700; }
+  .verdict .sub { margin-top: 6px; font-size: 13px; color: var(--ink-soft); }
+
+  /* ---------- 섹션 공통 ---------- */
+  .sec-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 9px;
+  }
+  .sec-label .n {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .12em;
+    color: var(--fresh);
+  }
+  .sec-label h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -.015em;
+  }
+  .sec-label .hint {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-left: auto;
+    text-align: right;
+  }
+
+  /* ---------- 원인 3 ---------- */
+  .cause-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+  }
+  .cause {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .cause .cn {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--stale);
+  }
+  .cause h3 { margin: 3px 0 5px; font-size: 14px; font-weight: 700; letter-spacing: -.012em; }
+  .cause p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); }
+
+  /* ---------- 처방 4단계 ---------- */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+    gap: 12px;
+  }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .step.key { border-color: var(--fresh); background: var(--fresh-bg); }
+  .step-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .step-n {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--ink-faint);
+  }
+  .step.key .step-n { color: var(--fresh); }
+  .step h3 { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -.012em; }
+  .step p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); }
+  .step ul { margin: 0; padding-left: 15px; font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); }
+  .step li { margin-bottom: 2px; }
+  .step code, .inline-code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+  .step.key code { background: var(--surface); }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: .08em;
+    padding: 2px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    background: var(--surface);
+  }
+  .badge.key { border-color: var(--fresh); color: var(--fresh); background: var(--surface); }
+
+  /* ---------- 2열 ---------- */
+  .duo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .panel h3 {
+    margin: 0 0 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+  }
+
+  /* dedup 도식 */
+  .flow-diagram { display: flex; flex-direction: column; gap: 7px; }
+
+  .chunk-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+  }
+
+  .chunk {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .01em;
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .chunk.fresh { border-color: var(--fresh); color: var(--fresh); background: var(--fresh-bg); font-weight: 600; }
+  .chunk.stale { border-color: var(--stale); color: var(--stale); background: var(--stale-bg); }
+  .chunk.drop { opacity: .45; text-decoration: line-through; }
+
+  .arrow-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+    letter-spacing: .04em;
+    padding: 2px 0;
+  }
+  .arrow-note::before { content: "↓"; color: var(--fresh); font-size: 13px; }
+
+  .stage-tag {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: .1em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-bottom: 1px;
+  }
+
+  /* 코드 블록 */
+  pre {
+    margin: 0;
+    background: var(--surface-2);
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    padding: 12px 13px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    letter-spacing: -.005em;
+  }
+  pre .c { color: var(--ink-faint); }
+  pre .k { color: var(--fresh); font-weight: 600; }
+  pre .s { color: var(--stale); }
+
+  /* 규칙 리스트 */
+  .rules { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .rules li {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .rules li::before {
+    content: "▸";
+    color: var(--fresh);
+    font-size: 11px;
+    line-height: 1.6;
+    flex: none;
+  }
+  .rules li b { color: var(--ink); font-weight: 650; }
+
+  /* 답변 포맷 비교 */
+  .compare { display: flex; flex-direction: column; gap: 10px; }
+  .out {
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    padding: 11px 13px;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .out .out-cap {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .out.before { background: var(--stale-bg); border-color: var(--stale); }
+  .out.before .out-cap { color: var(--stale); }
+  .out.after { background: var(--fresh-bg); border-color: var(--fresh); }
+  .out.after .out-cap { color: var(--fresh); }
+  .out ol { margin: 0; padding-left: 17px; }
+  .out li { margin-bottom: 1px; }
+  .out .grp {
+    font-weight: 700;
+    font-size: 11.5px;
+    margin: 7px 0 3px;
+    display: block;
+  }
+  .out .grp:first-child { margin-top: 0; }
+  .stamp-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+    white-space: nowrap;
+  }
+  .stamp-date.f { background: var(--fresh); color: var(--surface); }
+  .stamp-date.s { background: var(--stale); color: var(--surface); }
+  :root[data-theme="dark"] .stamp-date.f,
+  :root[data-theme="dark"] .stamp-date.s { color: #0E1216; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .stamp-date.f,
+    :root:not([data-theme="light"]) .stamp-date.s { color: #0E1216; }
+  }
+
+  /* ---------- 우선순위 스트립 ---------- */
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+  table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  thead th {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.rank { font-family: var(--mono); font-size: 11px; color: var(--fresh); white-space: nowrap; font-weight: 600; }
+  td.what { color: var(--ink); font-weight: 600; }
+  td.eff { color: var(--ink-soft); }
+  .dots { font-family: var(--mono); letter-spacing: .12em; color: var(--fresh); font-size: 12px; }
+  .dots .off { color: var(--line); }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .05em;
+    color: var(--ink-faint);
+    padding-top: 4px;
+    border-top: 1px solid var(--line);
+  }
+
+  @media print {
+    body { background: #fff; font-size: 10.5px; }
+    .sheet { max-width: none; padding: 0; gap: 10px; }
+    .cause, .step, .panel, .table-wrap, .verdict { box-shadow: none; break-inside: avoid; }
+    .duo { break-inside: avoid; }
+  }
+
+  @media (max-width: 640px) {
+    .sheet { padding: 24px 15px 44px; }
+    .head-meta { text-align: left; }
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="head">
+    <div>
+      <p class="kicker">iFA AI · 검색 품질 개선안</p>
+      <h1>상품 질문에 옛날 자료가 섞이는 문제</h1>
+    </div>
+    <div class="head-meta">
+      대상 · 원수사이슈 등 월간 스냅샷 문서<br>
+      작성 · 2026-08-18 · v1
+    </div>
+  </header>
+
+  <div class="verdict">
+    <p>
+      프롬프트 문제가 아니라 <b>인덱스에 시점 정보가 없어서</b> 생기는 문제입니다.
+      2023년 청크와 2025년 청크가 유사도만 높으면 똑같은 자격으로 컨텍스트에 들어가고,
+      모델은 <b>어느 쪽이 최신인지 알 방법이 없어</b> 둘 다 사실로 씁니다.
+    </p>
+    <p class="sub">
+      해결의 핵심은 생성 단계가 아니라 <b>검색 단계에서 오래된 청크를 애초에 넣지 않는 것</b>입니다.
+    </p>
+  </div>
+
+  <section>
+    <div class="sec-label">
+      <span class="n">진단</span>
+      <h2>원인 세 가지</h2>
+    </div>
+    <div class="cause-grid">
+      <div class="cause">
+        <div class="cn">CAUSE 01</div>
+        <h3>청크에 기준시점이 없다</h3>
+        <p>파일명의 <span class="inline-code">202509</span>가 메타로 파싱되지 않고 파일명으로만 남아 있습니다. 검색도 생성도 시점을 못 봅니다.</p>
+      </div>
+      <div class="cause">
+        <div class="cn">CAUSE 02</div>
+        <h3>스냅샷 문서가 누적된다</h3>
+        <p>월간 이슈 문서는 매달 같은 사실을 반복 기술합니다. 12개월치면 동일 내용 청크가 12개, 그중 오래된 게 걸립니다.</p>
+      </div>
+      <div class="cause">
+        <div class="cn">CAUSE 03</div>
+        <h3>판매중지 상품이 살아 있다</h3>
+        <p>폐지·중지 상품이 인덱스에 그대로 남아 "현재 판매 중"처럼 답변됩니다. 상품 질문에서 가장 치명적입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">
+      <span class="n">처방</span>
+      <h2>네 단계</h2>
+      <span class="hint">1 → 2 순서로 약 2일. 2단계가 증상을 직접 잡습니다</span>
+    </div>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-top">
+          <span class="step-n">STEP 1 · 적재</span>
+          <span class="badge">1일</span>
+        </div>
+        <h3>메타데이터 부여</h3>
+        <p>모든 청크에 <code>as_of</code> <code>doc_type</code> <code>status</code> <code>entity</code>를 붙입니다.</p>
+        <p><b style="color:var(--ink)">본문 맨 앞에 텍스트로도 박아 넣으세요.</b> 메타 필드로만 두면 임베딩에도 생성에도 반영되지 않습니다.</p>
+      </div>
+
+      <div class="step key">
+        <div class="step-top">
+          <span class="step-n">STEP 2 · 검색</span>
+          <span class="badge key">핵심</span>
+        </div>
+        <h3>엔티티 단위 최신본만</h3>
+        <ul>
+          <li>기본은 <b>현행 조회</b> — 최근 6~12개월 + <code>status=current</code></li>
+          <li>"예전 · 추이 · 변경 · 연도 명시" → 전 기간</li>
+          <li><code>entity</code>로 묶어 최신 <code>as_of</code>만 채택</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <div class="step-top">
+          <span class="step-n">STEP 3 · 생성</span>
+          <span class="badge">0.5일</span>
+        </div>
+        <h3>충돌 처리 규칙</h3>
+        <p>정리 후에도 남는 충돌을 프롬프트로 마무리합니다. 최신 우선, 과거는 시점 표기 필수, 시점이 다른 내용을 한 문장에 섞지 않기.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-top">
+          <span class="step-n">STEP 4 · 출력</span>
+          <span class="badge">0.5일</span>
+        </div>
+        <h3>답변에 시점 노출</h3>
+        <p>회사 이름 옆의 날짜 배지 하나가 "보완 후 답변" 기능보다 실질적으로 더 큰 역할을 합니다. 사용자가 스스로 판단할 수 있게 됩니다.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="duo">
+
+    <section class="panel">
+      <h3>핵심 · 엔티티 dedup 이 하는 일</h3>
+      <div class="flow-diagram">
+        <div class="stage-tag">검색 직후 — 같은 상품, 다른 시점이 공존</div>
+        <div class="chunk-row">
+          <span class="chunk fresh">악사·당뇨 2025-09</span>
+          <span class="chunk stale">악사·당뇨 2023-04</span>
+          <span class="chunk fresh">우체국 2025-09</span>
+          <span class="chunk stale">DB·CI 2023-04</span>
+        </div>
+
+        <div class="arrow-note">group by entity → max(as_of)</div>
+
+        <div class="stage-tag">컨텍스트 투입 — 상품당 한 시점만</div>
+        <div class="chunk-row">
+          <span class="chunk fresh">악사·당뇨 2025-09</span>
+          <span class="chunk drop stale">악사·당뇨 2023-04</span>
+          <span class="chunk fresh">우체국 2025-09</span>
+          <span class="chunk stale">DB·CI 2023-04</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--ink-faint);margin:4px 0 0;line-height:1.55">
+          최신본이 있는 상품은 과거 청크를 버리고, 과거 자료밖에 없는 상품(DB·CI)은 남기되
+          <b style="color:var(--stale)">과거 표시를 달아</b> 넘깁니다. 버리지 않고 라벨링하는 게 요점입니다.
+        </p>
+      </div>
+
+      <h3 style="margin-top:16px">메타 스키마 · 본문 프리픽스</h3>
+      <pre><span class="c">// 청크 메타</span>
+{
+  <span class="k">"as_of"</span>:  <span class="s">"2025-09"</span>,          <span class="c">// 파일명·시트에서 파싱</span>
+  <span class="k">"doc_type"</span>: <span class="s">"monthly_issue"</span>,
+  <span class="k">"status"</span>: <span class="s">"current"</span>,         <span class="c">// superseded | discontinued</span>
+  <span class="k">"entity"</span>: <span class="s">"악사손해보험/당뇨전용건강보험"</span>
+}
+
+<span class="c">// 청크 본문 — 이 한 줄이 임베딩·생성 양쪽에 먹힙니다</span>
+[2025-09 기준 | 영업기획팀 원수사이슈]
+악사손해보험 — 당뇨 전용 건강보험 언급 ...</pre>
+    </section>
+
+    <section class="panel">
+      <h3>프롬프트 규칙</h3>
+      <pre>각 자료에는 [YYYY-MM 기준] 표기가 있습니다.
+
+<span class="k">1.</span> 같은 회사·상품에 시점이 다른 내용이 있으면
+   <span class="k">가장 최근 자료만</span> 사실로 삼고 과거는 제외합니다.
+<span class="k">2.</span> 과거 자료만 있는 항목은 반드시
+   <span class="s">"(2023-04 기준, 현재 판매 여부 미확인)"</span>
+   처럼 시점을 붙여 표기합니다.
+<span class="k">3.</span> 시점이 다른 내용을 한 문장에 섞지 않습니다.
+<span class="k">4.</span> 답변 첫 줄에 <span class="s">"기준: YYYY-MM"</span>을 씁니다.</pre>
+
+      <h3 style="margin-top:16px">답변 포맷</h3>
+      <div class="compare">
+        <div class="out before">
+          <span class="out-cap">지금 · 시점이 섞여 구분 불가</span>
+          <ol>
+            <li>악사손해보험: 당뇨 전용 건강보험 언급</li>
+            <li>우정사업본부: 우체국당뇨안심보험 판매</li>
+            <li>DB손해보험: 당뇨병 환자 전용 CI보험 이력</li>
+          </ol>
+        </div>
+        <div class="out after">
+          <span class="out-cap">개선 · 기준 2025-09 자료</span>
+          <span class="grp">최근 확인</span>
+          <ol>
+            <li>악사손해보험 — 당뇨 전용 건강보험<span class="stamp-date f">2025-09</span></li>
+            <li>우정사업본부 — 우체국당뇨안심보험<span class="stamp-date f">2025-09</span></li>
+          </ol>
+          <span class="grp">과거 자료만 있음 · 판매 여부 미확인</span>
+          <ol start="3">
+            <li>DB손해보험 — 당뇨병 환자 전용 CI보험<span class="stamp-date s">2023-04</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <ul class="rules" style="margin-top:14px">
+        <li><b>판매중지 목록을 별도 테이블로</b> 관리하고 <code class="inline-code">status</code>만 바꾸세요. 문서를 지우면 이력 질문에 답할 수 없습니다.</li>
+        <li><b>파일명 파싱 규칙을 고정</b>하세요. <code class="inline-code">202509</code> <code class="inline-code">2025-09</code> <code class="inline-code">25년9월</code>이 섞이면 <code class="inline-code">as_of</code>가 비고, 비는 순간 필터를 그냥 통과합니다.</li>
+        <li><b>시간 감쇠</b>를 함께 — <code class="inline-code">유사도 × 0.5^(경과월/12)</code>.</li>
+        <li><b>골든셋 20~30문항</b>으로 회귀 검증. "지금 판매 중인 X", "언제부터 바뀌었나", "작년 기준 Y" 세 유형을 섞으세요.</li>
+      </ul>
+    </section>
+
+  </div>
+
+  <section>
+    <div class="sec-label">
+      <span class="n">우선순위</span>
+      <h2>하나만 고른다면 2단계</h2>
+      <span class="hint">같은 상품의 시점 다른 청크가 동시 투입되는 것만 막아도 증상 대부분이 사라집니다</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>순위</th><th>할 일</th><th>효과</th><th>비용</th><th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank">1</td>
+            <td class="what">청크 메타 부여 + 본문 시점 프리픽스</td>
+            <td><span class="dots">●●●<span class="off">●●</span></span></td>
+            <td class="eff">1일</td>
+            <td class="eff">2단계의 전제 조건. 이것부터</td>
+          </tr>
+          <tr>
+            <td class="rank">2</td>
+            <td class="what">엔티티 dedup + 현행/이력 라우팅</td>
+            <td><span class="dots">●●●●●</span></td>
+            <td class="eff">1일</td>
+            <td class="eff">증상을 직접 해결하는 단계</td>
+          </tr>
+          <tr>
+            <td class="rank">3</td>
+            <td class="what">판매중지 상태 테이블 연동</td>
+            <td><span class="dots">●●●●<span class="off">●</span></span></td>
+            <td class="eff">2~3일</td>
+            <td class="eff">영업기획팀 데이터 협의 필요</td>
+          </tr>
+          <tr>
+            <td class="rank">4</td>
+            <td class="what">프롬프트 규칙 + 답변 포맷</td>
+            <td><span class="dots">●●●<span class="off">●●</span></span></td>
+            <td class="eff">1일</td>
+            <td class="eff">1·2 없이 단독 적용하면 효과 제한적</td>
+          </tr>
+          <tr>
+            <td class="rank">5</td>
+            <td class="what">월간 문서 diff 인덱싱</td>
+            <td><span class="dots">●●●<span class="off">●●</span></span></td>
+            <td class="eff">1주+</td>
+            <td class="eff">중복 급감. 파이프라인 개편 동반</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <span>다음 단계 · 원수사이슈 엑셀 샘플로 청크 분할·메타 파싱 규칙 확정</span>
+    <span>·</span>
+    <span>골든셋 문항 작성 후 1·2단계 적용 전후 비교</span>
+  </footer>
+
+</div>
