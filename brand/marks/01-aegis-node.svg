@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256" role="img" aria-label="Aegis Node mark">
+  <path d="M32 5.5 55 13.5V32.5c0 12-9.8 21.1-23 26-13.2-4.9-23-14-23-26V13.5Z" fill="none" stroke="#0A2540" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M32 33V19M32 33 21.5 42.5M32 33 42.5 42.5" stroke="#17B8C4" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="32" cy="33" r="4.6" fill="#17B8C4"/>
+  <circle cx="32" cy="18" r="3" fill="#0A2540"/>
+  <circle cx="21" cy="43" r="3" fill="#0A2540"/>
+  <circle cx="43" cy="43" r="3" fill="#0A2540"/>
+</svg>

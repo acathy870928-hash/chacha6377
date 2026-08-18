@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256" role="img" aria-label="Data Canopy mark">
+  <path d="M9 37a23 23 0 0 1 46 0" fill="none" stroke="#0E4A3C" stroke-width="5" stroke-linecap="round"/>
+  <path d="M19.5 37a12.5 12.5 0 0 1 25 0" fill="none" stroke="#48CE9C" stroke-width="4" stroke-linecap="round"/>
+  <path d="M32 37v12.5c0 4.6-3.6 7.2-7.5 5.6" fill="none" stroke="#0E4A3C" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="32" cy="13.5" r="3.6" fill="#48CE9C"/>
+</svg>
