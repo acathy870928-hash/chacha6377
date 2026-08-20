@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.0",
+  "id": "00000000-0000-0000-0000-000000000000",
+  "packageName": "com.example.workflowbot",
+  "developer": {
+    "name": "사내 개발",
+    "websiteUrl": "https://example.com",
+    "privacyUrl": "https://example.com/privacy",
+    "termsOfUseUrl": "https://example.com/terms"
+  },
+  "icons": { "color": "color.png", "outline": "outline.png" },
+  "name": { "short": "업무 플로우 봇", "full": "업무 플로우 진행 상황 챗봇" },
+  "description": {
+    "short": "내 업무가 어느 단계까지 진행됐는지 알려주는 봇",
+    "full": "담당 업무의 플로우 진행 단계, 지연 여부, 자리를 비운 사이의 변경 이력을 확인하고 진행 상태를 기록합니다."
+  },
+  "accentColor": "#2F6FEB",
+  "bots": [
+    {
+      "botId": "00000000-0000-0000-0000-000000000000",
+      "scopes": ["personal", "team"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal", "team"],
+          "commands": [
+            { "title": "오늘 현황", "description": "진행중·지연·마감 임박 업무 요약" },
+            { "title": "퇴근 후 변경사항", "description": "자리를 비운 사이 바뀐 내용" },
+            { "title": "초기화", "description": "대화 맥락 비우기" }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": []
+}

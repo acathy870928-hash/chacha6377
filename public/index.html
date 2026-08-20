@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>업무 플로우 챗봇</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #ffffff; --border: #e3e6ea; --text: #1b1d21; --muted: #6a7180;
+    --accent: #2f6feb; --accent-soft: #e8f0fe; --warn: #c2410c; --ok: #15803d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181d; --panel: #1e2128; --border: #2e323b; --text: #e8eaee; --muted: #98a0af;
+      --accent: #6c9bff; --accent-soft: #253352; --warn: #fb923c; --ok: #4ade80;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    display: flex; justify-content: center; min-height: 100dvh;
+  }
+  .app { width: 100%; max-width: 780px; display: flex; flex-direction: column; height: 100dvh; }
+  header {
+    padding: 14px 16px 10px; border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  h1 { font-size: 16px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  h1 small { font-weight: 400; color: var(--muted); font-size: 12px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 12px; padding: 3px 9px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); white-space: nowrap;
+  }
+  .chip.warn { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+  #log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 88%; padding: 10px 13px; border-radius: 14px; line-height: 1.62; font-size: 14.5px; white-space: pre-wrap; word-break: break-word; }
+  .msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.bot { align-self: flex-start; background: var(--panel); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .msg.bot strong { font-weight: 700; }
+  .msg.err { border-color: var(--warn); color: var(--warn); }
+  .meta { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .quick { display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px 0; }
+  .quick button {
+    font-size: 12.5px; padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  }
+  .quick button:hover { border-color: var(--accent); color: var(--accent); }
+  form { display: flex; gap: 8px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); }
+  textarea {
+    flex: 1; resize: none; font: inherit; font-size: 14.5px; padding: 10px 12px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--panel); color: var(--text); max-height: 120px;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  form button {
+    border: 0; background: var(--accent); color: #fff; border-radius: 12px; padding: 0 18px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  form button:disabled { opacity: .5; cursor: default; }
+  .tools { font-size: 11px; color: var(--muted); }
+  .dots::after { content: "···"; animation: blink 1.2s infinite; }
+  @keyframes blink { 0%, 100% { opacity: .3 } 50% { opacity: 1 } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>업무 플로우 챗봇 <small id="who"></small></h1>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div id="log"></div>
+
+  <div class="quick">
+    <button data-q="오늘 현황 알려줘">오늘 현황</button>
+    <button data-q="내가 퇴근한 뒤에 바뀐 거 있어?">퇴근 후 변경사항</button>
+    <button data-q="지연된 업무만 보여줘">지연 업무</button>
+    <button data-q="이번 주에 마감인 업무 알려줘">이번 주 마감</button>
+    <button data-q="내가 지금 처리해야 할 단계가 뭐야?">내 차례</button>
+    <button id="reset">대화 초기화</button>
+  </div>
+
+  <form id="form">
+    <textarea id="input" rows="1" placeholder="예) A사 계약 건 어디까지 갔어?" autocomplete="off"></textarea>
+    <button type="submit" id="send">보내기</button>
+  </form>
+</div>
+
+<script>
+const log = document.getElementById("log");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("send");
+const conversationId = "web-" + (localStorage.getItem("cid") || (() => {
+  const v = Math.random().toString(36).slice(2, 10); localStorage.setItem("cid", v); return v;
+})());
+
+function token() {
+  let t = localStorage.getItem("token");
+  if (t === null && new URLSearchParams(location.search).has("token")) {
+    t = new URLSearchParams(location.search).get("token");
+    localStorage.setItem("token", t);
+  }
+  return t || "";
+}
+function headers() {
+  const h = { "Content-Type": "application/json" };
+  if (token()) h["x-access-token"] = token();
+  return h;
+}
+
+/** 굵게, 불릿, 줄바꿈만 처리하는 최소 마크다운 (HTML 은 이스케이프) */
+function render(text) {
+  const esc = text.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  return esc
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/^\s*[-*]\s+/gm, "• ")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+function bubble(role, text, extraClass) {
+  const el = document.createElement("div");
+  el.className = "msg " + role + (extraClass ? " " + extraClass : "");
+  el.innerHTML = render(text);
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+  return el;
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch("/api/summary", { headers: headers() });
+    if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+    const s = await res.json();
+    document.getElementById("who").textContent = (s.담당자 ? s.담당자 + " · " : "") + s.기준일;
+    document.getElementById("stats").innerHTML = [
+      `<span class="chip">진행중 ${s.진행중}</span>`,
+      s.지연 ? `<span class="chip warn">지연 ${s.지연}</span>` : "",
+      `<span class="chip">오늘 마감 ${s.오늘마감}</span>`,
+      `<span class="chip">이번주 마감 ${s.이번주마감}</span>`,
+      `<span class="chip">완료 ${s.완료}</span>`,
+    ].join("");
+  } catch (e) {
+    document.getElementById("stats").innerHTML = `<span class="chip warn">현황 로딩 실패: ${e.message}</span>`;
+  }
+}
+
+async function ask(message) {
+  bubble("user", message);
+  const pending = bubble("bot", "확인 중");
+  pending.classList.add("dots");
+  sendBtn.disabled = true;
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({ message, conversationId }),
+    });
+    const data = await res.json();
+    pending.classList.remove("dots");
+    if (!res.ok) {
+      pending.classList.add("err");
+      pending.textContent = data.error || "오류가 발생했습니다.";
+      return;
+    }
+    pending.innerHTML = render(data.reply);
+    if (data.toolCalls?.length) {
+      const meta = document.createElement("div");
+      meta.className = "meta tools";
+      meta.textContent = "조회: " + [...new Set(data.toolCalls)].join(", ");
+      pending.appendChild(meta);
+    }
+    if (data.changed) loadStats();
+  } catch (e) {
+    pending.classList.remove("dots");
+    pending.classList.add("err");
+    pending.textContent = "서버에 연결하지 못했습니다: " + e.message;
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = input.value.trim();
+  if (!v) return;
+  input.value = "";
+  input.style.height = "auto";
+  ask(v);
+});
+
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); }
+});
+input.addEventListener("input", () => {
+  input.style.height = "auto";
+  input.style.height = Math.min(input.scrollHeight, 120) + "px";
+});
+
+document.querySelectorAll(".quick button[data-q]").forEach((b) => {
+  b.addEventListener("click", () => ask(b.dataset.q));
+});
+document.getElementById("reset").addEventListener("click", async () => {
+  await fetch("/api/reset", { method: "POST", headers: headers(), body: JSON.stringify({ conversationId }) });
+  log.innerHTML = "";
+  bubble("bot", "대화 맥락을 비웠습니다. 무엇을 확인해 드릴까요?");
+});
+
+bubble("bot", "안녕하세요. 맡으신 업무가 지금 어느 단계까지 진행됐는지 확인해 드립니다.\n\n예를 들어 이렇게 물어보세요.\n- 오늘 현황 알려줘\n- A사 계약 건 어디까지 갔어?\n- 내가 퇴근한 뒤에 바뀐 거 있어?\n- 노트북 발주 건 팀장 승인 완료로 바꿔줘");
+loadStats();
+input.focus();
+</script>
+</body>
+</html>
