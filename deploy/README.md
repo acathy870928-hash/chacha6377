@@ -95,13 +95,30 @@ https://github.com/acathy870928-hash/chacha6377/tree/claude/kakaotalk-chatbot-ne
 
 **(2) 서버로 보내기** — 윈도우 **PowerShell**을 엽니다. (시작 버튼 → `powershell` 검색)
 
+접속 계정이 업체마다 다릅니다. **가비아 클라우드는 `ubuntu`**, 직접 만든 서버는 보통 `root` 입니다.
+서버 상세 화면의 *SSH 접속 정보* 에 적힌 계정을 그대로 쓰세요.
+
+**키 파일(.pem)로 접속하는 경우** — 가비아 기본 방식입니다.
+
+```powershell
+cd $HOME\Downloads
+
+# 윈도우가 키 파일 권한을 문제 삼는 경우가 있어 먼저 정리합니다
+icacls .\SSH_KeyPair-이름.pem /inheritance:r
+icacls .\SSH_KeyPair-이름.pem /grant:r "$env:USERNAME:(R)"
+
+scp -i .\SSH_KeyPair-이름.pem -r .\chacha6377-claude-kakaotalk-chatbot-news-sharing-rg091w ubuntu@서버IP:~/news-src
+```
+
+**비밀번호로 접속하는 경우**
+
 ```powershell
 cd $HOME\Downloads
 scp -r .\chacha6377-claude-kakaotalk-chatbot-news-sharing-rg091w root@서버IP:/root/news-src
 ```
 
-`서버IP` 자리에 받으신 IP를 넣으세요. 폴더 이름이 다르면 `dir` 로 확인 후 맞춰주시면 됩니다.
-비밀번호를 물으면 넣으세요. (**화면에 안 보이는 게 정상**입니다.)
+`서버IP` 와 키 파일 이름을 실제 값으로 바꾸세요. 폴더 이름이 다르면 `dir` 로 확인하면 됩니다.
+비밀번호를 물으면 넣으세요 — **화면에 안 보이는 게 정상**입니다.
 
 ### 2단계 — 서버에 접속해서 설치
 
@@ -188,6 +205,8 @@ sudo -u news /srv/news-briefing/.venv/bin/python /srv/news-briefing/scripts/coll
 어느 매체가 실패하는지 나옵니다. `/srv/news-briefing/feeds.json` 에서 주소를 고치면 됩니다.
 
 **화면이 안 열릴 때** — 서버 업체 방화벽에서 80, 443 포트를 여세요.
+가비아 클라우드는 서버 상세 화면의 **네트워크** 탭에 있습니다. 서버 안의 방화벽(ufw)은
+설치 스크립트가 알아서 열지만, **업체 쪽 방화벽은 직접 열어주셔야 합니다.**
 
 ---
 
