@@ -9,10 +9,11 @@
 
 set -euo pipefail
 
-REPO="https://github.com/acathy870928-hash/chacha6377.git"
-BRANCH="claude/kakaotalk-chatbot-news-sharing-rg091w"
+REPO="${REPO:-https://github.com/acathy870928-hash/chacha6377.git}"
+BRANCH="${BRANCH:-claude/kakaotalk-chatbot-news-sharing-rg091w}"
 APP_DIR="/srv/news-briefing"
 APP_USER="news"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 say()  { printf "\n\033[1;32m▶ %s\033[0m\n" "$*"; }
 warn() { printf "\033[1;33m! %s\033[0m\n" "$*"; }
@@ -49,26 +50,62 @@ fi
 say "필요한 프로그램을 받는 중입니다 (몇 분 걸립니다)"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq python3 python3-venv python3-pip git nginx ufw curl
+apt-get install -y -qq python3 python3-venv python3-pip git rsync nginx ufw curl openssl
 
 say "서비스 전용 계정을 만듭니다"
 id -u "$APP_USER" >/dev/null 2>&1 || useradd --system --home "$APP_DIR" --shell /usr/sbin/nologin "$APP_USER"
 
-say "프로그램을 내려받습니다"
-# PR 이 병합되면 작업 브랜치는 사라진다. 그때는 기본 브랜치를 쓴다.
-if ! git ls-remote --exit-code --heads "$REPO" "$BRANCH" >/dev/null 2>&1; then
-  warn "작업 브랜치가 없어 기본 브랜치를 씁니다 (병합된 것으로 보입니다)"
-  BRANCH="$(git ls-remote --symref "$REPO" HEAD | awk '/^ref:/ {sub("refs/heads/","",$2); print $2}')"
-  [[ -n "$BRANCH" ]] || die "저장소에서 브랜치를 찾지 못했습니다: $REPO"
+say "프로그램 파일을 준비합니다"
+
+# 저장소가 비공개라서 서버에서 그냥 내려받을 수 없다. 세 가지 경우를 처리한다.
+#   1) 이 스크립트가 통째로 올린 소스 안에 들어 있다  → 그 파일을 그대로 쓴다 (기본)
+#   2) 이미 설치돼 있고 git 정보가 남아 있다           → git 으로 갱신
+#   3) GITHUB_TOKEN 을 넘겨줬다                        → 토큰으로 clone
+SRC_DIR=""
+if [[ -f "$SCRIPT_DIR/../requirements.txt" && -f "$SCRIPT_DIR/../app/main.py" ]]; then
+  SRC_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 fi
 
-if [[ -d "$APP_DIR/.git" ]]; then
+if [[ -n "$SRC_DIR" && "$SRC_DIR" == "$APP_DIR" ]]; then
+  echo "  이미 설치 위치에 있습니다: $APP_DIR"
+
+elif [[ -n "$SRC_DIR" ]]; then
+  echo "  올려주신 파일을 씁니다: $SRC_DIR"
+  mkdir -p "$APP_DIR"
+  # data/ 와 .env 는 기존 것을 지켜야 한다. 기사와 비밀번호가 거기 들어 있다.
+  rsync -a --delete \
+        --exclude='.git' --exclude='.venv' --exclude='data' --exclude='.env' \
+        "$SRC_DIR"/ "$APP_DIR"/
+
+elif [[ -d "$APP_DIR/.git" ]]; then
+  echo "  git 으로 갱신합니다"
+  if ! git ls-remote --exit-code --heads "$REPO" "$BRANCH" >/dev/null 2>&1; then
+    warn "작업 브랜치가 없어 기본 브랜치를 씁니다 (병합된 것으로 보입니다)"
+    BRANCH="$(git ls-remote --symref "$REPO" HEAD | awk '/^ref:/ {sub("refs/heads/","",$2); print $2}')"
+    [[ -n "$BRANCH" ]] || die "저장소에서 브랜치를 찾지 못했습니다."
+  fi
   git -C "$APP_DIR" fetch origin "$BRANCH" --quiet
   git -C "$APP_DIR" checkout -B "$BRANCH" "origin/$BRANCH" --quiet
   git -C "$APP_DIR" reset --hard "origin/$BRANCH" --quiet
-else
+
+elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  echo "  토큰으로 내려받습니다"
   rm -rf "$APP_DIR"
-  git clone --branch "$BRANCH" --quiet "$REPO" "$APP_DIR"
+  git clone --branch "$BRANCH" --quiet \
+      "https://x-access-token:${GITHUB_TOKEN}@${REPO#https://}" "$APP_DIR"
+
+else
+  die "프로그램 파일을 찾지 못했습니다.
+
+  이 저장소는 비공개라 서버에서 바로 받을 수 없습니다. 둘 중 하나로 하세요.
+
+  (1) 소스를 통째로 서버에 올린 뒤, 그 안의 스크립트를 실행
+      sudo bash /경로/chacha6377/deploy/install.sh
+
+  (2) GitHub 토큰을 넘겨서 실행
+      sudo GITHUB_TOKEN=ghp_xxxx bash install.sh
+
+  자세한 순서는 deploy/README.md 에 있습니다."
 fi
 
 say "파이썬 환경을 준비합니다"
@@ -154,7 +191,7 @@ cat <<DONEEOF
    sudo systemctl restart news-briefing     다시 켜기
    sudo journalctl -u news-briefing -f      기록 보기
    sudo systemctl list-timers news-collect  다음 수집 시각
-   sudo bash $APP_DIR/deploy/install.sh     새 버전으로 올리기
+   sudo bash $APP_DIR/deploy/install.sh     설정 다시 잡기
 
  백업할 파일은 이거 하나입니다
    $APP_DIR/data/news.db

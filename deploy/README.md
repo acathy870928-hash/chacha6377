@@ -41,24 +41,40 @@
 
 ## 설치하기
 
-### 1단계 — 서버에 접속
+### 1단계 — 소스를 서버에 올립니다
 
-윈도우 **PowerShell**을 엽니다. (시작 버튼 → `powershell` 검색)
+이 저장소는 **비공개**라 서버에서 바로 내려받을 수 없습니다. 윈도우에서 한 번 올려주셔야 합니다.
 
-```powershell
-ssh root@서버IP주소
+**(1) ZIP 내려받기** — 브라우저에서 아래 주소로 들어가 초록색 **Code** 버튼 → **Download ZIP**
+
+```
+https://github.com/acathy870928-hash/chacha6377/tree/claude/kakaotalk-chatbot-news-sharing-rg091w
 ```
 
-처음 접속하면 `Are you sure you want to continue connecting?` 이라고 묻습니다.
-`yes` 를 치고 엔터, 그다음 비밀번호를 넣으세요.
-(비밀번호는 **화면에 안 보이는 게 정상**입니다. 그냥 치고 엔터.)
+`다운로드` 폴더에 `chacha6377-....zip` 이 생깁니다. **압축을 풀어주세요.**
 
-### 2단계 — 명령 한 줄
+**(2) 서버로 보내기** — 윈도우 **PowerShell**을 엽니다. (시작 버튼 → `powershell` 검색)
 
-접속된 검은 화면에 아래를 그대로 붙여넣고 엔터:
+```powershell
+cd $HOME\Downloads
+scp -r .\chacha6377-claude-kakaotalk-chatbot-news-sharing-rg091w root@서버IP:/root/news-src
+```
+
+`서버IP` 자리에 받으신 IP를 넣으세요. 폴더 이름이 다르면 `dir` 로 확인 후 맞춰주시면 됩니다.
+비밀번호를 물으면 넣으세요. (**화면에 안 보이는 게 정상**입니다.)
+
+### 2단계 — 서버에 접속해서 설치
+
+```powershell
+ssh root@서버IP
+```
+
+처음 접속하면 `Are you sure you want to continue connecting?` 이라고 묻습니다. `yes` + 엔터.
+
+접속된 검은 화면에 이 한 줄을 붙여넣으세요:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/acathy870928-hash/chacha6377/claude/kakaotalk-chatbot-news-sharing-rg091w/deploy/install.sh -o install.sh && sudo bash install.sh
+sudo bash /root/news-src/deploy/install.sh
 ```
 
 그러면 세 가지를 물어봅니다. 준비하신 걸 넣으시면 됩니다.
@@ -71,6 +87,10 @@ curl -fsSL https://raw.githubusercontent.com/acathy870928-hash/chacha6377/claude
 
 5~10분 기다리면 끝납니다. 마지막에 접속 주소가 나옵니다.
 
+> **더 간단하게 하고 싶으시면** — GitHub에서 저장소를 공개(public)로 바꾸면 ZIP 올리는 과정 없이
+> 서버에서 명령 한 줄로 끝납니다. 비밀번호와 기사 DB는 저장소에 없으니 새어나갈 건 코드뿐입니다.
+> 다만 공개 여부는 대표님이 정하실 일이라 기본은 비공개 기준으로 적었습니다.
+
 ### 3단계 — 들어가 보기
 
 브라우저에서 `https://내도메인/admin` 으로 들어가 방금 정한 비밀번호로 로그인하세요.
@@ -82,7 +102,8 @@ curl -fsSL https://raw.githubusercontent.com/acathy870928-hash/chacha6377/claude
 
 - **기사는 30분마다 자동으로 수집됩니다.** 따로 켜둘 것 없습니다.
 - **서버가 재부팅돼도 자동으로 다시 켜집니다.**
-- 새 버전이 나오면 다시 접속해서 `sudo bash /srv/news-briefing/deploy/install.sh` 한 번이면 갱신됩니다.
+- 새 버전이 나오면 **1단계(ZIP 올리기)를 다시 하고** `sudo bash /root/news-src/deploy/install.sh` 를 실행하면 됩니다.
+  **기사와 비밀번호는 그대로 유지됩니다** — 프로그램 파일만 바뀝니다.
 
 ### 알아두시면 좋은 명령
 

@@ -141,11 +141,19 @@ curl -X POST https://news.example.com/api/ingest \
 
 ## 서버에 올리기
 
-우분투 서버에 접속해 아래 한 줄이면 끝납니다. 파이썬·nginx·HTTPS·자동 재시작·
-30분마다 수집까지 전부 잡아줍니다.
+저장소가 비공개라 서버에서 바로 받을 수 없습니다. 소스를 서버에 올린 뒤 실행합니다.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/acathy870928-hash/chacha6377/claude/kakaotalk-chatbot-news-sharing-rg091w/deploy/install.sh -o install.sh && sudo bash install.sh
+sudo bash /경로/chacha6377/deploy/install.sh
+```
+
+파이썬 환경, nginx, HTTPS 인증서, 자동 재시작, 30분마다 수집까지 한 번에 잡습니다.
+다시 실행해도 **기사 DB(`data/`)와 설정(`.env`)은 건드리지 않습니다** — 갱신용으로도 같은 명령을 씁니다.
+
+토큰이 있으면 서버에서 바로 받아올 수도 있습니다.
+
+```bash
+sudo GITHUB_TOKEN=ghp_xxxx bash install.sh
 ```
 
 서버 준비부터 도메인 연결, 백업, 문제 해결까지는 **[deploy/README.md](deploy/README.md)** 에
