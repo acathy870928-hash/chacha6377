@@ -39,7 +39,15 @@ body {
 header.top { margin-bottom: 12px; }
 .eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--accent); }
 h1 { font-family: var(--display); font-size: 32px; line-height: 1.3; margin: 0 0 10px; letter-spacing: -.02em; }
-.lede { margin: 0; color: var(--ink-soft); }
+.lede { margin: 0 0 10px; color: var(--ink-soft); }
+
+.why {
+  background: var(--accent-bg); border-radius: 12px; padding: 15px 17px;
+  font-size: 14.5px; margin-top: 14px;
+}
+.why b { font-weight: 700; }
+.why ul { margin: 8px 0 0; padding-left: 20px; }
+.why li { margin: 3px 0; }
 
 .progress {
   position: sticky; top: 0; z-index: 5;
@@ -69,6 +77,7 @@ h1 { font-family: var(--display); font-size: 32px; line-height: 1.3; margin: 0 0
   font-variant-numeric: tabular-nums; flex: none; align-self: center;
 }
 .step > p { margin: 0 0 14px; color: var(--ink-soft); font-size: 14.5px; }
+.step h3 { font-size: 15px; margin: 18px 0 8px; }
 
 .check { display: flex; gap: 11px; align-items: flex-start; padding: 9px 0; cursor: pointer; }
 .check input { margin-top: 5px; width: 17px; height: 17px; accent-color: var(--accent); flex: none; cursor: pointer; }
@@ -80,6 +89,9 @@ th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--lin
 th { font-size: 12.5px; color: var(--ink-faint); font-weight: 700; }
 td:first-child { color: var(--ink-soft); white-space: nowrap; }
 td b { color: var(--accent); }
+
+code { font-family: var(--mono); font-size: .92em; background: var(--surface-2);
+       padding: 1px 6px; border-radius: 5px; }
 
 .cmd { position: relative; margin: 10px 0 16px; }
 .cmd pre {
@@ -103,15 +115,13 @@ td b { color: var(--accent); }
 .warn { background: var(--warn-bg); color: var(--warn); }
 .note b, .warn b { font-weight: 700; }
 
-.tel { font-family: var(--mono); font-size: 17px; font-weight: 700; letter-spacing: .02em; }
-
 .done {
   margin-top: 22px; padding: 22px; border-radius: 14px;
   background: var(--accent); color: #fff; text-align: center;
 }
 .done h2 { font-family: var(--display); margin: 0 0 6px; font-size: 22px; }
 .done p { margin: 0; font-size: 15px; opacity: .92; }
-.done code { background: #ffffff26; padding: 2px 8px; border-radius: 6px; font-family: var(--mono); }
+.done code { background: #ffffff26; color: #fff; }
 
 footer { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--line);
          font-size: 13.5px; color: var(--ink-soft); }
@@ -129,11 +139,20 @@ footer p { margin: 0 0 6px; }
 
 <header class="top">
   <p class="eyebrow">ifanews.co.kr</p>
-  <h1>서버에 올리는 순서</h1>
+  <h1>구글 클라우드에 올리는 순서</h1>
   <p class="lede">
     위에서부터 하나씩 하시면 됩니다. 체크는 저장되니 창을 닫았다 열어도 그대로입니다.
-    막히면 그 단계 화면을 캡처해서 보여주세요.
+    막히면 그 화면을 캡처해서 보여주세요.
   </p>
+
+  <div class="why">
+    <b>왜 구글 클라우드로 바꿨나</b>
+    <ul>
+      <li>한국식 <b>본인인증이 없습니다</b> — 구글 계정과 카드만 있으면 됩니다</li>
+      <li><b>PowerShell을 안 씁니다</b> — 브라우저 안에서 접속과 파일 올리기가 다 됩니다</li>
+      <li>신규 <b>$300 크레딧(90일)</b>, 미국 리전은 그 뒤에도 월 0원</li>
+    </ul>
+  </div>
 </header>
 
 <div class="progress">
@@ -142,57 +161,90 @@ footer p { margin: 0 0 6px; }
   <button class="reset" type="button" id="reset">처음부터</button>
 </div>
 
-<!-- ─────────────────────────────── 0 -->
-<section class="step">
-  <h2><span class="n">0</span> 본인인증이 막혔다면</h2>
-  <p>가비아에서 본인인증이 반복 실패하면 <b>인증 횟수 제한</b>에 걸린 상태일 수 있습니다. 그러면 원인을 고쳐도 계속 실패합니다.</p>
-
-  <div class="warn">
-    <b>먼저 전화해서 횟수를 풀어야 합니다.</b> 안 풀고 다시 시도하면 또 실패합니다.
-  </div>
-
-  <table>
-    <tr><td>클라우드·IDC</td><td class="tel">02-3473-3911</td></tr>
-    <tr><td>대표번호</td><td class="tel">1544-4370</td></tr>
-    <tr><td>상담 시간</td><td>평일 09:00~18:00</td></tr>
-  </table>
-
-  <div class="note">
-    이렇게 말씀하시면 됩니다 —<br>
-    <b>“클라우드 서버 신청하는데 휴대폰 본인인증이 계속 실패합니다.
-    인증 횟수 초기화해 주시고 실패 원인도 확인해 주세요.”</b>
-  </div>
-
-  <label class="check"><input type="checkbox"><span>고객센터에 전화해 인증 횟수를 초기화했다</span></label>
-  <label class="check"><input type="checkbox"><span>본인인증을 통과했다</span></label>
-</section>
-
 <!-- ─────────────────────────────── 1 -->
 <section class="step">
-  <h2><span class="n">1</span> 서버 만들기</h2>
-  <p>가비아 클라우드에서 <b>Micro</b> 요금제를 고릅니다.</p>
+  <h2><span class="n">1</span> 구글 클라우드 가입</h2>
+  <p><a href="https://console.cloud.google.com">console.cloud.google.com</a> 에서 구글 계정으로 로그인합니다.</p>
 
-  <table>
-    <tr><th>항목</th><th>고를 값</th></tr>
-    <tr><td>상품</td><td><b>클라우드 서버 (Micro)</b> — 웹호스팅 아님</td></tr>
-    <tr><td>CPU / 메모리</td><td><b>1vCore / 1GB</b> — 2GB는 두 배 값, 필요 없음</td></tr>
-    <tr><td>디스크</td><td>50GB (기본값)</td></tr>
-    <tr><td>운영체제</td><td><b>Ubuntu 22.04</b> 또는 <b>24.04</b></td></tr>
-    <tr><td>약정</td><td><b>무약정</b> — 1년 묶어도 월 1,000원 차이</td></tr>
-    <tr><td>공인 IP</td><td><b>할당</b> — 없으면 밖에서 안 열림</td></tr>
-  </table>
+  <div class="note">
+    카드를 등록해야 하지만 <b>$300 크레딧이 먼저 쓰입니다.</b>
+    크레딧이 남아 있는 동안은 카드에서 빠져나가지 않습니다.
+  </div>
 
-  <div class="note">월 10,000원 + 부가세 + 공인 IP 요금. 무료 트래픽 1TB면 넉넉합니다.</div>
-
-  <label class="check"><input type="checkbox"><span>Micro 1vCore / 1GB 로 서버를 만들었다</span></label>
-  <label class="check"><input type="checkbox"><span>운영체제를 Ubuntu 로 골랐다</span></label>
-  <label class="check"><input type="checkbox"><span>공인 IP 주소를 받아 적어뒀다</span></label>
+  <label class="check"><input type="checkbox"><span>구글 클라우드에 로그인했다</span></label>
+  <label class="check"><input type="checkbox"><span>무료 크레딧을 받고 결제 정보를 등록했다</span></label>
 </section>
 
 <!-- ─────────────────────────────── 2 -->
 <section class="step">
-  <h2><span class="n">2</span> 도메인 연결</h2>
-  <p>가비아 <b>DNS 관리</b>에서 <code>ifanews.co.kr</code> 을 서버 IP로 연결합니다.</p>
+  <h2><span class="n">2</span> 서버(VM) 만들기</h2>
+  <p>왼쪽 위 <b>☰ 메뉴</b> → <b>Compute Engine</b> → <b>VM 인스턴스</b>.
+     처음 들어가면 API 사용 설정에 1~2분 걸립니다.</p>
+
+  <p><b>인스턴스 만들기</b> 를 누르고 아래대로 맞춥니다.</p>
+  <table>
+    <tr><th>항목</th><th>고를 값</th></tr>
+    <tr><td>이름</td><td><code>news</code></td></tr>
+    <tr><td>리전</td><td><b>us-central1 (아이오와)</b></td></tr>
+    <tr><td>영역</td><td><code>us-central1-a</code></td></tr>
+    <tr><td>머신 계열</td><td><b>E2</b></td></tr>
+    <tr><td>머신 유형</td><td><b>e2-micro</b></td></tr>
+  </table>
+
+  <div class="warn">
+    <b>리전을 서울로 하면 무료가 아닙니다.</b> 첫 시간부터 과금됩니다.
+    반드시 <code>us-central1</code> 이어야 합니다.
+  </div>
+
+  <h3>부팅 디스크 — <b>변경</b> 버튼을 누르고</h3>
+  <table>
+    <tr><td>운영체제</td><td><b>Ubuntu</b> ← 기본값은 Debian 입니다</td></tr>
+    <tr><td>버전</td><td><b>Ubuntu 24.04 LTS</b> (x86/64)</td></tr>
+    <tr><td>디스크 종류</td><td>표준 영구 디스크</td></tr>
+    <tr><td>크기</td><td><b>30 GB</b></td></tr>
+  </table>
+
+  <h3>방화벽 — 체크 두 개 (제일 중요)</h3>
+  <table>
+    <tr><td>☑</td><td><b>HTTP 트래픽 허용</b></td></tr>
+    <tr><td>☑</td><td><b>HTTPS 트래픽 허용</b></td></tr>
+  </table>
+
+  <div class="warn">
+    <b>이 둘을 안 켜면 FA 폰에서 안 열립니다.</b> 나중에 따로 설정하려면 훨씬 번거롭습니다.
+  </div>
+
+  <p>맨 아래 <b>만들기</b>. 1분쯤 뒤 목록에 <code>news</code> 와 <b>외부 IP</b> 가 나옵니다.</p>
+
+  <label class="check"><input type="checkbox"><span>리전을 us-central1 로 골랐다</span></label>
+  <label class="check"><input type="checkbox"><span>머신 유형을 e2-micro 로 골랐다</span></label>
+  <label class="check"><input type="checkbox"><span>부팅 디스크를 Ubuntu 24.04 로 바꿨다</span></label>
+  <label class="check"><input type="checkbox"><span>HTTP·HTTPS 트래픽 허용을 둘 다 체크했다</span></label>
+  <label class="check"><input type="checkbox"><span>VM 이 만들어지고 외부 IP 가 나왔다</span></label>
+</section>
+
+<!-- ─────────────────────────────── 3 -->
+<section class="step">
+  <h2><span class="n">3</span> IP 고정하기</h2>
+  <p>그냥 두면 서버를 껐다 켤 때 <b>IP가 바뀝니다.</b> 그러면 도메인 연결이 끊어집니다.</p>
+
+  <p>☰ 메뉴 → <b>VPC 네트워크</b> → <b>IP 주소</b> 로 갑니다.
+     <code>news</code> 서버의 외부 IP 줄에서 <b>임시 → 고정</b> 으로 바꿉니다.
+     (오른쪽 <b>⋮</b> → <b>고정 주소로 승격</b>)</p>
+
+  <div class="note">
+    서버에 붙어 있는 고정 IP 는 <b>무료</b>입니다.
+    다만 서버를 지우고 IP 만 남기면 요금이 붙으니, 나중에 정리하실 땐 같이 지우세요.
+  </div>
+
+  <label class="check"><input type="checkbox"><span>외부 IP 를 고정으로 바꿨다</span></label>
+  <label class="check"><input type="checkbox"><span>IP 주소를 적어뒀다</span></label>
+</section>
+
+<!-- ─────────────────────────────── 4 -->
+<section class="step">
+  <h2><span class="n">4</span> 도메인 연결</h2>
+  <p>가비아 <b>DNS 관리</b> 에서 <code>ifanews.co.kr</code> 을 그 IP로 연결합니다.</p>
 
   <table>
     <tr><th>타입</th><th>호스트</th><th>값 / 위치</th><th>TTL</th></tr>
@@ -200,69 +252,73 @@ footer p { margin: 0 0 6px; }
     <tr><td>A</td><td><b>www</b></td><td>서버 IP 주소</td><td>600</td></tr>
   </table>
 
-  <p>연결됐는지 확인 — 윈도우 <b>PowerShell</b>에 붙여넣으세요.</p>
+  <p>반영됐는지 확인 — 윈도우 <b>PowerShell</b> 에 붙여넣으세요. (이 단계에서만 씁니다)</p>
   <div class="cmd">
     <pre>nslookup ifanews.co.kr</pre>
     <button type="button">복사</button>
   </div>
 
   <div class="warn">
-    결과에 <b>서버 IP가 나온 뒤에</b> 다음 단계로 가세요.
+    결과에 <b>서버 IP 가 나온 뒤에</b> 다음으로 가세요.
     먼저 하면 HTTPS 인증서 발급이 실패합니다. 반영까지 10~30분 걸립니다.
   </div>
 
   <label class="check"><input type="checkbox"><span>A 레코드 두 줄(@, www)을 등록했다</span></label>
-  <label class="check"><input type="checkbox"><span>nslookup 에 서버 IP가 나온다</span></label>
+  <label class="check"><input type="checkbox"><span>nslookup 에 서버 IP 가 나온다</span></label>
 </section>
 
-<!-- ─────────────────────────────── 3 -->
+<!-- ─────────────────────────────── 5 -->
 <section class="step">
-  <h2><span class="n">3</span> 프로그램 올리기</h2>
+  <h2><span class="n">5</span> 프로그램 올리기</h2>
   <p>저장소가 비공개라 서버가 직접 받을 수 없습니다. 한 번만 올려주시면 됩니다.</p>
 
-  <p><b>(1)</b> 브라우저에서 아래로 들어가 초록색 <b>Code</b> → <b>Download ZIP</b>, 받은 파일 <b>압축 풀기</b></p>
+  <h3>(1) ZIP 받기</h3>
+  <p>브라우저에서 아래로 들어가 초록색 <b>Code</b> → <b>Download ZIP</b>.
+     <b>압축은 풀지 마세요.</b> ZIP 파일 그대로 씁니다.</p>
   <div class="cmd">
     <pre>https://github.com/acathy870928-hash/chacha6377</pre>
     <button type="button">복사</button>
   </div>
 
-  <p><b>(2)</b> PowerShell 에서 서버로 보내기 — <code>서버IP</code> 자리를 바꾸세요</p>
-  <div class="cmd">
-    <pre>cd $HOME\Downloads
-scp -r .\chacha6377-claude-kakaotalk-chatbot-news-sharing-rg091w root@서버IP:/root/news-src</pre>
-    <button type="button">복사</button>
-  </div>
+  <h3>(2) 브라우저에서 서버 접속</h3>
+  <p>VM 인스턴스 목록에서 <code>news</code> 줄의 <b>SSH</b> 버튼을 누릅니다.
+     검은 창이 새 창으로 열립니다. <b>비밀번호도 안 물어봅니다.</b></p>
+
+  <h3>(3) ZIP 올리기</h3>
+  <p>그 검은 창 오른쪽 위 <b>⚙ (톱니바퀴)</b> → <b>파일 업로드</b> →
+     받으신 ZIP 파일을 고릅니다.</p>
 
   <div class="note">
-    폴더 이름이 다르면 <code>dir</code> 로 확인해 맞춰주세요.
-    비밀번호를 물으면 넣으시면 됩니다 — <b>화면에 안 보이는 게 정상</b>입니다.
+    올라간 파일은 홈 폴더에 들어갑니다. 창 아래에 완료 메시지가 뜹니다.
   </div>
 
-  <label class="check"><input type="checkbox"><span>ZIP 을 받아 압축을 풀었다</span></label>
-  <label class="check"><input type="checkbox"><span>scp 로 서버에 올렸다</span></label>
+  <label class="check"><input type="checkbox"><span>ZIP 파일을 받았다</span></label>
+  <label class="check"><input type="checkbox"><span>SSH 버튼으로 검은 창을 열었다</span></label>
+  <label class="check"><input type="checkbox"><span>ZIP 을 업로드했다</span></label>
 </section>
 
-<!-- ─────────────────────────────── 4 -->
+<!-- ─────────────────────────────── 6 -->
 <section class="step">
-  <h2><span class="n">4</span> 설치</h2>
-  <p>서버에 접속해서 명령 한 줄이면 끝납니다.</p>
+  <h2><span class="n">6</span> 설치</h2>
+  <p>검은 창에 아래를 순서대로 붙여넣습니다. 붙여넣기는 <b>마우스 오른쪽 클릭</b> 또는 <code>Ctrl+Shift+V</code>.</p>
 
-  <p><b>(1)</b> 접속 — 처음이면 <code>yes</code> 를 치고 엔터</p>
+  <h3>(1) 압축 풀기</h3>
   <div class="cmd">
-    <pre>ssh root@서버IP</pre>
+    <pre>sudo apt-get update -qq && sudo apt-get install -y unzip
+cd ~ && unzip -o chacha6377-*.zip</pre>
     <button type="button">복사</button>
   </div>
 
-  <p><b>(2)</b> 설치</p>
+  <h3>(2) 설치</h3>
   <div class="cmd">
-    <pre>sudo bash /root/news-src/deploy/install.sh</pre>
+    <pre>sudo bash ~/chacha6377-*/deploy/install.sh</pre>
     <button type="button">복사</button>
   </div>
 
   <p>세 가지를 물어봅니다.</p>
   <table>
     <tr><td>도메인</td><td><b>ifanews.co.kr</b> — www 는 자동으로 같이 잡힙니다</td></tr>
-    <tr><td>관리자 비밀번호</td><td>대표님이 어드민에 로그인할 때 쓸 것 (8자 이상)</td></tr>
+    <tr><td>관리자 비밀번호</td><td>어드민 로그인용 (8자 이상). <b>화면에 안 보이는 게 정상</b>입니다</td></tr>
     <tr><td>사업단 이름</td><td>화면과 브리핑 제목에 나옵니다</td></tr>
   </table>
 
@@ -271,20 +327,17 @@ scp -r .\chacha6377-claude-kakaotalk-chatbot-news-sharing-rg091w root@서버IP:/
     30분마다 기사 수집까지 전부 알아서 잡습니다.
   </div>
 
-  <label class="check"><input type="checkbox"><span>서버에 접속했다</span></label>
+  <label class="check"><input type="checkbox"><span>압축을 풀었다</span></label>
   <label class="check"><input type="checkbox"><span>설치가 끝나고 접속 주소가 나왔다</span></label>
 </section>
 
-<!-- ─────────────────────────────── 5 -->
+<!-- ─────────────────────────────── 7 -->
 <section class="step">
-  <h2><span class="n">5</span> 확인</h2>
-  <p>브라우저에서 열어봅니다.</p>
-
+  <h2><span class="n">7</span> 확인</h2>
   <div class="cmd">
     <pre>https://ifanews.co.kr/admin</pre>
     <button type="button">복사</button>
   </div>
-
   <p>방금 정한 비밀번호로 로그인해서 기사가 쌓여 있으면 성공입니다.</p>
 
   <label class="check"><input type="checkbox"><span>어드민에 로그인된다</span></label>
@@ -304,11 +357,16 @@ scp -r .\chacha6377-claude-kakaotalk-chatbot-news-sharing-rg091w root@서버IP:/
 
   <table>
     <tr><th>증상</th><th>해볼 것</th></tr>
-    <tr><td>ssh 접속 안 됨</td><td>서버 업체 방화벽에 22번 포트가 열려 있는지 확인</td></tr>
-    <tr><td>화면이 안 열림</td><td>방화벽에서 80, 443 포트 열기</td></tr>
-    <tr><td>HTTPS 실패</td><td>도메인 반영 대기 후 <code>sudo certbot --nginx -d ifanews.co.kr</code></td></tr>
-    <tr><td>기사가 안 쌓임</td><td>아래 명령으로 어느 매체가 실패하는지 확인</td></tr>
+    <tr><td>화면이 안 열림</td><td>VM 만들 때 HTTP·HTTPS 허용을 체크했는지 확인</td></tr>
+    <tr><td>HTTPS 실패</td><td>도메인 반영을 기다린 뒤 아래 명령 다시 실행</td></tr>
+    <tr><td>기사가 안 쌓임</td><td>어느 매체 RSS 가 실패하는지 아래로 확인</td></tr>
+    <tr><td>껐다 켜니 안 됨</td><td>3단계 IP 고정을 안 했을 수 있습니다</td></tr>
   </table>
+
+  <div class="cmd">
+    <pre>sudo certbot --nginx -d ifanews.co.kr -d www.ifanews.co.kr</pre>
+    <button type="button">복사</button>
+  </div>
 
   <div class="cmd">
     <pre>sudo -u news /srv/news-briefing/.venv/bin/python /srv/news-briefing/scripts/check_feeds.py --fix</pre>
@@ -326,13 +384,15 @@ sudo journalctl -u news-briefing -n 50   # 무슨 일이 있었나</pre>
 
 <footer>
   <p><b>백업할 파일은 하나입니다</b> — <code>/srv/news-briefing/data/news.db</code></p>
+  <p><b>무료 한도</b> — e2-micro 1대, 디스크 30GB, 외부 전송량 월 1GB.
+     전송량 1GB면 기사 페이지 2만 번쯤이라 넉넉합니다.</p>
   <p>브리핑 링크에는 비밀번호가 없습니다. 링크를 아는 사람은 볼 수 있으니 대외비 내용은 넣지 마세요.</p>
 </footer>
 
 </div>
 
 <script>
-const KEY = "ifanews-setup-v1";
+const KEY = "ifanews-setup-gcp-v1";
 const boxes = Array.from(document.querySelectorAll(".check input"));
 
 function save() {
