@@ -269,7 +269,11 @@ def public_article(request: Request, slug: str, b: str = ""):
 
     paragraphs = [p.strip() for p in article["body"].split("\n") if p.strip()]
 
-    return templates.TemplateResponse(request, "article.html", {"article": article,
+    # 정부 보도자료나 일부 매체는 RSS 가 요약만 준다. 전문인 척하지 않고 그렇다고 밝힌다.
+    summary_only = store.is_summary_only(article["body"])
+
+    return templates.TemplateResponse(request, "article.html", {
+        "summary_only": summary_only,"article": article,
         "paragraphs": paragraphs,
         "briefing": briefing,
         "base_url": PUBLIC_BASE_URL,

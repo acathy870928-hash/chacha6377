@@ -101,3 +101,27 @@ body {
 .notfound { text-align: center; padding: 24px; }
 .notfound h1 { font-size: 20px; margin: 0 0 8px; }
 .notfound p { color: var(--ink-soft); margin: 0; }
+
+/* 요약만 제공되는 기사 (정부 보도자료 등) */
+.body-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--ink-soft);
+  margin: 0 0 10px !important;
+}
+
+.more {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.origin.strong {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff !important;
+}

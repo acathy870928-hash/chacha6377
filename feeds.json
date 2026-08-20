@@ -1,7 +1,57 @@
 [
-  { "name": "보험매일",     "url": "https://www.fntimes.com/rss/S1N19.xml" },
-  { "name": "한국보험신문", "url": "http://www.insnews.co.kr/rss/allArticle.xml" },
-  { "name": "보험저널",     "url": "https://www.insjournal.co.kr/rss/allArticle.xml" },
-  { "name": "인슈넷",       "url": "http://www.insunet.co.kr/rss/allArticle.xml" },
-  { "name": "연합뉴스 경제", "url": "https://www.yna.co.kr/rss/economy.xml" }
+  {
+    "name": "보험매일",
+    "homepage": "https://www.fim.co.kr",
+    "url": "https://www.fim.co.kr/rss/allArticle.xml",
+    "audience": "both",
+    "verified": false
+  },
+  {
+    "name": "보험저널",
+    "homepage": "https://www.insjournal.co.kr",
+    "url": "https://www.insjournal.co.kr/rss/allArticle.xml",
+    "audience": "both",
+    "verified": false
+  },
+  {
+    "name": "한국보험신문",
+    "homepage": "http://www.insnews.co.kr",
+    "url": "http://www.insnews.co.kr/rss/allArticle.xml",
+    "audience": "both",
+    "verified": false
+  },
+  {
+    "name": "시사저널e 금융",
+    "homepage": "https://www.sisajournal-e.com",
+    "url": "https://www.sisajournal-e.com/rss/S1N4.xml",
+    "audience": "both",
+    "verified": false
+  },
+  {
+    "name": "금융위원회",
+    "homepage": "https://www.fsc.go.kr",
+    "url": "",
+    "audience": "rep",
+    "summary_only": true,
+    "note": "보도자료. 제도·감독 이슈라 대표용 기본.",
+    "verified": false
+  },
+  {
+    "name": "보건복지부",
+    "homepage": "https://www.mohw.go.kr",
+    "url": "",
+    "audience": "rep",
+    "summary_only": true,
+    "note": "보도자료. 건강보험·요양 관련 제도 변경.",
+    "verified": false
+  },
+  {
+    "name": "행정안전부",
+    "homepage": "https://www.mois.go.kr",
+    "url": "",
+    "audience": "rep",
+    "summary_only": true,
+    "note": "보도자료. 재난·안전 관련 배상책임 이슈.",
+    "verified": false
+  }
 ]

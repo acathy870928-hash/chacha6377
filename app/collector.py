@@ -17,7 +17,7 @@ from xml.etree import ElementTree as ET
 
 from .config import BASE_DIR
 from .db import session
-from .store import upsert_article
+from .store import is_summary_only, upsert_article
 
 FEEDS_PATH = BASE_DIR / "feeds.json"
 USER_AGENT = "Mozilla/5.0 (compatible; SaeopdanNewsBot/1.0)"
@@ -174,11 +174,29 @@ def extract_body(html: str) -> str:
     return joined if len(joined) > len(best) else best
 
 
-def collect_feed(feed: dict[str, str], fetch_body: bool = True, limit: int = 30) -> dict[str, Any]:
-    """피드 하나를 수집. 결과 통계를 반환한다."""
+def collect_feed(feed: dict[str, Any], fetch_body: bool = True, limit: int = 30) -> dict[str, Any]:
+    """피드 하나를 수집. 결과 통계를 반환한다.
+
+    feed 에서 읽는 항목:
+      name          언론사/기관 이름
+      url           RSS 주소
+      audience      이 매체 기사의 기본 대상 (rep|fa|both)
+      summary_only  True 면 원문 본문을 긁지 않고 RSS 요약만 쓴다
+    """
     name = feed.get("name", "")
     url = feed.get("url", "")
-    result = {"publisher": name, "url": url, "created": 0, "updated": 0, "failed": 0, "error": ""}
+    audience = feed.get("audience", "both")
+    # 정부 보도자료처럼 원문 본문을 긁어봐야 의미가 없는 곳은 요약만 쓴다
+    want_body = fetch_body and not feed.get("summary_only", False)
+
+    result = {
+        "publisher": name, "url": url, "created": 0, "updated": 0,
+        "failed": 0, "summary_only": 0, "error": "",
+    }
+
+    if not url:
+        result["error"] = "RSS 주소가 비어 있습니다 (check_feeds.py --fix 로 찾을 수 있습니다)"
+        return result
 
     try:
         entries = parse_feed(fetch(url))[:limit]
@@ -189,11 +207,14 @@ def collect_feed(feed: dict[str, str], fetch_body: bool = True, limit: int = 30)
     with session() as conn:
         for entry in entries:
             body = entry["body"]
-            if fetch_body and len(re.sub(r"\s", "", body)) < 300:
+            if want_body and is_summary_only(body):
                 try:
                     body = extract_body(fetch(entry["origin_url"]).decode("utf-8", "replace")) or body
                 except (urllib.error.URLError, socket.timeout, OSError):
                     pass  # 본문 재수집 실패는 치명적이지 않다 — 요약만으로 저장
+
+            if is_summary_only(body):
+                result["summary_only"] += 1
 
             try:
                 _, action = upsert_article(conn, {
@@ -203,16 +224,17 @@ def collect_feed(feed: dict[str, str], fetch_body: bool = True, limit: int = 30)
                     "publisher": name,
                     "origin_url": entry["origin_url"],
                     "published_at": entry["published_at"],
+                    "audience": audience,
                 })
                 result[action] += 1
-            except (ValueError, Exception):
+            except (ValueError, TypeError):
                 result["failed"] += 1
 
     return result
 
 
 def collect_all(fetch_body: bool = True, limit: int = 30) -> list[dict[str, Any]]:
-    return [collect_feed(f, fetch_body, limit) for f in load_feeds() if f.get("url")]
+    return [collect_feed(f, fetch_body, limit) for f in load_feeds()]
 
 
 PUBLISHER_BY_HOST = {

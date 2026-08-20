@@ -7,6 +7,15 @@ from .db import new_code, now_iso, rows_to_articles, row_to_article, session
 from .scoring import compute_signal, signal_reason
 
 
+# 이 글자 수(공백 제외)에 못 미치면 전문이 아니라 요약으로 본다.
+# 수집기는 이 기준으로 원문 본문을 다시 긁고, 기사 페이지는 이 기준으로 '요약' 표시를 한다.
+SUMMARY_MAX_CHARS = 300
+
+
+def is_summary_only(body: str) -> bool:
+    return len(re.sub(r"\s", "", body or "")) < SUMMARY_MAX_CHARS
+
+
 def slugify(title: str, fallback: str = "") -> str:
     """공개 URL 조각.
 

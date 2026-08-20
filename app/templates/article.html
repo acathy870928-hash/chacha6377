@@ -28,15 +28,21 @@
   {% endif %}
 
   <div class="article-body">
+    {% if summary_only and paragraphs %}<p class="body-label">요약</p>{% endif %}
     {% for p in paragraphs %}<p>{{ p }}</p>{% endfor %}
     {% if not paragraphs %}
-    <p class="muted">본문을 불러오지 못했습니다. 아래 원문 링크에서 확인해 주세요.</p>
+    <p class="muted">본문이 없습니다. 아래 원문 링크에서 확인해 주세요.</p>
     {% endif %}
   </div>
 
+  {% if summary_only and article.origin_url %}
+  <p class="more">여기까지가 제공되는 요약입니다. 전문은 원문에서 보실 수 있습니다.</p>
+  {% endif %}
+
   <footer class="article-foot">
     {% if article.origin_url %}
-    <a class="origin" href="{{ article.origin_url }}" target="_blank" rel="noopener">원문 기사 보기 →</a>
+    <a class="origin {% if summary_only %}strong{% endif %}"
+       href="{{ article.origin_url }}" target="_blank" rel="noopener">원문 기사 보기 →</a>
     {% endif %}
     {% if briefing %}
     <a class="back" href="/b/{{ briefing.code }}">← {{ briefing.title }}</a>
