@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ifanews 어드민 (샘플)</title>
+<style>
+/* ── 실제 앱의 app/static/admin.css ─────────────────────────── */
+/* 사업단 대표가 기사를 고르는 화면. 스크린샷의 카드 스타일을 따른다. */
+:root {
+  --ink: #16211c;
+  --ink-soft: #6b7873;
+  --line: #e5eae7;
+  --accent: #1f9e6a;
+  --accent-soft: #eaf6f0;
+  --bg: #f4f7f5;
+  --card: #fff;
+  --warn: #c2410c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+               "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  line-height: 1.6; word-break: keep-all;
+}
+a { color: inherit; }
+
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; padding: 14px 20px; background: var(--card);
+  border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10;
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; text-decoration: none; }
+.brand-mark { font-size: 18px; }
+.topbar nav { display: flex; gap: 16px; font-size: 14px; }
+.topbar nav a { text-decoration: none; }
+.topbar nav a:hover { color: var(--accent); }
+
+.wrap { max-width: 780px; margin: 0 auto; padding: 20px 16px 80px; }
+
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 20px; margin-bottom: 16px;
+}
+.card h1 { font-size: 20px; margin: 0 0 6px; }
+.card h2 { font-size: 16px; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+.notice {
+  background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  color: #14603f; padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 14px;
+}
+.error { color: var(--warn); font-size: 14px; margin: 4px 0; }
+.muted { color: var(--ink-soft); font-size: 13px; font-weight: 400; }
+.empty { color: var(--ink-soft); font-size: 14px; padding: 24px 0; text-align: center; }
+
+/* 버튼 */
+.btn {
+  border-radius: 9px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  cursor: pointer; font-family: inherit;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.05); color: #fff; }
+.btn.block { display: block; width: 100%; margin-top: 6px; }
+.btn.ghost { background: transparent; }
+
+input[type=text], input[type=url], input[type=search], input[type=password], select, textarea {
+  font-family: inherit; font-size: 14px; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px;
+  background: var(--card); width: 100%;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+
+/* 상단 툴바 / 탭 */
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 6px; }
+.tab {
+  padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  text-decoration: none; background: var(--card); border: 1px solid var(--line);
+}
+.tab.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.inline { display: inline; }
+
+.addurl { display: flex; gap: 10px; align-items: center; padding: 14px; }
+.addurl input { flex: 1; }
+.addurl .btn { white-space: nowrap; }
+
+.filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.filters input[type=search] { flex: 1; min-width: 160px; }
+.filters select { width: auto; }
+
+/* 후보 목록 */
+.list { padding: 20px 20px 6px; }
+.list-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+
+.item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 16px 0; border-top: 1px solid var(--line); cursor: pointer;
+}
+.list-head + .item { border-top: none; }
+.item:hover { background: #fafcfb; }
+.pickbox { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.item-body { flex: 1; min-width: 0; }
+.item-title { font-size: 16px; font-weight: 600; line-height: 1.45; }
+.item-meta {
+  display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+  margin-top: 7px; font-size: 13px; color: var(--ink-soft);
+}
+.signal { font-weight: 600; }
+.signal.s4, .signal.s3 { color: var(--accent); }   /* 60점 이상 */
+.signal.s1, .signal.s0 { color: var(--ink-soft); } /* 40점 미만 */
+.badge {
+  background: var(--accent-soft); color: #14603f;
+  padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;
+}
+.item-reason { margin-top: 6px; font-size: 12px; color: var(--accent); }
+.item-summary {
+  margin-top: 8px; font-size: 14px; color: var(--ink-soft);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.item-links { margin-top: 8px; display: flex; gap: 12px; font-size: 13px; }
+.item-links a { color: var(--accent); text-decoration: none; }
+
+/* 발행 폼 */
+.compose .field { display: block; margin-bottom: 12px; }
+.compose .field > span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.compose .field em { font-style: normal; font-weight: 400; color: var(--ink-soft); }
+
+.bulk { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+
+/* 공유 화면 */
+.share-title { font-size: 22px; }
+.linkbox { display: flex; gap: 8px; margin-top: 14px; }
+.linkbox input { flex: 1; font-size: 13px; }
+.hint { font-size: 13px; color: var(--ink-soft); margin: 10px 0 0; }
+.kakao-text { font-size: 14px; line-height: 1.65; resize: vertical; }
+.share-list { padding-left: 20px; margin: 0; }
+.share-list li { margin-bottom: 18px; }
+.share-list a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.fapoint { display: flex; gap: 8px; margin-top: 8px; }
+.fapoint input { flex: 1; }
+
+.recent ul { list-style: none; padding: 0; margin: 0; }
+.recent li { padding: 10px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.recent li:first-child { border-top: none; }
+.recent a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th, .table td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); }
+.table th { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+.table a { color: var(--accent); text-decoration: none; }
+
+/* 로그인 */
+.center-page { display: grid; place-items: center; min-height: 100vh; padding: 20px; }
+.login-card { width: 100%; max-width: 340px; text-align: center; }
+.login-mark { font-size: 30px; }
+.login-card h1 { font-size: 19px; margin: 10px 0 4px; }
+.login-card input { margin: 16px 0 10px; text-align: center; }
+
+@media (max-width: 560px) {
+  .addurl { flex-direction: column; align-items: stretch; }
+  .topbar nav { gap: 12px; font-size: 13px; }
+}
+
+
+/* ── 실제 앱의 app/static/public.css (FA 화면용, .fa- 로 감쌈) ── */
+.paper {
+  max-width: 680px;
+  margin: 0 auto;
+  background: var(--card);
+  padding: 28px 20px calc(40px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+}
+.paper-head { border-bottom: 2px solid var(--ink); padding-bottom: 18px; }
+.eyebrow {
+  margin: 0 0 6px; font-size: 13px; font-weight: 700;
+  letter-spacing: .04em; color: var(--accent);
+}
+.paper-head h1 { margin: 0; font-size: 24px; line-height: 1.35; letter-spacing: -.02em; }
+.intro {
+  margin: 12px 0 0; padding: 12px 14px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  font-size: 15px;
+}
+.count { margin: 12px 0 0; font-size: 13px; color: var(--ink-soft); }
+.news-list { list-style: none; margin: 0; padding: 0; }
+.news-list li { border-bottom: 1px solid var(--line); }
+.news-link {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 18px 2px; text-decoration: none; color: inherit;
+}
+.news-link:active { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.num {
+  flex: 0 0 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 700;
+  display: grid; place-items: center; margin-top: 2px;
+}
+.news-body { display: block; flex: 1; }
+.news-title { display: block; font-size: 17px; font-weight: 600; line-height: 1.45; }
+.news-meta { display: block; margin-top: 6px; font-size: 13px; color: var(--ink-soft); }
+.news-point {
+  display: block; margin-top: 8px; padding-left: 10px;
+  border-left: 3px solid var(--accent);
+  font-size: 14px; color: var(--ink-soft);
+}
+.paper-foot { margin-top: 28px; font-size: 13px; color: var(--ink-soft); text-align: center; }
+.article-head { padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.article-head h1 {
+  margin: 0; font-size: 26px; line-height: 1.4;
+  letter-spacing: -.02em; font-weight: 700;
+}
+.article-meta { margin: 14px 0 0; font-size: 14px; color: var(--ink-soft); }
+.point {
+  margin: 20px 0 0; padding: 14px 16px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-size: 15px; font-weight: 500;
+}
+.article-body { margin-top: 24px; font-size: 17px; }
+.article-body p { margin: 0 0 1.15em; }
+.muted { color: var(--ink-soft); }
+.article-foot {
+  margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 12px; font-size: 15px;
+}
+.article-foot a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.back { color: var(--ink-soft) !important; font-weight: 500 !important; }
+.body-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--ink-soft);
+  margin: 0 0 10px !important;
+}
+.more {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.origin.strong {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff !important;
+}
+
+/* ── 이 샘플 파일에만 필요한 것 ───────────────────────────── */
+.sample-banner {
+  background: #fff8e1;
+  border-bottom: 1px solid #f0e0a8;
+  color: #7a5c00;
+  font-size: 13px;
+  padding: 9px 20px;
+  text-align: center;
+}
+.sample-banner b { font-weight: 700; }
+.screen { display: none; }
+.screen.on { display: block; }
+.fa-wrap { max-width: 420px; margin: 0 auto; border: 1px solid var(--line);
+           border-radius: 16px; overflow: hidden; background: var(--card); }
+.fa-bar { background: #f1f4f2; border-bottom: 1px solid var(--line);
+          padding: 10px 14px; font-size: 12px; color: var(--ink-soft); }
+.backlink { display: inline-block; margin-bottom: 14px; font-size: 13px;
+            color: var(--ink-soft); text-decoration: none; }
+.backlink:hover { color: var(--accent); }
+.origin-url { display: block; margin-top: 6px; font-size: 12px; color: var(--ink-soft);
+              word-break: break-all; }
+.item-origin { font-size: 12px; color: var(--ink-soft); word-break: break-all; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="sample-banner">
+  <b>샘플 화면입니다.</b> 제목과 본문은 예시이고,
+  <b>원문 링크만 대표님이 주신 실제 기사</b>로 연결됩니다. 자유롭게 눌러보세요.
+</div>
+
+<header class="topbar">
+  <a class="brand" href="#" data-go="admin">
+    <span class="brand-mark">📰</span>
+    <span>ifanews 뉴스 브리핑</span>
+  </a>
+  <nav>
+    <a href="#" data-go="admin">후보 고르기</a>
+    <a href="#" data-go="share">공유 화면</a>
+    <a href="#" data-go="fa">FA 화면</a>
+  </nav>
+</header>
+
+<!-- ══════════════ 어드민 ══════════════ -->
+<main class="wrap screen on" id="s-admin">
+
+  <div class="notice" id="notice" style="display:none"></div>
+
+  <div class="toolbar">
+    <div class="tabs" id="tabs">
+      <a class="tab on" href="#" data-aud="rep">사업단 대표용</a>
+      <a class="tab" href="#" data-aud="fa">FA용</a>
+      <a class="tab" href="#" data-aud="all">전체</a>
+    </div>
+    <button class="btn ghost" type="button" id="collect">RSS 지금 수집</button>
+  </div>
+
+  <div class="card addurl">
+    <input type="url" id="addurl" placeholder="기사 링크를 붙여넣으면 제목·본문을 자동으로 가져옵니다">
+    <button class="btn primary" type="button" id="add">후보에 추가</button>
+  </div>
+
+  <div class="filters">
+    <input type="search" id="q" placeholder="제목·본문 검색">
+    <select id="pub"><option value="">언론사 전체</option></select>
+    <select id="status">
+      <option value="candidate">검토 후보</option>
+      <option value="selected">이미 보낸 것</option>
+      <option value="rejected">제외한 것</option>
+      <option value="all">전부</option>
+    </select>
+  </div>
+
+  <div class="card list">
+    <div class="list-head">
+      <h2><span class="dot"></span> 우선 검토 후보</h2>
+      <span class="muted" id="count"></span>
+    </div>
+    <div id="rows"></div>
+  </div>
+
+  <div class="card compose">
+    <h2>단톡방으로 보내기</h2>
+    <label class="field">
+      <span>브리핑 제목</span>
+      <input type="text" id="title" value="8/20 사업단 뉴스 브리핑">
+    </label>
+    <label class="field">
+      <span>대표 한마디 <em>(선택)</em></span>
+      <textarea id="intro" rows="2">오늘은 실손 청구 전산화 건이 제일 중요합니다.</textarea>
+    </label>
+    <button class="btn primary block" type="button" id="make">선택한 기사로 공유 링크 만들기</button>
+  </div>
+
+  <div class="bulk">
+    <span class="muted">선택한 항목을</span>
+    <button class="btn ghost" type="button" data-bulk="reject">제외</button>
+    <button class="btn ghost" type="button" data-bulk="rep">대표용으로</button>
+    <button class="btn ghost" type="button" data-bulk="fa">FA용으로</button>
+  </div>
+
+</main>
+
+<!-- ══════════════ 공유 화면 ══════════════ -->
+<main class="wrap screen" id="s-share">
+  <a class="backlink" href="#" data-go="admin">← 후보 고르기로</a>
+
+  <div class="card">
+    <h1 class="share-title" id="sh-title"></h1>
+    <p class="muted" id="sh-sub"></p>
+    <div class="linkbox">
+      <input id="link" type="text" readonly>
+      <button class="btn primary" type="button" data-copy="#link">링크 복사</button>
+    </div>
+    <p class="hint">이 링크 하나만 단톡방에 붙여넣으면 됩니다. 누르면 기사 목록이 뜨고, 제목을 누르면 본문이 나옵니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>카톡에 그대로 붙여넣을 문구</h2>
+    <textarea id="kakao" class="kakao-text" rows="14" readonly></textarea>
+    <button class="btn primary block" type="button" data-copy="#kakao">문구 전체 복사</button>
+  </div>
+
+  <div class="card">
+    <h2>담긴 기사</h2>
+    <ol class="share-list" id="sh-list"></ol>
+  </div>
+</main>
+
+<!-- ══════════════ FA 화면 ══════════════ -->
+<main class="wrap screen" id="s-fa">
+  <a class="backlink" href="#" data-go="share">← 공유 화면으로</a>
+
+  <div class="fa-wrap">
+    <div class="fa-bar" id="fa-url">ifanews.co.kr/b/9r63wh3</div>
+
+    <article class="paper" id="fa-list" style="min-height:auto">
+      <header class="paper-head">
+        <p class="eyebrow">사업단</p>
+        <h1 id="fa-title"></h1>
+        <p class="intro" id="fa-intro"></p>
+        <p class="count" id="fa-count"></p>
+      </header>
+      <ol class="news-list" id="fa-news"></ol>
+      <footer class="paper-foot"><p>사업단 · 제목을 누르면 기사 전문이 열립니다.</p></footer>
+    </article>
+
+    <article class="paper" id="fa-article" style="min-height:auto; display:none">
+      <button class="back" type="button" id="fa-back" style="margin-bottom:18px">← 목록으로</button>
+      <header class="article-head">
+        <h1 id="fa-a-title"></h1>
+        <p class="article-meta" id="fa-a-meta"></p>
+      </header>
+      <aside class="point" id="fa-a-point"></aside>
+      <div class="article-body" id="fa-a-body"></div>
+      <footer class="article-foot">
+        <a class="origin" id="fa-a-origin" href="#" target="_blank" rel="noopener">원문 기사 보기 →</a>
+        <span class="origin-url" id="fa-a-originurl"></span>
+      </footer>
+    </article>
+  </div>
+</main>
+
+<script>
+const ARTICLES = [
+  {
+    "slug": "38f8jiss",
+    "title": "실손보험 청구 전산화 2단계 시행…의원급 확대",
+    "publisher": "한국금융신문",
+    "published": "2026-08-20",
+    "origin": "https://www.fins.co.kr/news/articleView.html?idxno=109694",
+    "signal": 80,
+    "why": "실손 · 보험금 · 개정",
+    "audience": "fa",
+    "status": "candidate",
+    "picked": true,
+    "point": "청구 간소화 = 고객 접점 늘어납니다. 이번 주 상담 오프닝으로 쓰세요.",
+    "body": "실손보험 청구 전산화가 의원급으로 확대된다. 보험금 청구 절차가 간소화되면서 가입자 편의가 높아질 전망이다.",
+    "paragraphs": [
+      "이 자리에는 수집기가 가져온 기사 본문이 문단 그대로 들어갑니다. 지금 보시는 문장은 글자 크기와 줄 간격을 확인하시라고 넣어둔 예시입니다.",
+      "본문 외에는 아무것도 넣지 않았습니다. 배너도, 관련기사 목록도, 자동재생 영상도 없습니다. FA가 이동 중에 한 손으로 읽어야 하기 때문입니다.",
+      "맨 아래에는 원문 링크만 둡니다. 더 보고 싶은 사람은 그때 언론사 페이지로 넘어가면 됩니다."
+    ]
+  },
+  {
+    "slug": "4ktpqvoe",
+    "title": "법규 위반 차량 노려 ‘쾅’…20대 일당, 고의사고로 보험금 3억원 편취",
+    "publisher": "한국보험신문",
+    "published": "2026-08-20",
+    "origin": "https://www.insnews.co.kr/news/articleView.html?idxno=92282",
+    "signal": 74,
+    "why": "보험금 · 편취 · 고의사고",
+    "audience": "rep",
+    "status": "candidate",
+    "picked": false,
+    "point": "",
+    "body": "보험사기 혐의로 20대 일당이 적발됐다. 고의사고를 반복해 보험금을 편취한 혐의다.",
+    "paragraphs": [
+      "이 자리에는 수집기가 가져온 기사 본문이 문단 그대로 들어갑니다. 보험사기 유형 기사는 FA 교육 자료로 자주 쓰여서 신호 점수를 높게 잡아두었습니다.",
+      "본문 외에는 아무것도 넣지 않습니다. 맨 아래 원문 링크만 둡니다."
+    ]
+  },
+  {
+    "slug": "pw31mkzq",
+    "title": "보험업감독규정 일부개정안 규정변경 예고",
+    "publisher": "금융위원회",
+    "published": "2026-08-20",
+    "origin": "https://www.fsc.go.kr",
+    "signal": 71,
+    "why": "금융위 · 개정 · 약관",
+    "audience": "rep",
+    "status": "candidate",
+    "picked": false,
+    "point": "",
+    "summaryOnly": true,
+    "body": "금융위원회는 보험업감독규정 일부개정안을 규정변경 예고했다. 자세한 내용은 첨부파일을 참고하시기 바랍니다.",
+    "paragraphs": []
+  },
+  {
+    "slug": "kzueoi7i",
+    "title": "폭염에 온열질환 급증…보험 보장 범위는",
+    "publisher": "동아일보",
+    "published": "2026-08-20",
+    "origin": "https://www.donga.com/news/Health/article/all/20260820/134510009/1",
+    "signal": 66,
+    "why": "보장 범위 · 실손",
+    "audience": "fa",
+    "status": "candidate",
+    "picked": true,
+    "point": "",
+    "body": "온열질환 관련 문의가 늘면서 보장 범위를 두고 확인이 필요하다는 지적이 나온다.",
+    "paragraphs": [
+      "이 자리에는 수집기가 가져온 기사 본문이 문단 그대로 들어갑니다.",
+      "계절 이슈 기사는 상담 때 말 꺼내기 좋은 소재라 FA용으로 잡아두었습니다."
+    ]
+  },
+  {
+    "slug": "phsryp4d",
+    "title": "NH농협손해보험, 축사 화재 인수 점검 실시",
+    "publisher": "한국보험신문",
+    "published": "2026-08-19",
+    "origin": "https://www.insnews.co.kr/news/articleView.html?idxno=92260",
+    "signal": 54,
+    "why": "인수기준",
+    "audience": "rep",
+    "status": "candidate",
+    "picked": false,
+    "point": "",
+    "body": "축사 화재 관련 인수 기준을 점검한다고 밝혔다.",
+    "paragraphs": [
+      "이 자리에는 수집기가 가져온 기사 본문이 문단 그대로 들어갑니다.",
+      "인수기준 관련 기사는 영업 현장에 바로 영향을 주기 때문에 우선 검토 후보로 올라옵니다."
+    ]
+  },
+  {
+    "slug": "tsp8q7jo",
+    "title": "지자체가 지원하는 배상책임보험…민간보험엔 사각지대 있을까",
+    "publisher": "한국보험신문",
+    "published": "2026-08-19",
+    "origin": "https://www.insnews.co.kr/news/articleView.html?idxno=92142",
+    "signal": 53,
+    "why": "배상책임 · 보장 공백",
+    "audience": "rep",
+    "status": "candidate",
+    "picked": false,
+    "point": "",
+    "body": "지자체 지원 배상책임보험과 민간보험 사이의 보장 공백을 짚었다.",
+    "paragraphs": [
+      "이 자리에는 수집기가 가져온 기사 본문이 문단 그대로 들어갑니다.",
+      "보장 공백을 짚는 기사는 상담 화법으로 연결하기 좋아, 대표가 한 줄 코멘트를 붙여 내보내기 좋은 유형입니다."
+    ]
+  },
+  {
+    "slug": "hn28djwm",
+    "title": "○○생명 임직원 연탄 나눔 봉사활동 실시",
+    "publisher": "보험매일",
+    "published": "2026-08-18",
+    "origin": "",
+    "signal": 27,
+    "why": "일반 기사",
+    "audience": "fa",
+    "status": "candidate",
+    "picked": false,
+    "point": "",
+    "body": "사회공헌 캠페인의 일환으로 봉사활동을 펼쳤다.",
+    "paragraphs": [
+      "홍보성 기사는 신호 점수에서 감점되어 아래로 내려갑니다. 이런 기사를 걸러내라고 점수를 매깁니다."
+    ]
+  }
+];
+
+/* ─────────────────────────────────────────────── 상태 */
+let audience = "rep";
+let statusFilter = "candidate";
+let query = "";
+let publisher = "";
+let briefing = null;
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+function toast(msg) {
+  const n = $("#notice");
+  n.textContent = msg;
+  n.style.display = "block";
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => { n.style.display = "none"; }, 3000);
+}
+
+function go(name) {
+  $$(".screen").forEach(s => s.classList.remove("on"));
+  $("#s-" + name).classList.add("on");
+  window.scrollTo(0, 0);
+}
+
+/* ─────────────────────────────────────────────── 어드민 */
+function shown() {
+  return ARTICLES.filter(a => {
+    if (audience !== "all" && a.audience !== audience && a.audience !== "both") return false;
+    if (statusFilter !== "all" && a.status !== statusFilter) return false;
+    if (publisher && a.publisher !== publisher) return false;
+    if (query && !(a.title + a.body).includes(query)) return false;
+    return true;
+  }).sort((x, y) => y.signal - x.signal);
+}
+
+function renderPublishers() {
+  const sel = $("#pub");
+  const names = Array.from(new Set(ARTICLES.map(a => a.publisher)));
+  sel.textContent = "";
+  const all = document.createElement("option");
+  all.value = ""; all.textContent = "언론사 전체";
+  sel.appendChild(all);
+  names.forEach(n => {
+    const o = document.createElement("option");
+    o.value = n; o.textContent = n;
+    if (n === publisher) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function renderRows() {
+  const box = $("#rows");
+  box.textContent = "";
+  const rows = shown();
+  $("#count").textContent = rows.length + "건 · 신호 높은 순";
+
+  if (!rows.length) {
+    const p = document.createElement("p");
+    p.className = "empty";
+    p.textContent = "해당하는 기사가 없습니다. 탭이나 필터를 바꿔보세요.";
+    box.appendChild(p);
+    return;
+  }
+
+  rows.forEach(a => {
+    const label = document.createElement("label");
+    label.className = "item";
+
+    const box2 = document.createElement("input");
+    box2.type = "checkbox";
+    box2.className = "pickbox";
+    box2.checked = a.picked;
+    box2.addEventListener("change", () => { a.picked = box2.checked; });
+
+    const body = document.createElement("div");
+    body.className = "item-body";
+
+    const t = document.createElement("div");
+    t.className = "item-title";
+    t.textContent = a.title;
+    body.appendChild(t);
+
+    const meta = document.createElement("div");
+    meta.className = "item-meta";
+    const sig = document.createElement("span");
+    sig.className = "signal s" + Math.floor(a.signal / 20);
+    sig.textContent = "기사 신호 " + a.signal;
+    meta.appendChild(sig);
+    [" · ", a.publisher, " · ", a.published].forEach(txt => {
+      const s = document.createElement("span");
+      s.textContent = txt;
+      meta.appendChild(s);
+    });
+    if (a.audience !== "both") {
+      const sep = document.createElement("span"); sep.textContent = " · ";
+      const b = document.createElement("span");
+      b.className = "badge";
+      b.textContent = a.audience === "rep" ? "사업단 대표용" : "FA용";
+      meta.appendChild(sep); meta.appendChild(b);
+    }
+    body.appendChild(meta);
+
+    const why = document.createElement("div");
+    why.className = "item-reason";
+    why.textContent = a.why;
+    body.appendChild(why);
+
+    const sum = document.createElement("div");
+    sum.className = "item-summary";
+    sum.textContent = a.body;
+    body.appendChild(sum);
+
+    if (a.origin) {
+      const links = document.createElement("div");
+      links.className = "item-links";
+      const orig = document.createElement("a");
+      orig.href = a.origin;
+      orig.target = "_blank";
+      orig.rel = "noopener";
+      orig.textContent = "원문";
+      orig.addEventListener("click", e => e.stopPropagation());
+      links.appendChild(orig);
+      body.appendChild(links);
+
+      const u = document.createElement("div");
+      u.className = "item-origin";
+      u.textContent = a.origin;
+      body.appendChild(u);
+    }
+
+    label.appendChild(box2);
+    label.appendChild(body);
+    box.appendChild(label);
+  });
+}
+
+/* ─────────────────────────────────────────────── 공유 화면 */
+function buildBriefing() {
+  const picked = ARTICLES.filter(a => a.picked);
+  if (!picked.length) { toast("기사를 하나 이상 선택하세요"); return; }
+
+  picked.sort((x, y) => y.signal - x.signal);
+  picked.forEach(a => { a.status = "selected"; });
+
+  briefing = {
+    title: $("#title").value || "뉴스 브리핑",
+    intro: $("#intro").value,
+    code: "9r63wh3",
+    items: picked
+  };
+
+  renderShare();
+  go("share");
+}
+
+function kakaoText(b) {
+  const lines = ["📌 " + b.title];
+  if (b.intro) lines.push(b.intro);
+  lines.push("");
+  b.items.forEach((a, i) => {
+    lines.push((i + 1) + ". " + a.title);
+    if (a.point) lines.push("   └ " + a.point);
+  });
+  lines.push("", "👉 전문 보기: https://ifanews.co.kr/b/" + b.code);
+  return lines.join("\n");
+}
+
+function renderShare() {
+  const b = briefing;
+  $("#sh-title").textContent = b.title;
+  $("#sh-sub").textContent = b.items.length + "건 · " +
+    (audience === "rep" ? "사업단 대표용" : audience === "fa" ? "FA용" : "공통");
+  $("#link").value = "https://ifanews.co.kr/b/" + b.code;
+  $("#kakao").value = kakaoText(b);
+  $("#kakao").rows = kakaoText(b).split("\n").length + 2;
+
+  const list = $("#sh-list");
+  list.textContent = "";
+  b.items.forEach(a => {
+    const li = document.createElement("li");
+
+    const link = document.createElement("a");
+    link.href = "#";
+    link.textContent = a.title;
+    link.addEventListener("click", e => { e.preventDefault(); openArticle(a); go("fa"); });
+    li.appendChild(link);
+
+    const meta = document.createElement("div");
+    meta.className = "muted";
+    meta.textContent = a.publisher + " · " + a.published;
+    li.appendChild(meta);
+
+    const form = document.createElement("div");
+    form.className = "fapoint";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = a.point || "";
+    input.placeholder = "한 줄 코멘트 (예: 이번 주 상담 때 이 얘기 꺼내세요)";
+    input.addEventListener("input", () => {
+      a.point = input.value;
+      $("#kakao").value = kakaoText(briefing);
+    });
+    const save = document.createElement("button");
+    save.className = "btn ghost";
+    save.type = "button";
+    save.textContent = "저장";
+    save.addEventListener("click", () => { renderFA(); toast("코멘트 저장됨"); });
+    form.appendChild(input);
+    form.appendChild(save);
+    li.appendChild(form);
+
+    list.appendChild(li);
+  });
+
+  renderFA();
+}
+
+/* ─────────────────────────────────────────────── FA 화면 */
+function renderFA() {
+  if (!briefing) return;
+  $("#fa-title").textContent = briefing.title;
+  const intro = $("#fa-intro");
+  intro.textContent = briefing.intro;
+  intro.style.display = briefing.intro ? "" : "none";
+  $("#fa-count").textContent = "기사 " + briefing.items.length + "건";
+
+  const ol = $("#fa-news");
+  ol.textContent = "";
+  briefing.items.forEach((a, i) => {
+    const li = document.createElement("li");
+    const link = document.createElement("a");
+    link.className = "news-link";
+    link.href = "#";
+    link.addEventListener("click", e => { e.preventDefault(); openArticle(a); });
+
+    const num = document.createElement("span");
+    num.className = "num";
+    num.textContent = String(i + 1);
+
+    const body = document.createElement("span");
+    body.className = "news-body";
+
+    const t = document.createElement("span");
+    t.className = "news-title";
+    t.textContent = a.title;
+    body.appendChild(t);
+
+    const m = document.createElement("span");
+    m.className = "news-meta";
+    m.textContent = a.publisher + " · " + a.published;
+    body.appendChild(m);
+
+    if (a.point) {
+      const p = document.createElement("span");
+      p.className = "news-point";
+      p.textContent = a.point;
+      body.appendChild(p);
+    }
+
+    link.appendChild(num);
+    link.appendChild(body);
+    li.appendChild(link);
+    ol.appendChild(li);
+  });
+
+  $("#fa-list").style.display = "";
+  $("#fa-article").style.display = "none";
+  $("#fa-url").textContent = "ifanews.co.kr/b/" + briefing.code;
+}
+
+function openArticle(a) {
+  $("#fa-a-title").textContent = a.title;
+  $("#fa-a-meta").textContent = a.publisher + " · " + a.published;
+
+  const point = $("#fa-a-point");
+  point.textContent = a.point || "";
+  point.style.display = a.point ? "" : "none";
+
+  const body = $("#fa-a-body");
+  body.textContent = "";
+  if (a.summaryOnly) {
+    const label = document.createElement("p");
+    label.className = "body-label";
+    label.textContent = "요약";
+    body.appendChild(label);
+  }
+  (a.summaryOnly ? [a.body] : a.paragraphs).forEach(text => {
+    const p = document.createElement("p");
+    p.textContent = text;
+    body.appendChild(p);
+  });
+  if (a.summaryOnly) {
+    const more = document.createElement("p");
+    more.className = "more";
+    more.textContent = "여기까지가 제공되는 요약입니다. 전문은 원문에서 보실 수 있습니다.";
+    body.appendChild(more);
+  }
+
+  const origin = $("#fa-a-origin");
+  const originUrl = $("#fa-a-originurl");
+  if (a.origin) {
+    origin.href = a.origin;
+    origin.style.display = "";
+    originUrl.textContent = a.origin;
+  } else {
+    origin.style.display = "none";
+    originUrl.textContent = "";
+  }
+
+  $("#fa-list").style.display = "none";
+  $("#fa-article").style.display = "";
+  $("#fa-url").textContent = "ifanews.co.kr/a/" + a.slug;
+  go("fa");
+}
+
+/* ─────────────────────────────────────────────── 이벤트 */
+$$("[data-go]").forEach(el => el.addEventListener("click", e => {
+  e.preventDefault();
+  const target = el.dataset.go;
+  if ((target === "share" || target === "fa") && !briefing) {
+    toast("먼저 기사를 골라 공유 링크를 만들어 주세요");
+    return;
+  }
+  go(target);
+}));
+
+$$("#tabs .tab").forEach(tab => tab.addEventListener("click", e => {
+  e.preventDefault();
+  audience = tab.dataset.aud;
+  $$("#tabs .tab").forEach(t => t.classList.toggle("on", t === tab));
+  renderRows();
+}));
+
+$("#q").addEventListener("input", e => { query = e.target.value.trim(); renderRows(); });
+$("#pub").addEventListener("change", e => { publisher = e.target.value; renderRows(); });
+$("#status").addEventListener("change", e => { statusFilter = e.target.value; renderRows(); });
+
+$("#make").addEventListener("click", buildBriefing);
+$("#fa-back").addEventListener("click", renderFA);
+
+$("#collect").addEventListener("click", () =>
+  toast("샘플 화면이라 실제 수집은 하지 않습니다. 서버에서는 30분마다 자동으로 돕니다."));
+
+$("#add").addEventListener("click", () => {
+  const url = $("#addurl").value.trim();
+  if (!url) { toast("기사 주소를 넣어 주세요"); return; }
+  toast("샘플 화면이라 실제로 가져오지는 않습니다. 서버에서는 제목·본문이 자동으로 채워집니다.");
+  $("#addurl").value = "";
+});
+
+$$("[data-bulk]").forEach(btn => btn.addEventListener("click", () => {
+  const picked = ARTICLES.filter(a => a.picked);
+  if (!picked.length) { toast("먼저 기사를 선택하세요"); return; }
+  const kind = btn.dataset.bulk;
+  if (kind === "reject") {
+    picked.forEach(a => { a.status = "rejected"; a.picked = false; });
+    toast(picked.length + "건 제외함");
+  } else {
+    picked.forEach(a => { a.audience = kind; a.picked = false; });
+    toast(picked.length + "건을 " + (kind === "rep" ? "사업단 대표용" : "FA용") + "으로 옮김");
+  }
+  renderRows();
+}));
+
+$$("[data-copy]").forEach(btn => btn.addEventListener("click", () => {
+  const el = $(btn.dataset.copy);
+  el.select();
+  el.setSelectionRange(0, el.value.length);
+  const done = () => {
+    const original = btn.textContent;
+    btn.textContent = "복사됨 ✓";
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(el.value).then(done, () => { document.execCommand("copy"); done(); });
+  } else {
+    document.execCommand("copy");
+    done();
+  }
+}));
+
+renderPublishers();
+renderRows();
+</script>
+</body>
+</html>
