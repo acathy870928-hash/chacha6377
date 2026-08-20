@@ -1,0 +1,103 @@
+/* FA·대표가 카톡 인앱 브라우저에서 보는 화면. 읽기만 되면 된다. */
+:root {
+  --ink: #16211c;
+  --ink-soft: #5d6b64;
+  --line: #e3e8e5;
+  --accent: #1f9e6a;
+  --bg: #f6f8f7;
+  --card: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8efea; --ink-soft: #9aa8a1; --line: #2a332e;
+    --accent: #45c48c; --bg: #121714; --card: #1a201d;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+               "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  line-height: 1.7;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.paper {
+  max-width: 680px;
+  margin: 0 auto;
+  background: var(--card);
+  padding: 28px 20px calc(40px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+}
+
+/* ---------- 브리핑 목록 ---------- */
+.paper-head { border-bottom: 2px solid var(--ink); padding-bottom: 18px; }
+.eyebrow {
+  margin: 0 0 6px; font-size: 13px; font-weight: 700;
+  letter-spacing: .04em; color: var(--accent);
+}
+.paper-head h1 { margin: 0; font-size: 24px; line-height: 1.35; letter-spacing: -.02em; }
+.intro {
+  margin: 12px 0 0; padding: 12px 14px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  font-size: 15px;
+}
+.count { margin: 12px 0 0; font-size: 13px; color: var(--ink-soft); }
+
+.news-list { list-style: none; margin: 0; padding: 0; }
+.news-list li { border-bottom: 1px solid var(--line); }
+.news-link {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 18px 2px; text-decoration: none; color: inherit;
+}
+.news-link:active { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.num {
+  flex: 0 0 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 700;
+  display: grid; place-items: center; margin-top: 2px;
+}
+.news-body { display: block; flex: 1; }
+.news-title { display: block; font-size: 17px; font-weight: 600; line-height: 1.45; }
+.news-meta { display: block; margin-top: 6px; font-size: 13px; color: var(--ink-soft); }
+.news-point {
+  display: block; margin-top: 8px; padding-left: 10px;
+  border-left: 3px solid var(--accent);
+  font-size: 14px; color: var(--ink-soft);
+}
+.paper-foot { margin-top: 28px; font-size: 13px; color: var(--ink-soft); text-align: center; }
+
+/* ---------- 기사 본문 ---------- */
+.article-head { padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.article-head h1 {
+  margin: 0; font-size: 26px; line-height: 1.4;
+  letter-spacing: -.02em; font-weight: 700;
+}
+.article-meta { margin: 14px 0 0; font-size: 14px; color: var(--ink-soft); }
+
+.point {
+  margin: 20px 0 0; padding: 14px 16px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-size: 15px; font-weight: 500;
+}
+
+.article-body { margin-top: 24px; font-size: 17px; }
+.article-body p { margin: 0 0 1.15em; }
+.muted { color: var(--ink-soft); }
+
+.article-foot {
+  margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 12px; font-size: 15px;
+}
+.article-foot a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.back { color: var(--ink-soft) !important; font-weight: 500 !important; }
+
+.center-page { display: grid; place-items: center; min-height: 100vh; }
+.notfound { text-align: center; padding: 24px; }
+.notfound h1 { font-size: 20px; margin: 0 0 8px; }
+.notfound p { color: var(--ink-soft); margin: 0; }

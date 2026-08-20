@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}{{ org }} 뉴스 브리핑{% endblock %}</title>
+<link rel="stylesheet" href="/static/admin.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/admin">
+    <span class="brand-mark">📰</span>
+    <span>{{ org }} 뉴스 브리핑</span>
+  </a>
+  <nav>
+    <a href="/admin">후보 고르기</a>
+    <a href="/admin/briefings">보낸 브리핑</a>
+    <a href="/admin/logout" class="muted">로그아웃</a>
+  </nav>
+</header>
+<main class="wrap">
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if notice %}<div class="notice">{{ notice }}</div>{% endif %}
+
+<div class="toolbar">
+  <div class="tabs">
+    <a class="tab {% if audience == 'rep' %}on{% endif %}" href="/admin?audience=rep">사업단 대표용</a>
+    <a class="tab {% if audience == 'fa' %}on{% endif %}" href="/admin?audience=fa">FA용</a>
+    <a class="tab {% if audience == 'all' %}on{% endif %}" href="/admin?audience=all">전체</a>
+  </div>
+
+  <form class="inline" method="post" action="/admin/collect">
+    <input type="hidden" name="audience" value="{{ audience }}">
+    <button class="btn ghost" type="submit">RSS 지금 수집</button>
+  </form>
+</div>
+
+<form class="card addurl" method="post" action="/admin/add-url">
+  <input type="hidden" name="audience" value="{{ audience if audience != 'all' else 'rep' }}">
+  <input type="url" name="url" placeholder="기사 링크를 붙여넣으면 제목·본문을 자동으로 가져옵니다" required>
+  <button class="btn primary" type="submit">후보에 추가</button>
+</form>
+
+<form class="filters" method="get" action="/admin">
+  <input type="hidden" name="audience" value="{{ audience }}">
+  <input type="search" name="q" value="{{ q }}" placeholder="제목·본문 검색">
+  <select name="publisher">
+    <option value="">언론사 전체</option>
+    {% for p in publishers %}
+    <option value="{{ p }}" {% if p == publisher %}selected{% endif %}>{{ p }}</option>
+    {% endfor %}
+  </select>
+  <select name="status">
+    <option value="candidate" {% if status == 'candidate' %}selected{% endif %}>검토 후보</option>
+    <option value="selected"  {% if status == 'selected'  %}selected{% endif %}>이미 보낸 것</option>
+    <option value="rejected"  {% if status == 'rejected'  %}selected{% endif %}>제외한 것</option>
+    <option value="all"       {% if status == 'all'       %}selected{% endif %}>전부</option>
+  </select>
+  <button class="btn ghost" type="submit">적용</button>
+</form>
+
+<form id="pick" method="post" action="/admin/briefing">
+  <input type="hidden" name="audience" value="{{ audience }}">
+
+  <div class="card list">
+    <div class="list-head">
+      <h2><span class="dot"></span> 우선 검토 후보</h2>
+      <span class="muted">{{ articles|length }}건 · 신호 높은 순</span>
+    </div>
+
+    {% for a in articles %}
+    <label class="item" for="a{{ a.id }}">
+      <input class="pickbox" type="checkbox" id="a{{ a.id }}" name="article_ids" value="{{ a.id }}">
+      <div class="item-body">
+        <div class="item-title">{{ a.title }}</div>
+        <div class="item-meta">
+          <span class="signal s{{ (a.signal // 20) }}">기사 신호 {{ a.signal }}</span>
+          <span>·</span>
+          <span>{{ a.publisher or '출처 미상' }}</span>
+          {% if a.published_at %}<span>·</span><span>{{ a.published_at[:10] }}</span>{% endif %}
+          {% if a.audience != 'both' %}
+          <span>·</span><span class="badge">{{ audience_label.get(a.audience, a.audience) }}</span>
+          {% endif %}
+          {% if a.views %}<span>·</span><span>조회 {{ a.views }}</span>{% endif %}
+        </div>
+        {% if a.reason %}<div class="item-reason">{{ a.reason }}</div>{% endif %}
+        {% if a.summary %}<div class="item-summary">{{ a.summary }}</div>{% endif %}
+        <div class="item-links">
+          <a href="/a/{{ a.slug }}" target="_blank" rel="noopener">미리보기</a>
+          {% if a.origin_url %}<a href="{{ a.origin_url }}" target="_blank" rel="noopener">원문</a>{% endif %}
+        </div>
+      </div>
+    </label>
+    {% else %}
+    <p class="empty">후보가 없습니다. 위에서 <b>RSS 지금 수집</b>을 누르거나 기사 링크를 붙여넣으세요.</p>
+    {% endfor %}
+  </div>
+
+  <div class="card compose">
+    <h2>단톡방으로 보내기</h2>
+    <label class="field">
+      <span>브리핑 제목</span>
+      <input type="text" name="title" value="{{ default_title }}" required>
+    </label>
+    <label class="field">
+      <span>대표 한마디 <em>(선택)</em></span>
+      <textarea name="intro" rows="2" placeholder="오늘은 실손 개정 건이 제일 중요합니다."></textarea>
+    </label>
+    <button class="btn primary block" type="submit">선택한 기사로 공유 링크 만들기</button>
+  </div>
+</form>
+
+<div class="bulk">
+  <span class="muted">선택한 항목을</span>
+  <button class="btn ghost" form="pick" formaction="/admin/reject" formmethod="post">제외</button>
+  <button class="btn ghost" form="pick" formaction="/admin/audience" formmethod="post"
+          name="target" value="rep">대표용으로</button>
+  <button class="btn ghost" form="pick" formaction="/admin/audience" formmethod="post"
+          name="target" value="fa">FA용으로</button>
+</div>
+
+{% if briefings %}
+<div class="card recent">
+  <h2>최근에 보낸 브리핑</h2>
+  <ul>
+    {% for b in briefings %}
+    <li>
+      <a href="/admin/share/{{ b.code }}">{{ b.title }}</a>
+      <span class="muted">{{ b.item_count }}건 · 조회 {{ b.view_count }} · {{ b.created_at[:10] }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ briefing.title }}</title>
+
+<!-- 카톡에 링크를 붙였을 때 뜨는 미리보기 -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ briefing.title }}">
+<meta property="og:description" content="{% if briefing.intro %}{{ briefing.intro }}{% else %}기사 {{ briefing.articles|length }}건{% endif %}">
+<meta property="og:url" content="{{ base_url }}/b/{{ briefing.code }}">
+<meta property="og:site_name" content="{{ org }}">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/static/public.css">
+</head>
+<body>
+<article class="paper">
+  <header class="paper-head">
+    <p class="eyebrow">{{ org }}</p>
+    <h1>{{ briefing.title }}</h1>
+    {% if briefing.intro %}<p class="intro">{{ briefing.intro }}</p>{% endif %}
+    <p class="count">기사 {{ briefing.articles|length }}건</p>
+  </header>
+
+  <ol class="news-list">
+    {% for a in briefing.articles %}
+    <li>
+      <a class="news-link" href="/a/{{ a.slug }}?b={{ briefing.code }}">
+        <span class="num">{{ loop.index }}</span>
+        <span class="news-body">
+          <span class="news-title">{{ a.title }}</span>
+          <span class="news-meta">{{ a.publisher }}{% if a.published_at %} · {{ a.published_at[:10] }}{% endif %}</span>
+          {% if a.fa_point %}<span class="news-point">{{ a.fa_point }}</span>{% endif %}
+        </span>
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
+
+  <footer class="paper-foot">
+    <p>{{ org }} · 제목을 누르면 기사 전문이 열립니다.</p>
+  </footer>
+</article>
+</body>
+</html>

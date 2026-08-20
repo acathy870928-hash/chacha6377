@@ -1,0 +1,7 @@
+[
+  { "name": "보험매일",     "url": "https://www.fntimes.com/rss/S1N19.xml" },
+  { "name": "한국보험신문", "url": "http://www.insnews.co.kr/rss/allArticle.xml" },
+  { "name": "보험저널",     "url": "https://www.insjournal.co.kr/rss/allArticle.xml" },
+  { "name": "인슈넷",       "url": "http://www.insunet.co.kr/rss/allArticle.xml" },
+  { "name": "연합뉴스 경제", "url": "https://www.yna.co.kr/rss/economy.xml" }
+]

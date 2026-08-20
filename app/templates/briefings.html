@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}보낸 브리핑{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>보낸 브리핑</h1>
+  <table class="table">
+    <thead><tr><th>제목</th><th>대상</th><th>기사</th><th>조회</th><th>보낸 날</th><th></th></tr></thead>
+    <tbody>
+    {% for b in briefings %}
+      <tr>
+        <td><a href="/admin/share/{{ b.code }}">{{ b.title }}</a></td>
+        <td>{{ audience_label.get(b.audience, b.audience) }}</td>
+        <td>{{ b.item_count }}</td>
+        <td>{{ b.view_count }}</td>
+        <td>{{ b.created_at[:10] }}</td>
+        <td><a href="/b/{{ b.code }}" target="_blank" rel="noopener">열어보기</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="empty">아직 보낸 브리핑이 없습니다.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
