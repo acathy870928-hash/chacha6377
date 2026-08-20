@@ -24,8 +24,19 @@ command -v apt-get >/dev/null || die "우분투(또는 데비안) 서버에서 �
 
 # ---------------------------------------------------------------- 입력받기
 
-read -rp "도메인 (예: news.mysaeopdan.co.kr / 없으면 그냥 엔터): " DOMAIN
-DOMAIN="${DOMAIN// /}"
+# 도메인은 여러 개 받을 수 있다. ifanews.co.kr 처럼 루트를 쓰면 www 도 같이 걸어야
+# 어느 쪽으로 들어와도 열린다.
+read -rp "도메인 (예: ifanews.co.kr / 여러 개면 띄어쓰기로 / 없으면 그냥 엔터): " DOMAIN_INPUT
+read -ra DOMAINS <<< "${DOMAIN_INPUT//,/ }"
+DOMAIN="${DOMAINS[0]:-}"
+
+# 루트 도메인만 넣었으면 www 도 자동으로 챙긴다
+if [[ ${#DOMAINS[@]} -eq 1 && -n "$DOMAIN" ]]; then
+  if [[ "$DOMAIN" != www.* && "$(grep -o '\.' <<< "$DOMAIN" | wc -l)" -le 2 ]]; then
+    DOMAINS+=("www.$DOMAIN")
+    echo "  www.$DOMAIN 도 함께 설정합니다."
+  fi
+fi
 
 while :; do
   read -rsp "관리자 비밀번호 (대표님이 어드민에 로그인할 때 씁니다): " ADMIN_PW; echo
@@ -147,7 +158,7 @@ systemctl enable --now news-briefing.service
 systemctl enable --now news-collect.timer
 
 say "웹 서버를 연결합니다"
-SERVER_NAME="${DOMAIN:-_}"
+SERVER_NAME="${DOMAINS[*]:-_}"
 sed "s/DOMAIN/$SERVER_NAME/" "$APP_DIR/deploy/nginx.conf" > /etc/nginx/sites-available/news-briefing
 ln -sf /etc/nginx/sites-available/news-briefing /etc/nginx/sites-enabled/news-briefing
 rm -f /etc/nginx/sites-enabled/default
@@ -171,11 +182,13 @@ ufw --force enable >/dev/null 2>&1 || true
 if [[ "$WANT_TLS" =~ ^[Yy]$ && -n "$DOMAIN" ]]; then
   say "HTTPS 인증서를 발급합니다"
   apt-get install -y -qq certbot python3-certbot-nginx
-  if certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email --redirect; then
+  CERT_ARGS=()
+  for d in "${DOMAINS[@]}"; do CERT_ARGS+=(-d "$d"); done
+  if certbot --nginx "${CERT_ARGS[@]}" --non-interactive --agree-tos --register-unsafely-without-email --redirect; then
     say "HTTPS 적용 완료"
   else
     warn "인증서 발급에 실패했습니다. 도메인이 이 서버를 가리키는지 확인한 뒤 아래를 다시 실행하세요:"
-    warn "  sudo certbot --nginx -d $DOMAIN"
+    warn "  sudo certbot --nginx ${CERT_ARGS[*]}"
   fi
 fi
 
