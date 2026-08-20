@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ org }} 뉴스 브리핑 · 로그인</title>
+<link rel="stylesheet" href="/static/admin.css">
+</head>
+<body class="center-page">
+  <form class="card login-card" method="post" action="/admin/login">
+    <div class="login-mark">📰</div>
+    <h1>{{ org }} 뉴스 브리핑</h1>
+    <p class="muted">사업단 대표 전용 화면입니다.</p>
+    {% if error %}<p class="error">비밀번호가 맞지 않습니다.</p>{% endif %}
+    <input type="password" name="password" placeholder="비밀번호" autofocus required>
+    <button type="submit" class="btn primary block">들어가기</button>
+  </form>
+</body>
+</html>

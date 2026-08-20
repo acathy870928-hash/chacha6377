@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}공유하기 · {{ briefing.title }}{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h1 class="share-title">{{ briefing.title }}</h1>
+  <p class="muted">
+    {{ briefing.articles|length }}건 · {{ audience_label.get(briefing.audience, briefing.audience) }}
+  </p>
+
+  <div class="linkbox">
+    <input id="link" type="text" value="{{ link }}" readonly>
+    <button class="btn primary" type="button" data-copy="#link">링크 복사</button>
+  </div>
+  <p class="hint">이 링크 하나만 단톡방에 붙여넣으면 됩니다. 누르면 기사 목록이 뜨고, 제목을 누르면 본문이 나옵니다.</p>
+</div>
+
+<div class="card">
+  <h2>카톡에 그대로 붙여넣을 문구</h2>
+  <textarea id="kakao" class="kakao-text" rows="{{ 6 + briefing.articles|length * 2 }}" readonly>{{ kakao_text }}</textarea>
+  <button class="btn primary block" type="button" data-copy="#kakao">문구 전체 복사</button>
+</div>
+
+<div class="card">
+  <h2>담긴 기사</h2>
+  <ol class="share-list">
+    {% for a in briefing.articles %}
+    <li>
+      <a href="/a/{{ a.slug }}?b={{ briefing.code }}" target="_blank" rel="noopener">{{ a.title }}</a>
+      <div class="muted">{{ a.publisher }}{% if a.published_at %} · {{ a.published_at[:10] }}{% endif %}</div>
+      <form class="fapoint" method="post" action="/admin/fa-point">
+        <input type="hidden" name="article_id" value="{{ a.id }}">
+        <input type="text" name="fa_point" value="{{ a.fa_point }}"
+               placeholder="한 줄 코멘트 (예: 이번 주 상담 때 이 얘기 꺼내세요)">
+        <button class="btn ghost" type="submit">저장</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var el = document.querySelector(btn.dataset.copy);
+    el.select();
+    el.setSelectionRange(0, el.value.length);
+    var done = function () {
+      var original = btn.textContent;
+      btn.textContent = '복사됨 ✓';
+      setTimeout(function () { btn.textContent = original; }, 1500);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(el.value).then(done, function () { document.execCommand('copy'); done(); });
+    } else {
+      document.execCommand('copy');
+      done();
+    }
+  });
+});
+</script>
+{% endblock %}
