@@ -155,7 +155,16 @@ nginx -t
 systemctl reload nginx
 
 say "방화벽을 엽니다"
-ufw allow OpenSSH >/dev/null 2>&1 || true
+# SSH 포트를 22 로 단정하면 안 된다. 다른 포트를 쓰는 서버에서 방화벽을 켜는 순간
+# 접속이 끊겨 되돌릴 수도 없게 된다. 실제 설정에서 읽어 그 포트를 연다.
+SSH_PORTS="$(sshd -T 2>/dev/null | awk '/^port /{print $2}' || true)"
+[[ -n "$SSH_PORTS" ]] || SSH_PORTS="$(awk '/^[[:space:]]*Port[[:space:]]/{print $2}' /etc/ssh/sshd_config 2>/dev/null || true)"
+[[ -n "$SSH_PORTS" ]] || SSH_PORTS=22
+
+for port in $SSH_PORTS; do
+  echo "  SSH 포트 $port 열어둠"
+  ufw allow "$port/tcp" >/dev/null 2>&1 || true
+done
 ufw allow 'Nginx Full' >/dev/null 2>&1 || true
 ufw --force enable >/dev/null 2>&1 || true
 
@@ -170,9 +179,27 @@ if [[ "$WANT_TLS" =~ ^[Yy]$ && -n "$DOMAIN" ]]; then
   fi
 fi
 
+say "RSS 주소를 확인합니다 (매체 홈페이지에서 자동으로 찾습니다)"
+sudo -u "$APP_USER" "$APP_DIR/.venv/bin/python" "$APP_DIR/scripts/check_feeds.py" --fix || \
+  warn "일부 매체의 RSS 주소를 찾지 못했습니다. 위 목록을 확인해 주세요."
+
 say "첫 기사를 수집합니다"
 sudo -u "$APP_USER" "$APP_DIR/.venv/bin/python" "$APP_DIR/scripts/collect.py" || \
-  warn "수집에 실패했습니다. feeds.json 의 RSS 주소를 확인해 주세요."
+  warn "수집에 실패했습니다."
+
+say "잘 떴는지 확인합니다"
+sleep 2
+if curl -fsS --max-time 10 http://127.0.0.1:8000/healthz >/dev/null 2>&1; then
+  # 이 셸에는 .env 가 안 불러와져 있으므로 경로를 직접 넘긴다
+  ARTICLES="$(sudo -u "$APP_USER" "$APP_DIR/.venv/bin/python" -c "
+import sqlite3, sys
+print(sqlite3.connect(sys.argv[1]).execute('SELECT COUNT(*) FROM articles').fetchone()[0])
+" "$APP_DIR/data/news.db" 2>/dev/null || echo "?")"
+  say "정상 동작 중입니다 · 기사 ${ARTICLES}건"
+else
+  warn "서버가 응답하지 않습니다. 아래로 무슨 일인지 보실 수 있습니다:"
+  warn "  sudo journalctl -u news-briefing -n 50 --no-pager"
+fi
 
 # ---------------------------------------------------------------- 안내
 
