@@ -4,7 +4,7 @@
 #   sudo bash install.sh
 #
 # 물어보는 것: 도메인, 관리자 비밀번호, 사업단 이름.
-# 나머지(파이썬, nginx, HTTPS 인증서, 자동 재시작, 30분마다 수집)는 알아서 잡는다.
+# 나머지(파이썬, nginx, HTTPS 인증서, 자동 재시작, 매일 아침 수집)는 알아서 잡는다.
 # 여러 번 다시 돌려도 안전하다.
 
 set -euo pipefail
@@ -62,6 +62,11 @@ say "필요한 프로그램을 받는 중입니다 (몇 분 걸립니다)"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq python3 python3-venv python3-pip git rsync nginx ufw curl openssl
+
+say "서버 시간을 한국 시간으로 맞춥니다"
+# 클라우드 서버는 기본이 UTC 다. 그대로 두면 '아침 7시 수집'이 오후 4시에 돈다.
+timedatectl set-timezone Asia/Seoul 2>/dev/null || warn "시간대 설정을 건너뜁니다"
+echo "  현재 서버 시각: $(date '+%Y-%m-%d %H:%M %Z')"
 
 say "서비스 전용 계정을 만듭니다"
 id -u "$APP_USER" >/dev/null 2>&1 || useradd --system --home "$APP_DIR" --shell /usr/sbin/nologin "$APP_USER"
@@ -230,7 +235,7 @@ cat <<DONEEOF
  자주 쓰는 명령
    sudo systemctl restart news-briefing     다시 켜기
    sudo journalctl -u news-briefing -f      기록 보기
-   sudo systemctl list-timers news-collect  다음 수집 시각
+   sudo systemctl list-timers news-collect  다음 수집 시각 (매일 07:00)
    sudo bash $APP_DIR/deploy/install.sh     설정 다시 잡기
 
  백업할 파일은 이거 하나입니다

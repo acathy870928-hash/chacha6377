@@ -50,7 +50,10 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 python3 scripts/collect.py
 ```
 
-어드민의 **RSS 지금 수집** 버튼도 같은 일을 합니다. 서버에 설치하면 30분마다 자동으로 돕니다.
+어드민의 **RSS 지금 수집** 버튼도 같은 일을 합니다.
+서버에 설치하면 **매일 아침 7시(한국 시간)** 에 자동으로 돕니다 —
+대표가 출근해서 볼 때 후보가 쌓여 있도록 잡아둔 시각입니다.
+주기를 바꾸려면 `deploy/news-collect.timer` 의 `OnCalendar` 한 줄만 고치면 됩니다.
 
 **등록된 매체**
 
@@ -170,7 +173,8 @@ curl -X POST https://news.example.com/api/ingest \
 sudo bash /경로/chacha6377/deploy/install.sh
 ```
 
-파이썬 환경, nginx, HTTPS 인증서, 자동 재시작, 30분마다 수집까지 한 번에 잡습니다.
+파이썬 환경, nginx, HTTPS 인증서, 자동 재시작, 매일 아침 수집까지 한 번에 잡습니다.
+서버 시간대도 한국 시간으로 맞춥니다.
 다시 실행해도 **기사 DB(`data/`)와 설정(`.env`)은 건드리지 않습니다** — 갱신용으로도 같은 명령을 씁니다.
 
 토큰이 있으면 서버에서 바로 받아올 수도 있습니다.
