@@ -1,0 +1,10 @@
+[Unit]
+Description=사업단 뉴스 브리핑 - RSS 수집
+
+[Service]
+Type=oneshot
+User=news
+Group=news
+WorkingDirectory=/srv/news-briefing
+EnvironmentFile=/srv/news-briefing/.env
+ExecStart=/srv/news-briefing/.venv/bin/python scripts/collect.py

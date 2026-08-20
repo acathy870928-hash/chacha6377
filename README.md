@@ -139,6 +139,18 @@ curl -X POST https://news.example.com/api/ingest \
   한글 제목을 URL에 쓰면 카톡에서 퍼센트 인코딩돼 주소가 길어지기 때문입니다.
 - 공유 화면의 **문구 전체 복사** 를 쓰면 제목 목록과 링크가 한 덩어리로 복사됩니다.
 
+## 서버에 올리기
+
+우분투 서버에 접속해 아래 한 줄이면 끝납니다. 파이썬·nginx·HTTPS·자동 재시작·
+30분마다 수집까지 전부 잡아줍니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/acathy870928-hash/chacha6377/claude/kakaotalk-chatbot-news-sharing-rg091w/deploy/install.sh -o install.sh && sudo bash install.sh
+```
+
+서버 준비부터 도메인 연결, 백업, 문제 해결까지는 **[deploy/README.md](deploy/README.md)** 에
+윈도우 사용자 기준으로 적어두었습니다.
+
 ## 운영 메모
 
 - 데이터는 `DB_PATH`(기본 `./data/news.db`) SQLite 파일 하나에 들어갑니다. 백업은 이 파일만 복사하면 됩니다.

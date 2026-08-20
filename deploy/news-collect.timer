@@ -1,0 +1,10 @@
+[Unit]
+Description=30분마다 기사 수집
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
