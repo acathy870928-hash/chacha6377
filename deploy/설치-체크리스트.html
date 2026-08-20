@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ifanews 설치 체크리스트</title>
+<style>
+:root {
+  --paper:     #F4F6F5;
+  --surface:   #FFFFFF;
+  --surface-2: #EDF1EF;
+  --ink:       #12211B;
+  --ink-soft:  #5A6B64;
+  --ink-faint: #8B9A93;
+  --line:      #DDE4E0;
+  --accent:    #0E7A55;
+  --accent-bg: #E4F1EA;
+  --warn:      #B45309;
+  --warn-bg:   #FEF3E2;
+  --display: "Noto Serif KR", "Nanum Myeongjo", "Apple SD Gothic Neo", serif;
+  --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
+  --mono: "D2Coding", "Consolas", "Courier New", monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+.page { max-width: 720px; margin: 0 auto; padding: 40px 20px 90px; }
+
+header.top { margin-bottom: 12px; }
+.eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--accent); }
+h1 { font-family: var(--display); font-size: 32px; line-height: 1.3; margin: 0 0 10px; letter-spacing: -.02em; }
+.lede { margin: 0; color: var(--ink-soft); }
+
+.progress {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--paper);
+  padding: 14px 0 12px;
+  margin: 22px 0 6px;
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 12px;
+}
+.bar { flex: 1; height: 7px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.bar span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+.progress b { font-size: 13px; color: var(--ink-soft); font-weight: 600; font-variant-numeric: tabular-nums; }
+.reset { border: 0; background: none; font: inherit; font-size: 12px; color: var(--ink-faint);
+         cursor: pointer; text-decoration: underline; padding: 0; }
+
+.step {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 22px 22px 18px; margin-top: 18px;
+}
+.step > h2 {
+  font-family: var(--display); font-size: 20px; margin: 0 0 4px;
+  display: flex; align-items: baseline; gap: 10px; letter-spacing: -.01em;
+}
+.step > h2 .n {
+  font-size: 13px; font-weight: 700; color: #fff; background: var(--accent);
+  border-radius: 99px; padding: 2px 10px; font-family: var(--body);
+  font-variant-numeric: tabular-nums; flex: none; align-self: center;
+}
+.step > p { margin: 0 0 14px; color: var(--ink-soft); font-size: 14.5px; }
+
+.check { display: flex; gap: 11px; align-items: flex-start; padding: 9px 0; cursor: pointer; }
+.check input { margin-top: 5px; width: 17px; height: 17px; accent-color: var(--accent); flex: none; cursor: pointer; }
+.check span { flex: 1; }
+.check input:checked + span { color: var(--ink-faint); text-decoration: line-through; }
+
+table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; color: var(--ink-faint); font-weight: 700; }
+td:first-child { color: var(--ink-soft); white-space: nowrap; }
+td b { color: var(--accent); }
+
+.cmd { position: relative; margin: 10px 0 16px; }
+.cmd pre {
+  margin: 0; padding: 14px 58px 14px 15px; border-radius: 10px;
+  background: #12211B; color: #DFE9E3;
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.6;
+  overflow-x: auto; white-space: pre;
+}
+.cmd button {
+  position: absolute; top: 9px; right: 9px;
+  border: 0; border-radius: 7px; padding: 5px 10px;
+  background: #2C3B34; color: #DFE9E3;
+  font: inherit; font-size: 12px; cursor: pointer;
+}
+.cmd button:hover { background: var(--accent); color: #fff; }
+
+.note, .warn {
+  margin: 12px 0; padding: 12px 15px; border-radius: 10px; font-size: 14.5px;
+}
+.note { background: var(--accent-bg); }
+.warn { background: var(--warn-bg); color: var(--warn); }
+.note b, .warn b { font-weight: 700; }
+
+.tel { font-family: var(--mono); font-size: 17px; font-weight: 700; letter-spacing: .02em; }
+
+.done {
+  margin-top: 22px; padding: 22px; border-radius: 14px;
+  background: var(--accent); color: #fff; text-align: center;
+}
+.done h2 { font-family: var(--display); margin: 0 0 6px; font-size: 22px; }
+.done p { margin: 0; font-size: 15px; opacity: .92; }
+.done code { background: #ffffff26; padding: 2px 8px; border-radius: 6px; font-family: var(--mono); }
+
+footer { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--line);
+         font-size: 13.5px; color: var(--ink-soft); }
+footer p { margin: 0 0 6px; }
+
+@media print {
+  .progress, .cmd button, .reset { display: none; }
+  .step { break-inside: avoid; border-color: #ccc; }
+  body { background: #fff; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <p class="eyebrow">ifanews.co.kr</p>
+  <h1>서버에 올리는 순서</h1>
+  <p class="lede">
+    위에서부터 하나씩 하시면 됩니다. 체크는 저장되니 창을 닫았다 열어도 그대로입니다.
+    막히면 그 단계 화면을 캡처해서 보여주세요.
+  </p>
+</header>
+
+<div class="progress">
+  <div class="bar"><span id="fill"></span></div>
+  <b id="pct">0 / 0</b>
+  <button class="reset" type="button" id="reset">처음부터</button>
+</div>
+
+<!-- ─────────────────────────────── 0 -->
+<section class="step">
+  <h2><span class="n">0</span> 본인인증이 막혔다면</h2>
+  <p>가비아에서 본인인증이 반복 실패하면 <b>인증 횟수 제한</b>에 걸린 상태일 수 있습니다. 그러면 원인을 고쳐도 계속 실패합니다.</p>
+
+  <div class="warn">
+    <b>먼저 전화해서 횟수를 풀어야 합니다.</b> 안 풀고 다시 시도하면 또 실패합니다.
+  </div>
+
+  <table>
+    <tr><td>클라우드·IDC</td><td class="tel">02-3473-3911</td></tr>
+    <tr><td>대표번호</td><td class="tel">1544-4370</td></tr>
+    <tr><td>상담 시간</td><td>평일 09:00~18:00</td></tr>
+  </table>
+
+  <div class="note">
+    이렇게 말씀하시면 됩니다 —<br>
+    <b>“클라우드 서버 신청하는데 휴대폰 본인인증이 계속 실패합니다.
+    인증 횟수 초기화해 주시고 실패 원인도 확인해 주세요.”</b>
+  </div>
+
+  <label class="check"><input type="checkbox"><span>고객센터에 전화해 인증 횟수를 초기화했다</span></label>
+  <label class="check"><input type="checkbox"><span>본인인증을 통과했다</span></label>
+</section>
+
+<!-- ─────────────────────────────── 1 -->
+<section class="step">
+  <h2><span class="n">1</span> 서버 만들기</h2>
+  <p>가비아 클라우드에서 <b>Micro</b> 요금제를 고릅니다.</p>
+
+  <table>
+    <tr><th>항목</th><th>고를 값</th></tr>
+    <tr><td>상품</td><td><b>클라우드 서버 (Micro)</b> — 웹호스팅 아님</td></tr>
+    <tr><td>CPU / 메모리</td><td><b>1vCore / 1GB</b> — 2GB는 두 배 값, 필요 없음</td></tr>
+    <tr><td>디스크</td><td>50GB (기본값)</td></tr>
+    <tr><td>운영체제</td><td><b>Ubuntu 22.04</b> 또는 <b>24.04</b></td></tr>
+    <tr><td>약정</td><td><b>무약정</b> — 1년 묶어도 월 1,000원 차이</td></tr>
+    <tr><td>공인 IP</td><td><b>할당</b> — 없으면 밖에서 안 열림</td></tr>
+  </table>
+
+  <div class="note">월 10,000원 + 부가세 + 공인 IP 요금. 무료 트래픽 1TB면 넉넉합니다.</div>
+
+  <label class="check"><input type="checkbox"><span>Micro 1vCore / 1GB 로 서버를 만들었다</span></label>
+  <label class="check"><input type="checkbox"><span>운영체제를 Ubuntu 로 골랐다</span></label>
+  <label class="check"><input type="checkbox"><span>공인 IP 주소를 받아 적어뒀다</span></label>
+</section>
+
+<!-- ─────────────────────────────── 2 -->
+<section class="step">
+  <h2><span class="n">2</span> 도메인 연결</h2>
+  <p>가비아 <b>DNS 관리</b>에서 <code>ifanews.co.kr</code> 을 서버 IP로 연결합니다.</p>
+
+  <table>
+    <tr><th>타입</th><th>호스트</th><th>값 / 위치</th><th>TTL</th></tr>
+    <tr><td>A</td><td><b>@</b></td><td>서버 IP 주소</td><td>600</td></tr>
+    <tr><td>A</td><td><b>www</b></td><td>서버 IP 주소</td><td>600</td></tr>
+  </table>
+
+  <p>연결됐는지 확인 — 윈도우 <b>PowerShell</b>에 붙여넣으세요.</p>
+  <div class="cmd">
+    <pre>nslookup ifanews.co.kr</pre>
+    <button type="button">복사</button>
+  </div>
+
+  <div class="warn">
+    결과에 <b>서버 IP가 나온 뒤에</b> 다음 단계로 가세요.
+    먼저 하면 HTTPS 인증서 발급이 실패합니다. 반영까지 10~30분 걸립니다.
+  </div>
+
+  <label class="check"><input type="checkbox"><span>A 레코드 두 줄(@, www)을 등록했다</span></label>
+  <label class="check"><input type="checkbox"><span>nslookup 에 서버 IP가 나온다</span></label>
+</section>
+
+<!-- ─────────────────────────────── 3 -->
+<section class="step">
+  <h2><span class="n">3</span> 프로그램 올리기</h2>
+  <p>저장소가 비공개라 서버가 직접 받을 수 없습니다. 한 번만 올려주시면 됩니다.</p>
+
+  <p><b>(1)</b> 브라우저에서 아래로 들어가 초록색 <b>Code</b> → <b>Download ZIP</b>, 받은 파일 <b>압축 풀기</b></p>
+  <div class="cmd">
+    <pre>https://github.com/acathy870928-hash/chacha6377</pre>
+    <button type="button">복사</button>
+  </div>
+
+  <p><b>(2)</b> PowerShell 에서 서버로 보내기 — <code>서버IP</code> 자리를 바꾸세요</p>
+  <div class="cmd">
+    <pre>cd $HOME\Downloads
+scp -r .\chacha6377-claude-kakaotalk-chatbot-news-sharing-rg091w root@서버IP:/root/news-src</pre>
+    <button type="button">복사</button>
+  </div>
+
+  <div class="note">
+    폴더 이름이 다르면 <code>dir</code> 로 확인해 맞춰주세요.
+    비밀번호를 물으면 넣으시면 됩니다 — <b>화면에 안 보이는 게 정상</b>입니다.
+  </div>
+
+  <label class="check"><input type="checkbox"><span>ZIP 을 받아 압축을 풀었다</span></label>
+  <label class="check"><input type="checkbox"><span>scp 로 서버에 올렸다</span></label>
+</section>
+
+<!-- ─────────────────────────────── 4 -->
+<section class="step">
+  <h2><span class="n">4</span> 설치</h2>
+  <p>서버에 접속해서 명령 한 줄이면 끝납니다.</p>
+
+  <p><b>(1)</b> 접속 — 처음이면 <code>yes</code> 를 치고 엔터</p>
+  <div class="cmd">
+    <pre>ssh root@서버IP</pre>
+    <button type="button">복사</button>
+  </div>
+
+  <p><b>(2)</b> 설치</p>
+  <div class="cmd">
+    <pre>sudo bash /root/news-src/deploy/install.sh</pre>
+    <button type="button">복사</button>
+  </div>
+
+  <p>세 가지를 물어봅니다.</p>
+  <table>
+    <tr><td>도메인</td><td><b>ifanews.co.kr</b> — www 는 자동으로 같이 잡힙니다</td></tr>
+    <tr><td>관리자 비밀번호</td><td>대표님이 어드민에 로그인할 때 쓸 것 (8자 이상)</td></tr>
+    <tr><td>사업단 이름</td><td>화면과 브리핑 제목에 나옵니다</td></tr>
+  </table>
+
+  <div class="note">
+    5~10분 걸립니다. 파이썬, 웹서버, HTTPS 인증서, 자동 재시작,
+    30분마다 기사 수집까지 전부 알아서 잡습니다.
+  </div>
+
+  <label class="check"><input type="checkbox"><span>서버에 접속했다</span></label>
+  <label class="check"><input type="checkbox"><span>설치가 끝나고 접속 주소가 나왔다</span></label>
+</section>
+
+<!-- ─────────────────────────────── 5 -->
+<section class="step">
+  <h2><span class="n">5</span> 확인</h2>
+  <p>브라우저에서 열어봅니다.</p>
+
+  <div class="cmd">
+    <pre>https://ifanews.co.kr/admin</pre>
+    <button type="button">복사</button>
+  </div>
+
+  <p>방금 정한 비밀번호로 로그인해서 기사가 쌓여 있으면 성공입니다.</p>
+
+  <label class="check"><input type="checkbox"><span>어드민에 로그인된다</span></label>
+  <label class="check"><input type="checkbox"><span>기사 목록이 보인다</span></label>
+  <label class="check"><input type="checkbox"><span>기사를 골라 공유 링크를 만들어봤다</span></label>
+  <label class="check"><input type="checkbox"><span>폰에서 그 링크가 열린다</span></label>
+</section>
+
+<div class="done">
+  <h2>여기까지 오면 끝입니다</h2>
+  <p>이제 <code>ifanews.co.kr</code> 에서 기사를 골라 단톡방에 링크만 붙이면 됩니다.</p>
+</div>
+
+<!-- ─────────────────────────────── 문제 -->
+<section class="step">
+  <h2>잘 안 될 때</h2>
+
+  <table>
+    <tr><th>증상</th><th>해볼 것</th></tr>
+    <tr><td>ssh 접속 안 됨</td><td>서버 업체 방화벽에 22번 포트가 열려 있는지 확인</td></tr>
+    <tr><td>화면이 안 열림</td><td>방화벽에서 80, 443 포트 열기</td></tr>
+    <tr><td>HTTPS 실패</td><td>도메인 반영 대기 후 <code>sudo certbot --nginx -d ifanews.co.kr</code></td></tr>
+    <tr><td>기사가 안 쌓임</td><td>아래 명령으로 어느 매체가 실패하는지 확인</td></tr>
+  </table>
+
+  <div class="cmd">
+    <pre>sudo -u news /srv/news-briefing/.venv/bin/python /srv/news-briefing/scripts/check_feeds.py --fix</pre>
+    <button type="button">복사</button>
+  </div>
+
+  <p>자주 쓰는 명령</p>
+  <div class="cmd">
+    <pre>sudo systemctl restart news-briefing     # 다시 켜기
+sudo systemctl status news-briefing      # 잘 도는지 확인
+sudo journalctl -u news-briefing -n 50   # 무슨 일이 있었나</pre>
+    <button type="button">복사</button>
+  </div>
+</section>
+
+<footer>
+  <p><b>백업할 파일은 하나입니다</b> — <code>/srv/news-briefing/data/news.db</code></p>
+  <p>브리핑 링크에는 비밀번호가 없습니다. 링크를 아는 사람은 볼 수 있으니 대외비 내용은 넣지 마세요.</p>
+</footer>
+
+</div>
+
+<script>
+const KEY = "ifanews-setup-v1";
+const boxes = Array.from(document.querySelectorAll(".check input"));
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(boxes.map(b => b.checked))); } catch (e) {}
+}
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+    saved.forEach((v, i) => { if (boxes[i]) boxes[i].checked = v; });
+  } catch (e) {}
+}
+function paint() {
+  const done = boxes.filter(b => b.checked).length;
+  document.getElementById("fill").style.width = (done / boxes.length * 100) + "%";
+  document.getElementById("pct").textContent = done + " / " + boxes.length;
+}
+
+boxes.forEach(b => b.addEventListener("change", () => { save(); paint(); }));
+
+document.getElementById("reset").addEventListener("click", () => {
+  boxes.forEach(b => { b.checked = false; });
+  save(); paint();
+});
+
+document.querySelectorAll(".cmd button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const text = btn.previousElementSibling.textContent
+      .split("\n").map(l => l.replace(/\s+#.*$/, "")).join("\n").trim();
+    const done = () => {
+      btn.textContent = "복사됨 ✓";
+      setTimeout(() => { btn.textContent = "복사"; }, 1500);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+
+    function fallback() {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
+  });
+});
+
+load();
+paint();
+</script>
+</body>
+</html>
