@@ -1,0 +1,25 @@
+{
+  "_comment": "대상별로 지정해둔 기사 링크. scripts/add_urls.py 가 본문을 가져와 후보로 등록합니다.",
+  "articles": [
+    {
+      "url": "https://www.insnews.co.kr/news/articleView.html?idxno=92282",
+      "audience": "rep"
+    },
+    {
+      "url": "https://www.insnews.co.kr/news/articleView.html?idxno=92260",
+      "audience": "rep"
+    },
+    {
+      "url": "https://www.insnews.co.kr/news/articleView.html?idxno=92142",
+      "audience": "rep"
+    },
+    {
+      "url": "https://www.fins.co.kr/news/articleView.html?idxno=109694",
+      "audience": "fa"
+    },
+    {
+      "url": "https://www.donga.com/news/Health/article/all/20260820/134510009/1",
+      "audience": "fa"
+    }
+  ]
+}

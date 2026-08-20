@@ -222,6 +222,7 @@ PUBLISHER_BY_HOST = {
     "insunet.co.kr": "인슈넷",
     "fins.co.kr": "한국금융신문",
     "yna.co.kr": "연합뉴스",
+    "donga.com": "동아일보",
 }
 
 

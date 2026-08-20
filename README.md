@@ -70,12 +70,16 @@ RSS 요약이 짧으면 원문 페이지에서 본문을 다시 긁어옵니다.
 # 여러 개를 한 번에
 python3 scripts/add_urls.py --audience rep https://... https://...
 
-# seed/rep_urls.json 에 적어둔 목록을 통째로
+# seed/pinned_urls.json 에 적어둔 목록을 통째로
 python3 scripts/add_urls.py
+
+# 그중 FA용만
+python3 scripts/add_urls.py --only fa
 ```
 
-`seed/rep_urls.json` 에는 **사업단 대표용으로 지정해둔 기사 4건**이 들어 있습니다.
-서버를 띄운 뒤 위 명령을 한 번 돌리면 제목·본문을 가져와 대표용 후보로 등록됩니다.
+`seed/pinned_urls.json` 에 **미리 지정해둔 기사 5건**(대표용 3건 · FA용 2건)이 들어 있습니다.
+항목마다 `audience` 를 적어두는 구조라, 링크를 추가할 때 대상을 같이 지정하면 됩니다.
+서버를 띄운 뒤 위 명령을 한 번 돌리면 제목·본문·언론사·발행일을 가져와 후보로 등록됩니다.
 
 ### 3. 기존 수집기 연동 (`POST /api/ingest`)
 
