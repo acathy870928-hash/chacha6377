@@ -33,6 +33,18 @@
     background: var(--accent-soft); color: var(--accent); white-space: nowrap;
   }
   .chip.warn { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+  .absence {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-top: 8px; padding: 8px 10px; border-radius: 10px; font-size: 12.5px;
+    border: 1px solid var(--border); background: var(--bg);
+  }
+  .absence.on { border-color: var(--warn); color: var(--warn); background: transparent; }
+  .absence .grow { flex: 1; min-width: 120px; }
+  .absence button {
+    font-size: 12px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  }
+  .absence button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   #log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
   .msg { max-width: 88%; padding: 10px 13px; border-radius: 14px; line-height: 1.62; font-size: 14.5px; white-space: pre-wrap; word-break: break-word; }
   .msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
@@ -67,6 +79,7 @@
   <header>
     <h1>업무 플로우 챗봇 <small id="who"></small></h1>
     <div class="stats" id="stats"></div>
+    <div class="absence" id="absence"></div>
   </header>
 
   <div id="log"></div>
@@ -77,6 +90,7 @@
     <button data-q="지연된 업무만 보여줘">지연 업무</button>
     <button data-q="이번 주에 마감인 업무 알려줘">이번 주 마감</button>
     <button data-q="내가 지금 처리해야 할 단계가 뭐야?">내 차례</button>
+    <button data-q="내가 없는 동안 누가 뭐 물어봤어?">부재 중 질문</button>
     <button id="reset">대화 초기화</button>
   </div>
 
@@ -145,6 +159,66 @@ async function loadStats() {
   }
 }
 
+const absenceBox = document.getElementById("absence");
+
+async function loadAbsence() {
+  try {
+    const res = await fetch("/api/absence", { headers: headers() });
+    if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+    const a = await res.json();
+    if (a.active) {
+      const until = a.active.until ? a.active.until.slice(11, 16) : "미정";
+      const late = a.active.until && a.active.until < new Date().toISOString().slice(0, 19).replace("T", " ");
+      absenceBox.className = "absence on";
+      absenceBox.innerHTML =
+        `<span class="grow">🚪 부재 중 · <strong>${until}</strong> 복귀 예정${late ? " (예정 시각 지남)" : ""}` +
+        `${a.unseen ? ` · 대신 답한 질문 <strong>${a.unseen}</strong>건` : ""}</span>` +
+        `<button class="primary" id="btn-return">복귀했어요</button>`;
+      document.getElementById("btn-return").onclick = returnFromAbsence;
+    } else {
+      absenceBox.className = "absence";
+      absenceBox.innerHTML =
+        `<span class="grow">자리에 있는 상태입니다. 나가기 전에 등록해 두면 그동안 동료가 물어봐도 봇이 대신 답합니다.</span>` +
+        `<button data-min="60">1시간 비움</button><button data-min="120">2시간 비움</button>`;
+      absenceBox.querySelectorAll("button[data-min]").forEach((b) => {
+        b.onclick = () => leave(Number(b.dataset.min));
+      });
+    }
+  } catch (e) {
+    absenceBox.className = "absence";
+    absenceBox.textContent = "부재 상태 확인 실패: " + e.message;
+  }
+}
+
+async function leave(minutes) {
+  const note = prompt("인수인계 메모 (없으면 비워두세요)\n부재 중 동료가 물어보면 이 내용을 그대로 안내합니다.", "") ?? "";
+  await fetch("/api/absence", {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({ minutes, reason: "자리 비움", note: note.trim() || undefined, contactable: false }),
+  });
+  await loadAbsence();
+  bubble("bot", `${minutes}분 자리 비움으로 등록했습니다. 그동안 동료가 물어보면 진행 상황과 복귀 예정 시각을 대신 안내하고, 무슨 질문이 있었는지 모아두겠습니다.`);
+}
+
+async function returnFromAbsence() {
+  const res = await fetch("/api/absence/end", { method: "POST", headers: headers(), body: JSON.stringify({}) });
+  const data = await res.json();
+  await loadAbsence();
+  const list = data.inquiries ?? [];
+  if (!list.length) {
+    bubble("bot", "복귀 처리했습니다. 자리를 비운 사이 들어온 질문은 없었습니다.");
+    return;
+  }
+  bubble(
+    "bot",
+    `복귀 처리했습니다. 자리를 비운 사이 **${list.length}건**의 질문에 대신 답했습니다.\n\n` +
+      list
+        .map((q) => `- ${q.created_at.slice(11, 16)} **${q.asker}**: ${q.question}\n  → ${(q.answer || "").split("\n")[0]}`)
+        .join("\n"),
+  );
+}
+
 async function ask(message) {
   bubble("user", message);
   const pending = bubble("bot", "확인 중");
@@ -170,7 +244,13 @@ async function ask(message) {
       meta.textContent = "조회: " + [...new Set(data.toolCalls)].join(", ");
       pending.appendChild(meta);
     }
-    if (data.changed) loadStats();
+    if (data.answeredFor?.length) {
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `${data.answeredFor.join(", ")} 님 대신 답한 내용으로 기록해 두었습니다.`;
+      pending.appendChild(meta);
+    }
+    if (data.changed) { loadStats(); loadAbsence(); }
   } catch (e) {
     pending.classList.remove("dots");
     pending.classList.add("err");
@@ -209,6 +289,7 @@ document.getElementById("reset").addEventListener("click", async () => {
 
 bubble("bot", "안녕하세요. 맡으신 업무가 지금 어느 단계까지 진행됐는지 확인해 드립니다.\n\n예를 들어 이렇게 물어보세요.\n- 오늘 현황 알려줘\n- A사 계약 건 어디까지 갔어?\n- 내가 퇴근한 뒤에 바뀐 거 있어?\n- 노트북 발주 건 팀장 승인 완료로 바꿔줘");
 loadStats();
+loadAbsence();
 input.focus();
 </script>
 </body>

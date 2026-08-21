@@ -66,3 +66,31 @@ CREATE INDEX IF NOT EXISTS idx_tasks_status  ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_steps_task    ON task_steps(task_id, seq);
 CREATE INDEX IF NOT EXISTS idx_events_task   ON task_events(task_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_events_time   ON task_events(created_at);
+
+-- 자리 비움(조기 퇴근·외근) 기록: 부재 중 질문에 대신 답하기 위한 근거
+CREATE TABLE IF NOT EXISTS absences (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  person      TEXT NOT NULL,              -- 자리를 비운 사람
+  reason      TEXT,                       -- 조기 퇴근 / 외근 / 회의 등
+  note        TEXT,                       -- 인수인계 메모 (부재 중 질문에 그대로 안내)
+  contactable INTEGER NOT NULL DEFAULT 0, -- 급한 건 연락 가능 여부
+  started_at  TEXT NOT NULL,
+  until       TEXT,                       -- 복귀 예정 시각
+  ended_at    TEXT,                       -- 실제 복귀 시각 (NULL 이면 부재 중)
+  created_at  TEXT NOT NULL
+);
+
+-- 부재 중 다른 사람이 물어본 질문 (복귀 후 브리핑용)
+CREATE TABLE IF NOT EXISTS inquiries (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  absence_id INTEGER REFERENCES absences(id) ON DELETE SET NULL,
+  about      TEXT NOT NULL,               -- 누구 업무에 대한 질문인지
+  asker      TEXT NOT NULL,
+  question   TEXT NOT NULL,
+  answer     TEXT,                        -- 봇이 대신 답한 내용 요약
+  seen       INTEGER NOT NULL DEFAULT 0,  -- 복귀 후 확인 여부
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_absence_person ON absences(person, ended_at);
+CREATE INDEX IF NOT EXISTS idx_inquiry_about  ON inquiries(about, seen, created_at);

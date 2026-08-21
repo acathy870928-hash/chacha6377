@@ -11,12 +11,22 @@ for (const suffix of ["", "-wal", "-shm"]) fs.rmSync(`${process.env.BOT_DB_PATH}
 
 await import("./db/seed.js"); // 임시 DB에 템플릿 + 샘플 업무 생성
 const { executeTool, TOOL_SPECS } = await import("./chat/tools.js");
+const { logInquiry, getActiveAbsence } = await import("./domain/absence.js");
 
-const ctx = { user: "점검", owner: "나" };
+type Ctx = { user: string; owner: string; touchedOwners: Set<string> };
+const ctx: Ctx = { user: "나", owner: "나", touchedOwners: new Set() };
+/** 동료가 물어보는 상황 */
+const 동료: Ctx = { user: "이팀장", owner: "이팀장", touchedOwners: new Set() };
 let failures = 0;
 
-function check(label: string, tool: string, input: unknown, expect: (parsed: any, raw: string) => boolean): void {
-  const { content, isError } = executeTool(tool, input, ctx);
+function check(
+  label: string,
+  tool: string,
+  input: unknown,
+  expect: (parsed: any, raw: string) => boolean,
+  asCtx: Ctx = ctx,
+): void {
+  const { content, isError } = executeTool(tool, input, asCtx);
   let ok = !isError;
   let parsed: any = null;
   if (ok) {
@@ -61,6 +71,37 @@ check("업무 상태 변경", "update_task_status", { task_query: "점검용 업
   if (!ok) failures += 1;
   console.log(`${ok ? "✅" : "❌"} 잘못된 상태값 거부`);
 }
+console.log("");
+
+/* ── 자리 비움(부재) 시나리오 ─────────────────────────────── */
+console.log("부재 모드 점검\n");
+
+check("1시간 자리 비움 등록", "set_absence", { minutes: 60, reason: "조기 퇴근", note: "법무 회신 오면 내일 오전에 확인합니다", contactable: true }, (r) => r.부재중 === true && typeof r.복귀예정 === "string" && r.현재_진행중_업무.length >= 1);
+check("부재 상태 조회", "get_absence_status", { person: "나" }, (r) => r.부재중 === true && r.급한건연락가능 === true);
+check("부재자 없을 때는 자리에 있음", "get_absence_status", { person: "박대리" }, (r) => r.부재중 === false);
+
+동료.touchedOwners.clear();
+check(
+  "동료가 물으면 담당자 부재 정보가 함께 나옴",
+  "get_task_progress",
+  { task_query: "CT-2026-014" },
+  (r) => r.담당자부재?.부재중 === true && r.담당자부재.인수인계메모.includes("법무"),
+  동료,
+);
+{
+  const ok = 동료.touchedOwners.has("나") && Boolean(getActiveAbsence("나"));
+  if (!ok) failures += 1;
+  console.log(`${ok ? "✅" : "❌"} 부재자 업무 조회가 질문 기록 대상으로 잡힘`);
+}
+
+// agent 가 대화 종료 시 남기는 기록을 동일하게 재현
+logInquiry({ about: "나", asker: "이팀장", question: "A사 계약 건 어떻게 됐어요?", answer: "법무 검토 완료, 팀장 승인 대기 중입니다." });
+
+check("부재 중 들어온 질문 조회", "list_inquiries", { person: "나" }, (r) => r.건수 === 1 && r.질문[0].질문자 === "이팀장");
+check("복귀하면 질문 브리핑", "end_absence", {}, (r) => r.부재중_받은_질문수 === 1 && r.부재중_받은_질문[0].질문.includes("A사"));
+check("복귀 후에는 부재 아님", "get_absence_status", { person: "나" }, (r) => r.부재중 === false);
+check("확인한 질문은 미확인에서 빠짐", "list_inquiries", { person: "나", only_unseen: true }, (r) => r.건수 === 0);
+
 console.log("");
 
 console.log(failures === 0 ? "모든 점검 통과 ✨" : `실패 ${failures}건`);

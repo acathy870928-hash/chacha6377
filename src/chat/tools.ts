@@ -1,6 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import * as svc from "../domain/service.js";
+import * as absence from "../domain/absence.js";
 import { today } from "../db/index.js";
 import { PRIORITIES, STEP_STATUSES, TASK_STATUSES } from "../domain/types.js";
 import type { Task, TaskProgress } from "../domain/types.js";
@@ -11,6 +12,8 @@ export interface ToolContext {
   user: string;
   /** '내 업무' 조회 기본 담당자 */
   owner: string;
+  /** 이번 대화에서 조회된 담당자들 — 부재 중인 사람이면 질문을 기록해 둔다 */
+  touchedOwners: Set<string>;
 }
 
 interface ToolDef<S extends z.ZodType> {
@@ -28,8 +31,10 @@ function defineTool<S extends z.ZodType>(t: ToolDef<S>): ToolDef<S> {
 /* 응답 포맷 – Claude 가 그대로 읽고 요약하기 좋은 한국어 키              */
 /* ------------------------------------------------------------------ */
 
-function formatProgress(p: TaskProgress) {
+function formatProgress(p: TaskProgress, ctx?: ToolContext) {
+  if (p.task.owner) ctx?.touchedOwners.add(p.task.owner);
   return {
+    담당자부재: absence.absenceInfo(p.task.owner),
     번호: p.task.id,
     코드: p.task.code,
     제목: p.task.title,
@@ -57,7 +62,8 @@ function formatProgress(p: TaskProgress) {
   };
 }
 
-function formatTaskRow(t: Task & { percent: number; currentStepName: string | null }) {
+function formatTaskRow(t: Task & { percent: number; currentStepName: string | null }, ctx?: ToolContext) {
+  if (t.owner) ctx?.touchedOwners.add(t.owner);
   return {
     번호: t.id,
     코드: t.code,
@@ -68,6 +74,7 @@ function formatTaskRow(t: Task & { percent: number; currentStepName: string | nu
     마감일: t.due_date,
     지연여부: Boolean(t.due_date && t.due_date < today() && t.status === "진행중"),
     담당자: t.owner,
+    담당자부재: absence.absenceInfo(t.owner) ? "부재 중" : null,
     우선순위: t.priority,
   };
 }
@@ -100,7 +107,15 @@ export const TOOLS = [
     schema: z.object({
       owner: z.string().optional().describe("담당자 이름. 비우면 대화 중인 사용자 기준"),
     }),
-    run: (input, ctx) => svc.workSummary(input.owner ?? ctx.owner),
+    run: (input, ctx) => {
+      const owner = input.owner ?? ctx.owner;
+      if (owner) ctx.touchedOwners.add(owner);
+      return {
+        ...svc.workSummary(owner),
+        담당자부재: absence.absenceInfo(owner),
+        부재중_다른_담당자: absence.listActiveAbsences().filter((a) => a.person !== owner).map(absence.describeAbsence),
+      };
+    },
   }),
 
   defineTool({
@@ -124,7 +139,7 @@ export const TOOLS = [
         dueWithinDays: input.due_within_days,
         limit: input.limit,
       });
-      return { 건수: rows.length, 목록: rows.map(formatTaskRow) };
+      return { 건수: rows.length, 목록: rows.map((row) => formatTaskRow(row, ctx)) };
     },
   }),
 
@@ -134,10 +149,10 @@ export const TOOLS = [
       "업무 한 건이 플로우의 어느 단계까지 갔는지 상세 조회. 전체 단계 목록, 현재 멈춰 있는 단계, 진행률, 지연 여부, 최근 이력을 준다. " +
       "'OO건 어디까지 갔어?' 같은 질문의 기본 도구.",
     schema: z.object({ task_query: taskQuery }),
-    run: (input) => {
+    run: (input, ctx) => {
       const r = resolveOne(input.task_query);
       if (!("task" in r)) return r;
-      return formatProgress(svc.getTaskProgress(r.task.id)!);
+      return formatProgress(svc.getTaskProgress(r.task.id)!, ctx);
     },
   }),
 
@@ -218,6 +233,7 @@ export const TOOLS = [
           dueDate: input.due_date,
           actor: ctx.user,
         }),
+        ctx,
       ),
   }),
 
@@ -244,6 +260,7 @@ export const TOOLS = [
           assignee: input.assignee,
           actor: ctx.user,
         }),
+        ctx,
       );
     },
   }),
@@ -259,7 +276,7 @@ export const TOOLS = [
     run: (input, ctx) => {
       const r = resolveOne(input.task_query);
       if (!("task" in r)) return r;
-      return formatProgress(svc.setTaskStatus(r.task.id, input.status, input.note, ctx.user));
+      return formatProgress(svc.setTaskStatus(r.task.id, input.status, input.note, ctx.user), ctx);
     },
   }),
 
@@ -274,10 +291,125 @@ export const TOOLS = [
       return { 결과: "메모 등록됨", 시각: e.created_at, 업무: r.task.title, 내용: e.message };
     },
   }),
+
+  defineTool({
+    name: "set_absence",
+    description:
+      "사용자가 자리를 비운다고 알릴 때 부재를 등록한다. ('나 지금 조기 퇴근', '1시간 자리 비울게', '3시부터 외근') " +
+      "등록해 두면 그동안 다른 사람이 이 사람 업무를 물어봤을 때 봇이 복귀 예정 시각과 인수인계 메모까지 대신 안내한다.",
+    schema: z.object({
+      person: z.string().optional().describe("자리를 비우는 사람. 비우면 대화 중인 사용자"),
+      minutes: z.number().int().min(5).max(1440).optional().describe("몇 분 뒤 복귀 예정인지 (1시간 = 60)"),
+      until: z.string().optional().describe("복귀 예정 시각 'YYYY-MM-DD HH:MM'. minutes 대신 쓸 수 있다"),
+      reason: z.string().optional().describe("사유 (조기 퇴근, 외근, 회의 등)"),
+      note: z.string().optional().describe("인수인계 메모. 부재 중 질문에 그대로 안내된다"),
+      contactable: z.boolean().optional().describe("급한 건은 연락 가능한지"),
+    }),
+    run: (input, ctx) => {
+      const person = input.person ?? ctx.user;
+      const a = absence.startAbsence({
+        person,
+        minutes: input.minutes,
+        until: input.until,
+        reason: input.reason,
+        note: input.note,
+        contactable: input.contactable,
+      });
+      return {
+        결과: "부재 등록됨. 이제 다른 사람이 물어보면 대신 안내합니다.",
+        ...absence.describeAbsence(a),
+        현재_진행중_업무: svc.listTasks({ owner: person, status: "진행중", limit: 20 }).map((t) => ({
+          제목: t.title,
+          현재단계: t.currentStepName,
+          마감일: t.due_date,
+        })),
+      };
+    },
+  }),
+
+  defineTool({
+    name: "end_absence",
+    description:
+      "복귀했을 때 부재를 해제한다. 자리를 비운 사이 다른 사람이 물어본 질문 목록을 함께 돌려주므로, 복귀 브리핑에 그대로 쓴다.",
+    schema: z.object({ person: z.string().optional().describe("복귀한 사람. 비우면 대화 중인 사용자") }),
+    run: (input, ctx) => {
+      const person = input.person ?? ctx.user;
+      const { absence: ended, inquiries } = absence.endAbsence(person);
+      absence.markInquiriesSeen(person);
+      return {
+        결과: ended ? "복귀 처리했습니다." : "등록된 부재가 없었습니다.",
+        자리비운시각: ended?.started_at ?? null,
+        부재중_받은_질문수: inquiries.length,
+        부재중_받은_질문: inquiries.map((q) => ({
+          시각: q.created_at,
+          질문자: q.asker,
+          질문: q.question,
+          대신_답한_내용: q.answer,
+        })),
+      };
+    },
+  }),
+
+  defineTool({
+    name: "get_absence_status",
+    description:
+      "특정 담당자가 지금 자리에 있는지, 없다면 언제 복귀 예정인지 확인한다. person 을 비우면 부재 중인 사람 전체를 준다. " +
+      "다른 사람이 '○○님 지금 계세요?' 라고 물을 때 사용.",
+    schema: z.object({ person: z.string().optional().describe("확인할 담당자. 비우면 부재 중인 사람 전체") }),
+    run: (input) => {
+      if (input.person) {
+        const a = absence.getActiveAbsence(input.person);
+        return a
+          ? absence.describeAbsence(a)
+          : { 부재중: false, 담당자: input.person, 안내: "부재 등록이 없습니다. 자리에 있는 것으로 봅니다." };
+      }
+      const all = absence.listActiveAbsences();
+      return { 부재중_인원: all.length, 목록: all.map(absence.describeAbsence) };
+    },
+  }),
+
+  defineTool({
+    name: "list_inquiries",
+    description:
+      "자리를 비운 사이 다른 사람이 봇에게 물어본 내용을 시간순으로 준다. " +
+      "'내가 없는 동안 누가 뭐 물어봤어?' 에 답할 때 사용. 복귀 처리는 end_absence 가 한다.",
+    schema: z.object({
+      person: z.string().optional().describe("누구 업무에 대한 질문인지. 비우면 대화 중인 사용자"),
+      only_unseen: z.boolean().optional().describe("아직 확인하지 않은 질문만 (기본 false)"),
+      since_hours: z.number().int().min(1).max(720).optional(),
+      limit: z.number().int().min(1).max(100).optional(),
+    }),
+    run: (input, ctx) => {
+      const person = input.person ?? ctx.owner ?? ctx.user;
+      const rows = absence.listInquiries({
+        person,
+        onlyUnseen: input.only_unseen,
+        sinceHours: input.since_hours,
+        limit: input.limit,
+      });
+      return {
+        건수: rows.length,
+        질문: rows.map((q) => ({
+          시각: q.created_at,
+          질문자: q.asker,
+          질문: q.question,
+          대신_답한_내용: q.answer,
+          확인함: Boolean(q.seen),
+        })),
+      };
+    },
+  }),
 ] as const;
 
 /** 데이터를 바꾸는 도구 – 응답에 무엇을 바꿨는지 반드시 밝히도록 시스템 프롬프트에서 사용 */
-export const WRITE_TOOLS = new Set(["create_task", "update_step_status", "update_task_status", "add_note"]);
+export const WRITE_TOOLS = new Set([
+  "create_task",
+  "update_step_status",
+  "update_task_status",
+  "add_note",
+  "set_absence",
+  "end_absence",
+]);
 
 /** 스키마 타입을 지운 목록 – 런타임 조회/검증용 */
 const TOOL_LIST = TOOLS as readonly ToolDef<z.ZodType>[];

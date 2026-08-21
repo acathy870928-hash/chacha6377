@@ -6,6 +6,14 @@ import { getDb } from "./db/index.js";
 import { chat } from "./chat/agent.js";
 import { clearHistory, sessionCount } from "./chat/session.js";
 import { workSummary } from "./domain/service.js";
+import {
+  endAbsence,
+  getActiveAbsence,
+  listInquiries,
+  markInquiriesSeen,
+  startAbsence,
+  unseenInquiryCount,
+} from "./domain/absence.js";
 import { WorkFlowBot, createTeamsAdapter } from "./teams/bot.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -85,6 +93,46 @@ app.post("/api/chat", guard, async (req, res) => {
 app.get("/api/summary", guard, (req, res) => {
   const owner = (req.query.owner as string | undefined) ?? config.defaultOwner ?? undefined;
   res.json(workSummary(owner || undefined));
+});
+
+/* --- 자리 비움 --- */
+
+function personOf(value: unknown): string {
+  return typeof value === "string" && value ? value : config.defaultOwner || "사용자";
+}
+
+app.get("/api/absence", guard, (req, res) => {
+  const person = personOf(req.query.person);
+  res.json({
+    person,
+    active: getActiveAbsence(person) ?? null,
+    unseen: unseenInquiryCount(person),
+    inquiries: listInquiries({ person, onlyUnseen: true, limit: 20 }),
+  });
+});
+
+app.post("/api/absence", guard, (req, res) => {
+  const { person, minutes, until, reason, note, contactable } = req.body ?? {};
+  try {
+    const absence = startAbsence({
+      person: personOf(person),
+      minutes: typeof minutes === "number" ? minutes : undefined,
+      until: typeof until === "string" ? until : undefined,
+      reason: typeof reason === "string" ? reason : "자리 비움",
+      note: typeof note === "string" ? note : undefined,
+      contactable: Boolean(contactable),
+    });
+    res.json(absence);
+  } catch (err) {
+    res.status(400).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+app.post("/api/absence/end", guard, (req, res) => {
+  const person = personOf(req.body?.person);
+  const result = endAbsence(person);
+  markInquiriesSeen(person);
+  res.json(result);
 });
 
 app.post("/api/reset", guard, (req, res) => {
