@@ -5,9 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "terms-rag"
 version = "0.1.0"
-description = "한국어 약관 PDF 를 구조 기반으로 청킹하고 임베딩·검색하는 RAG 파이프라인"
+description = "한국어 약관·문서(PDF/HTML/DOCX)를 구조 기반으로 청킹하고 임베딩·검색하는 RAG 파이프라인"
 requires-python = ">=3.10"
-dependencies = ["pypdf>=5.0.0", "numpy>=1.26"]
+dependencies = ["pypdf>=5.0.0", "numpy>=1.26", "python-docx>=1.1.0"]
 
 [project.optional-dependencies]
 voyage = ["voyageai>=0.3.0"]

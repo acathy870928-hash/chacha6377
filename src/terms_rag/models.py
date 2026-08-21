@@ -8,11 +8,13 @@ from typing import Any
 
 @dataclass
 class Line:
-    """PDF 에서 뽑아낸 한 줄. 페이지 번호를 함께 들고 다녀서 인용 근거로 쓴다."""
+    """원본 문서에서 뽑아낸 한 줄. 페이지 번호를 함께 들고 다녀서 인용 근거로 쓴다."""
 
     text: str
     page: int  # 1-based
     page_end: int | None = None  # 여러 줄이 합쳐진 경우 마지막 줄의 페이지
+    heading_level: int | None = None
+    """제목 줄이면 그 깊이(1=H1). HTML/DOCX 로더가 채운다. PDF 는 None."""
 
     def __post_init__(self) -> None:
         if self.page_end is None:
@@ -28,6 +30,8 @@ class TermsDocument:
     source: str  # 원본 파일 경로 (또는 "<text>")
     lines: list[Line]
     page_count: int = 0
+    kind: str = "auto"
+    """"약관"(조문 구조) / "문서"(제목 구조) / "auto"(청킹기가 판별). 청킹 전략이 갈린다."""
 
     @property
     def text(self) -> str:
@@ -52,6 +56,7 @@ class Chunk:
     article_title: str = ""
     paragraph_nos: list[int] = field(default_factory=list)  # 포함된 항 번호 ①②③
     section: str = "본문"  # 본문 | 전문 | 부칙
+    doc_kind: str = "약관"  # 약관 | 문서
 
     # 위치 메타데이터
     page_start: int = 0

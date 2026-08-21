@@ -1,6 +1,6 @@
 """명령줄 인터페이스.
 
-    python -m terms_rag chunk  data/terms/약관.pdf --preview
+    python -m terms_rag chunk  data/terms/약관.pdf --preview      # PDF/HTML/DOCX/TXT
     python -m terms_rag ingest data/terms
     python -m terms_rag export data/terms/약관.pdf > 약관.xml
     python -m terms_rag search "환불은 며칠 안에 되나요?"
@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 from .config import Settings
-from .pipeline import chunk_pdf, export_chunks, ingest
+from .pipeline import chunk_file, export_chunks, ingest
 from .render import FORMATS, count_tokens, estimate_tokens, filter_chunks, render, split_by_tokens
 from .search import answer as generate_answer
 from .search import search as run_search
@@ -29,17 +29,19 @@ def _add_common(parser: argparse.ArgumentParser) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="terms_rag", description="약관 PDF 청킹 · 임베딩 · 검색 파이프라인")
+    parser = argparse.ArgumentParser(prog="terms_rag", description="약관·문서 청킹 · 임베딩 · 검색 파이프라인 (PDF/HTML/DOCX/TXT)")
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_chunk = sub.add_parser("chunk", help="청킹만 수행하고 결과를 확인한다(임베딩 없음)")
-    p_chunk.add_argument("pdf", help="약관 PDF 경로")
+    p_chunk.add_argument("file", help="문서 경로 (PDF / HTML / DOCX / TXT / MD)")
     p_chunk.add_argument("--out", default=None, help="JSONL 로 저장할 경로")
     p_chunk.add_argument("--preview", action="store_true", help="청크 본문을 화면에 출력")
     p_chunk.add_argument("--max-chars", type=int, default=None)
 
     p_ingest = sub.add_parser("ingest", help="PDF 를 청킹·임베딩해 인덱스에 넣는다")
-    p_ingest.add_argument("inputs", nargs="*", default=["data/terms"], help="PDF 파일 또는 디렉터리")
+    p_ingest.add_argument(
+        "inputs", nargs="*", default=["data/terms"], help="문서 파일 또는 디렉터리 (PDF/HTML/DOCX/TXT/MD)"
+    )
     _add_common(p_ingest)
 
     p_search = sub.add_parser("search", help="관련 조항을 검색한다")
@@ -64,7 +66,9 @@ def build_parser() -> argparse.ArgumentParser:
         "export",
         help="청크를 LLM 컨텍스트에 붙일 형태로 내보낸다 (XML/Markdown/텍스트/JSONL)",
     )
-    p_export.add_argument("pdf", nargs="?", default=None, help="약관 PDF. 생략하면 인덱스에서 가져온다")
+    p_export.add_argument(
+        "file", nargs="?", default=None, help="문서 경로. 생략하면 인덱스에서 가져온다"
+    )
     p_export.add_argument("--format", default="xml", choices=list(FORMATS))
     p_export.add_argument("--out", default=None, help="저장 경로 (생략 시 표준출력)")
     p_export.add_argument("--query", default=None, help="관련 조항만 검색해서 내보낸다 (인덱스 필요)")
@@ -111,7 +115,7 @@ def _cmd_chunk(args, settings: Settings) -> int:
     config = settings.chunk
     if args.max_chars:
         config.max_chars = args.max_chars
-    chunks = chunk_pdf(args.pdf, config)
+    chunks = chunk_file(args.file, config)
     lengths = [c.char_len for c in chunks]
     print(f"청크 {len(chunks)}개 · 평균 {sum(lengths)/len(lengths):.0f}자 · 최대 {max(lengths)}자")
 
@@ -210,15 +214,15 @@ def _cmd_export(args, settings: Settings, store_path: str) -> int:
 
 def _export_source(args, settings: Settings, store_path: str):
     """PDF 에서 바로 뽑을지, 인덱스에서 가져올지 결정한다."""
-    if args.pdf and args.query:
-        raise ValueError("--query 는 인덱스에서 검색합니다. PDF 경로와 함께 쓸 수 없습니다.")
-    if args.pdf:
-        return chunk_pdf(args.pdf, settings.chunk)
+    if args.file and args.query:
+        raise ValueError("--query 는 인덱스에서 검색합니다. 문서 경로와 함께 쓸 수 없습니다.")
+    if args.file:
+        return chunk_file(args.file, settings.chunk)
 
     store = VectorStore.load(store_path)
     if not len(store):
         raise ValueError(
-            f"{store_path} 가 비어 있습니다. PDF 경로를 직접 주거나 먼저 `ingest` 를 실행하세요."
+            f"{store_path} 가 비어 있습니다. 문서 경로를 직접 주거나 먼저 `ingest` 를 실행하세요."
         )
     if args.query:
         hits = run_search(args.query, store=store, settings=settings, top_k=args.top_k)

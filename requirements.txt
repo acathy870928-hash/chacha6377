@@ -1,6 +1,7 @@
 # --- 필수 ---
 pypdf>=5.0.0          # PDF 텍스트 추출
 numpy>=1.26           # 벡터 연산 / 로컬 벡터스토어
+python-docx>=1.1.0    # DOCX(Word) 텍스트·표 추출  (HTML 은 표준 라이브러리로 처리)
 
 # --- 임베딩 백엔드 (사용하는 것만 설치) ---
 voyageai>=0.3.0       # EMBEDDING_PROVIDER=voyage (다국어 기본 권장)

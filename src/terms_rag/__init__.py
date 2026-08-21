@@ -4,8 +4,11 @@
 """
 
 from .models import Chunk, Line, TermsDocument
-from .chunker import TermsChunker, ChunkConfig
+from .chunker import TermsChunker, ChunkConfig, detect_kind
+from .loaders import load_document
 from .pdf_loader import load_pdf, load_text
+from .html_loader import load_html
+from .docx_loader import load_docx
 from .store import VectorStore, SearchHit
 
 __all__ = [
@@ -14,8 +17,12 @@ __all__ = [
     "TermsDocument",
     "TermsChunker",
     "ChunkConfig",
+    "load_document",
     "load_pdf",
+    "load_html",
+    "load_docx",
     "load_text",
+    "detect_kind",
     "VectorStore",
     "SearchHit",
 ]

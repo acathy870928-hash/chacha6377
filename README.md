@@ -1,18 +1,46 @@
-# 약관 RAG 파이프라인 (terms-rag)
+# 약관·문서 RAG 파이프라인 (terms-rag)
 
-한국어 **약관 PDF**(이용약관·개인정보처리방침·운영정책 등)를 조문 구조에 맞게 청킹하고,
-임베딩해서 검색하고, 근거를 붙여 답변까지 만드는 파이프라인입니다.
+한국어 **약관**(이용약관·개인정보처리방침 등)과 **일반 문서**(피드백 보고서·가이드 등)를
+문서 구조에 맞게 청킹하고, 임베딩해서 검색하고, 근거를 붙여 답변까지 만드는 파이프라인입니다.
 
 ```
-PDF ─► 텍스트 정제 ─► 구조 기반 청킹 ─► 임베딩 ─► 로컬 벡터스토어 ─► 하이브리드 검색 ─► Claude 답변
-      (머리말 제거)    (장/조/항/호)     (Voyage 등)   (.store)        (벡터+BM25)     (조항 인용)
-                            │
-                            └─► export ─► LLM 컨텍스트에 그대로 붙일 XML/Markdown/텍스트
+PDF/HTML/DOCX ─► 텍스트 정제 ─► 구조 기반 청킹 ─► 임베딩 ─► 벡터스토어 ─► 하이브리드 검색 ─► Claude 답변
+                 (머리말 제거)   약관: 장/조/항/호   (Voyage)   (.store)     (벡터+BM25)     (근거 인용)
+                                문서: H1/H2/H3 절
+                                      │
+                                      └─► export ─► Claude 에 그대로 붙일 XML/Markdown/텍스트
 ```
+
+| 입력 | 형식 | 비고 |
+|---|---|---|
+| `.pdf` | pypdf | 머리말·꼬리말·쪽번호 자동 제거, 페이지 추적 |
+| `.html` `.htm` | 표준 라이브러리 | 제목(h1~h6)·목록·표 인식, script/style 제거 |
+| `.docx` | python-docx | 제목 스타일·목록·표 인식 |
+| `.txt` `.md` | 평문 | |
+
+`.hwp`, 구형 `.doc`, 스캔 이미지 PDF 는 지원하지 않습니다(각각 PDF/`.docx` 변환, OCR 필요).
 
 ---
 
-## 1. 왜 고정 길이 청킹을 쓰지 않는가
+## 1. 문서 종류를 먼저 판별한다
+
+같은 파이프라인을 타지만 청킹 전략은 둘로 갈립니다. `제N조` 헤더가 2개 이상이면 **약관**,
+아니면 **문서**로 보고 자동으로 갈라집니다(`detect_kind`).
+
+| | 약관 모드 | 문서 모드 |
+|---|---|---|
+| 대상 | 이용약관, 개인정보처리방침, 사업방법서 | 피드백 보고서, 가이드, 회의록 |
+| 검색 단위 | 조(條) | 제목(H1~H6) 기준 절 |
+| 경로 표기 | `제2장 이용계약 > 제12조(청약철회 및 환불)` | `2. 핵심 문제점 > 2-2. 특정 상품 약관 편향 참조` |
+| 분할 경계 | 항(①②③) → 문장 | 문단 → 문장 |
+| 특수 처리 | 호·목을 항에 결합, 부칙 분리 | 제목만 있는 절은 하위 절에 접어 넣음, 표는 행 단위 보존 |
+
+홈페이지에 HTML 로 올라간 약관처럼 형식과 내용이 어긋나도, **형식이 아니라 내용의 구조**를
+보고 판단합니다.
+
+---
+
+## 2. 왜 고정 길이 청킹을 쓰지 않는가
 
 약관은 자유 산문이 아니라 **조문**입니다. `제12조(청약철회 및 환불)` 하나가 곧 하나의
 규정이고, 사용자의 질문("환불 며칠 안에 돼요?")에 대한 답도 보통 조 하나 안에 다 들어 있습니다.
@@ -44,7 +72,7 @@ PDF 단계에서는 페이지마다 반복되는 **머리말/꼬리말/쪽번호
 
 ---
 
-## 2. 설치
+## 3. 설치
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
@@ -54,18 +82,19 @@ cp .env.example .env                 # 키와 파라미터 설정
 
 ---
 
-## 3. 빠른 시작
+## 4. 빠른 시작
 
 ```bash
 # (0) 샘플 약관 PDF 만들기 — 실제 약관이 아직 없을 때
 python scripts/make_sample_terms_pdf.py data/terms/sample_terms.pdf
 
-# (1) 청킹 결과부터 눈으로 확인 (임베딩·API 키 불필요)
+# (1) 청킹 결과부터 눈으로 확인 (임베딩·API 키 불필요) — PDF/HTML/DOCX 모두 가능
 python -m terms_rag chunk data/terms/sample_terms.pdf
+python -m terms_rag chunk data/docs/피드백보고서.html
 python -m terms_rag chunk data/terms/sample_terms.pdf --preview --out chunks.jsonl
 
-# (2) 인덱싱 (청킹 + 임베딩 + 저장)
-python -m terms_rag ingest data/terms
+# (2) 인덱싱 (청킹 + 임베딩 + 저장) — 약관과 문서를 한 인덱스에 섞어도 된다
+python -m terms_rag ingest data/terms data/docs
 
 # (3) 검색
 python -m terms_rag search "환불은 며칠 안에 받을 수 있나요?" -k 5
@@ -94,7 +123,7 @@ python -m terms_rag info
 
 ---
 
-## 4. 임베딩 백엔드
+## 5. 임베딩 백엔드
 
 Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 **답변 생성**에만 씁니다).
 임베딩은 `.env` 의 `EMBEDDING_PROVIDER` 로 고릅니다.
@@ -111,7 +140,7 @@ Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 
 
 ---
 
-## 5. 검색 방식 — 벡터 + BM25 하이브리드
+## 6. 검색 방식 — 벡터 + BM25 하이브리드
 
 약관 질의는 순수 벡터 검색만으로는 약합니다. `제12조`, `청약철회`, `지연배상금` 처럼
 **법령 용어와 조 번호가 질문에 그대로 들어오는** 경우가 많기 때문입니다.
@@ -125,7 +154,7 @@ Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 
 
 ---
 
-## 6. 답변 생성
+## 7. 답변 생성
 
 `ask` 는 검색된 조항만 근거로 쓰도록 Claude(`claude-opus-5`)에게 지시하고, 각 주장에 `[1]`, `[2]`
 형식으로 근거 번호를 붙이게 합니다. 발췌로 답할 수 없으면 그렇게 말하도록 되어 있습니다 —
@@ -137,7 +166,7 @@ Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 
 
 ---
 
-## 7. LLM 에 붙여 넣기 (`export`)
+## 8. LLM 에 붙여 넣기 (`export`)
 
 검색·답변을 이 저장소에서 하지 않고 **출력물을 다른 LLM(ChatGPT, Gemini, 사내 모델 등)에
 그대로 붙여 넣고 싶을 때** 쓰는 명령입니다. 청킹 결과를 컨텍스트로 바로 쓸 수 있는 형태로 렌더링합니다.
@@ -208,7 +237,7 @@ tiktoken 류는 Claude 토크나이저가 아니라서 쓰지 않습니다.
 
 ---
 
-## 8. 튜닝
+## 9. 튜닝
 
 `.env` 또는 `ChunkConfig` 로 조정합니다.
 
@@ -225,13 +254,16 @@ tiktoken 류는 Claude 토크나이저가 아니라서 쓰지 않습니다.
 
 ---
 
-## 9. 구조
+## 10. 구조
 
 ```
 src/terms_rag/
   models.py      Chunk / Line / TermsDocument
   pdf_loader.py  PDF → 정제된 라인 (머리말·쪽번호 제거, 페이지 추적)
-  chunker.py     장/조/항/호 파싱과 청킹 규칙          ← 핵심
+  html_loader.py HTML → 라인 (제목/목록/표, 표준 라이브러리만 사용)
+  docx_loader.py DOCX → 라인 (제목 스타일/목록/표)
+  loaders.py     확장자별 디스패처 (load_document)
+  chunker.py     약관(조문) / 문서(제목) 두 청킹 경로   ← 핵심
   embedder.py    Voyage / OpenAI / hash 백엔드
   store.py       로컬 벡터스토어 + BM25 + 하이브리드 융합
   render.py      LLM 컨텍스트용 렌더링(XML/MD/텍스트) + 토큰 계산 + 분할
@@ -239,8 +271,9 @@ src/terms_rag/
   search.py      검색 + 근거 기반 답변
   cli.py         chunk / ingest / search / ask / export / info
 scripts/make_sample_terms_pdf.py   샘플 약관 PDF 생성
-tests/                             111개 테스트
-data/terms/                        약관 PDF 를 여기에 (git 에는 올라가지 않음)
+tests/                             138개 테스트
+data/terms/                        약관 파일 (git 에는 올라가지 않음)
+data/docs/                         그 외 참고 문서 (git 에는 올라가지 않음)
 ```
 
 `.store/` 레이아웃: `vectors.npy`(L2 정규화 float32) + `chunks.jsonl` + `manifest.json`.
@@ -248,19 +281,21 @@ data/terms/                        약관 PDF 를 여기에 (git 에는 올라�
 
 ---
 
-## 10. 테스트
+## 11. 테스트
 
 ```bash
-pytest -q          # 111 passed
+pytest -q          # 138 passed
 ```
 
 청킹 규칙은 `tests/test_chunker.py` 가 사실상의 명세입니다. 청킹 동작을 바꾸려면 여기부터 보세요.
 
 ---
 
-## 11. 한계
+## 12. 한계
 
 - **스캔 이미지 PDF 는 지원하지 않습니다.** 텍스트 레이어가 없으면 OCR(예: `ocrmypdf`)을 먼저 돌려야 합니다.
+- **`.hwp`/`.hwpx`, 구형 `.doc` 은 지원하지 않습니다.** PDF 또는 `.docx` 로 내보낸 뒤 넣으세요.
+- HTML 의 복잡한 중첩 표(셀 병합 등)는 행 단위로 평탄화되면서 구조가 단순해집니다.
 - 2단 조판, 표 안에 든 조항은 pypdf 추출 순서가 뒤섞일 수 있습니다. `chunk` 로 먼저 검수하세요.
 - 줄바꿈으로 끊긴 문장은 어절 단위 개행(HWP/Word 기본)을 가정해 공백을 넣어 잇습니다.
   글자 단위로 개행된 조판에서는 드물게 어절 안에 공백이 생길 수 있습니다.

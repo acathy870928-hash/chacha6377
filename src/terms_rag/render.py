@@ -51,35 +51,44 @@ def _doc_title(chunks: Sequence[Chunk], title: str | None) -> str:
     return titles.pop() if len(titles) == 1 else "약관 모음"
 
 
-XML_GUIDE = """아래 <약관> 안의 조항만 근거로 답하십시오. 없는 내용은 추측하지 말고
-"제공된 약관에서 확인할 수 없습니다" 라고 답하십시오.
-각 주장 뒤에는 근거 조항을 [1], [2] 처럼 번호로 표시하십시오."""
+XML_GUIDE = """아래 <{root}> 안의 내용만 근거로 답하십시오. 없는 내용은 추측하지 말고
+"제공된 자료에서 확인할 수 없습니다" 라고 답하십시오.
+각 주장 뒤에는 근거를 [1], [2] 처럼 번호로 표시하십시오."""
+
+
+def _root_tag(chunks: Sequence[Chunk]) -> tuple[str, str]:
+    """(바깥 태그, 항목 태그). 약관이면 조항, 그 외 문서면 절 단위로 이름을 맞춘다."""
+    return ("약관", "조항") if all(c.doc_kind == "약관" for c in chunks) else ("자료", "내용")
 
 
 def _render_xml(chunks: Sequence[Chunk], *, title: str | None, instructions: bool) -> str:
     """Claude 가 가장 잘 읽는 형태. 태그로 원문 경계를 못 박는다."""
+    root, item = _root_tag(chunks)
     parts: list[str] = []
     if instructions:
-        parts.append(XML_GUIDE)
+        parts.append(XML_GUIDE.format(root=root))
         parts.append("")
-    parts.append(f'<약관 제목="{_esc(_doc_title(chunks, title))}" 조항수="{len(chunks)}">')
+    parts.append(f'<{root} 제목="{_esc(_doc_title(chunks, title))}" 개수="{len(chunks)}">')
     for i, chunk in enumerate(chunks, start=1):
         attrs = [f'번호="{i}"', f'출처="{_esc(chunk.citation)}"']
         if chunk.article_no:
             attrs.append(f'조="{_esc(_article_label(chunk))}"')
+        elif chunk.heading:
+            attrs.append(f'절="{_esc(chunk.heading)}"')
         if chunk.section != "본문":
             attrs.append(f'구분="{_esc(chunk.section)}"')
-        parts.append(f"  <조항 {' '.join(attrs)}>")
+        parts.append(f"  <{item} {' '.join(attrs)}>")
         parts.append(_indent(chunk.text, "    "))
-        parts.append("  </조항>")
-    parts.append("</약관>")
+        parts.append(f"  </{item}>")
+    parts.append(f"</{root}>")
     return "\n".join(parts)
 
 
 def _render_markdown(chunks: Sequence[Chunk], *, title: str | None, instructions: bool) -> str:
     parts: list[str] = []
     if instructions:
-        parts.append(XML_GUIDE.replace("<약관> 안의", "아래"))
+        root, _item = _root_tag(chunks)
+        parts.append(XML_GUIDE.format(root=root).replace(f"아래 <{root}> 안의", "아래"))
         parts.append("")
     parts.append(f"# {_doc_title(chunks, title)}")
     parts.append("")

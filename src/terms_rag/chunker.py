@@ -124,9 +124,13 @@ class _Article:
     chapter_no: int | None
     chapter_title: str
     section: str  # 본문 | 전문 | 부칙
+    heading_path: list[str] | None = None
+    """조문이 아닌 문서에서 쓰는 제목 경로. 있으면 heading 을 이걸로 만든다."""
 
     @property
     def heading(self) -> str:
+        if self.heading_path is not None:
+            return " > ".join(self.heading_path)
         parts = []
         if self.chapter_no is not None:
             parts.append(f"제{self.chapter_no}장 {self.chapter_title}".strip())
@@ -169,13 +173,15 @@ class TermsChunker:
     # -- public ------------------------------------------------------------
 
     def chunk(self, doc: TermsDocument) -> list[Chunk]:
-        lines = self._drop_toc(doc.lines) if self.config.drop_toc else doc.lines
-        articles = self._parse(lines)
+        kind = detect_kind(doc)
+        lines = self._drop_toc(doc.lines) if (self.config.drop_toc and kind == "약관") else doc.lines
+        articles = self._parse(lines) if kind == "약관" else self._parse_generic(lines)
 
         chunks: list[Chunk] = []
         for article in articles:
-            chunks.extend(self._chunk_article(doc, article))
+            chunks.extend(self._chunk_article(doc, article, kind=kind))
 
+        _strip_title_prefix(chunks, doc.title)
         chunks = self._merge_tiny(chunks)
         for order, chunk in enumerate(chunks):
             chunk.order = order
@@ -304,9 +310,57 @@ class TermsChunker:
         flush_article()
         return [a for a in articles if a.header_text or a.blocks]
 
-    # -- 3단계: 조 → 청크 ---------------------------------------------------
+    # -- 2단계(대안): 제목 기반 파싱 ---------------------------------------
 
-    def _chunk_article(self, doc: TermsDocument, article: _Article) -> list[Chunk]:
+    def _parse_generic(self, lines: list[Line]) -> list[_Article]:
+        """조문 구조가 없는 문서(보고서·가이드 등)를 제목(H1~H6) 경계로 나눈다.
+
+        제목 스택을 유지해서 "2. 핵심 문제점 > 2-2. 특정 상품 약관 편향 참조" 같은
+        경로를 만든다. 절 하나가 검색 단위가 되고, 길면 문단 경계에서 쪼갠다.
+        """
+        articles: list[_Article] = []
+        stack: list[tuple[int, str]] = []
+        current: _Article | None = None
+
+        def open_section(header: str, page: int) -> _Article:
+            path = [text for _level, text in stack]
+            return _Article(
+                article_no="",
+                article_title=stack[-1][1] if stack else "",
+                header_text=header,
+                blocks=[],
+                page_start=page,
+                page_end=page,
+                chapter_no=None,
+                chapter_title=stack[0][1] if stack else "",
+                section="본문",
+                heading_path=path,
+            )
+
+        for line in lines:
+            if line.heading_level:
+                if current is not None:
+                    articles.append(current)
+                while stack and stack[-1][0] >= line.heading_level:
+                    stack.pop()
+                stack.append((line.heading_level, line.text))
+                current = open_section(line.text, line.page)
+                continue
+
+            if current is None:
+                current = open_section("", line.page)
+            current.blocks.append(
+                _Block(kind="plain", text=line.text, page_start=line.page, page_end=line.page_end or line.page)
+            )
+            current.page_end = max(current.page_end, line.page_end or line.page)
+
+        if current is not None:
+            articles.append(current)
+        return [a for a in articles if a.header_text or a.blocks]
+
+    # -- 3단계: 조/절 → 청크 -------------------------------------------------
+
+    def _chunk_article(self, doc: TermsDocument, article: _Article, *, kind: str = "약관") -> list[Chunk]:
         cfg = self.config
         header = article.header_text
         body_units = _group_units(article.blocks)
@@ -325,6 +379,7 @@ class TermsChunker:
                     page_start=article.page_start,
                     page_end=article.page_end,
                     paragraph_nos=_paragraph_numbers(body_units),
+                    kind=kind,
                 )
             ]
 
@@ -341,6 +396,7 @@ class TermsChunker:
             buffer_len += unit_len
         if buffer:
             groups.append(buffer)
+        groups = _absorb_runt(groups, header_len=len(header), cfg=cfg)
 
         pieces: list[tuple[str, int, int, list[int]]] = []
         for group in groups:
@@ -367,6 +423,7 @@ class TermsChunker:
                 paragraph_nos=nos,
                 part=idx + 1,
                 part_count=len(pieces),
+                kind=kind,
             )
             for idx, (text, ps, pe, nos) in enumerate(pieces)
         ]
@@ -410,6 +467,7 @@ class TermsChunker:
         paragraph_nos: list[int],
         part: int = 1,
         part_count: int = 1,
+        kind: str = "약관",
     ) -> Chunk:
         return Chunk(
             chunk_id="",  # chunk() 에서 부여
@@ -428,6 +486,7 @@ class TermsChunker:
             page_end=page_end,
             part=part,
             part_count=part_count,
+            doc_kind=kind,
         )
 
     # -- 4단계: 너무 짧은 청크 병합 ----------------------------------------
@@ -440,6 +499,7 @@ class TermsChunker:
         - 다른 조끼리 합치는 것은 기본적으로 하지 않는다(``merge_short_articles``).
         """
         cfg = self.config
+        chunks = self._fold_heading_only(chunks)
         merged: list[Chunk] = []
         for chunk in chunks:
             prev = merged[-1] if merged else None
@@ -447,16 +507,44 @@ class TermsChunker:
                 prev.text = f"{prev.text}\n{chunk.text}"
                 prev.page_end = max(prev.page_end, chunk.page_end)
                 prev.paragraph_nos = prev.paragraph_nos + chunk.paragraph_nos
-                if chunk.heading and chunk.heading != prev.heading:
-                    prev.heading = f"{prev.heading} / {chunk.heading}" if prev.heading else chunk.heading
+                prev.heading = _combine_headings(prev.heading, chunk.heading)
                 continue
             merged.append(chunk)
 
         if cfg.drop_stub_chars:
             merged = [
-                c for c in merged if c.article_no or len(c.text) >= cfg.drop_stub_chars
+                c
+                for c in merged
+                if c.article_no
+                or (c.doc_kind == "문서" and c.heading)
+                or len(c.text) >= cfg.drop_stub_chars
             ]
         return merged
+
+    def _fold_heading_only(self, chunks: list[Chunk]) -> list[Chunk]:
+        """본문 없이 제목만 있는 절을, 바로 뒤의 하위 절 앞머리에 붙인다.
+
+        "4. 원인 분석" 처럼 내용이 전부 하위 절에 있는 상위 제목이 8자짜리
+        쓸모없는 청크로 남는 것을 막는다.
+        """
+        folded: list[Chunk] = []
+        pending: Chunk | None = None
+        for chunk in chunks:
+            if pending is not None:
+                fits = len(pending.text) + len(chunk.text) + 1 <= self.config.max_chars
+                if chunk.heading.startswith(pending.heading) and fits:
+                    chunk.text = f"{pending.text}\n{chunk.text}"
+                    chunk.page_start = min(pending.page_start, chunk.page_start)
+                else:
+                    folded.append(pending)
+                pending = None
+            if _is_heading_only(chunk):
+                pending = chunk
+                continue
+            folded.append(chunk)
+        if pending is not None:
+            folded.append(pending)
+        return folded
 
     def _mergeable(self, prev: Chunk, chunk: Chunk) -> bool:
         cfg = self.config
@@ -465,14 +553,32 @@ class TermsChunker:
         if len(prev.text) + len(chunk.text) + 1 > cfg.max_chars:
             return False
         same_article = bool(chunk.article_no) and prev.article_no == chunk.article_no
-        both_stub = not prev.article_no and not chunk.article_no
-        if same_article or both_stub:
+        same_section = not chunk.article_no and bool(chunk.heading) and prev.heading == chunk.heading
+        both_stub = not prev.article_no and not chunk.article_no and not prev.heading and not chunk.heading
+        # 보고서류는 짧은 하위 절이 많아, 같은 상위 제목 아래에서는 이어 붙인다
+        same_parent = (
+            chunk.doc_kind == "문서" and bool(chunk.chapter_title) and prev.chapter_title == chunk.chapter_title
+        )
+        if same_article or same_section or both_stub or same_parent:
             return True
         return cfg.merge_short_articles and len(prev.text) < cfg.min_chars
 
 # ---------------------------------------------------------------------------
 # 헬퍼
 # ---------------------------------------------------------------------------
+
+
+def detect_kind(doc: TermsDocument, *, min_articles: int = 2) -> str:
+    """조문 구조가 있으면 "약관", 없으면 "문서".
+
+    조 헤더(`제N조`)가 `min_articles` 개 이상이면 약관으로 본다. 홈페이지에 HTML 로
+    올라간 약관도 조문만 제대로 있으면 약관 경로를 탄다. 문서 쪽에서 kind 를
+    명시했으면 그 값을 그대로 따른다.
+    """
+    if doc.kind in {"약관", "문서"}:
+        return doc.kind
+    articles = sum(1 for line in doc.lines if _match_article(line.text))
+    return "약관" if articles >= min_articles else "문서"
 
 
 def _match_article(text: str) -> tuple[str, str, str] | None:
@@ -519,6 +625,40 @@ def _classify(text: str) -> tuple[str, int | None, str]:
     return "plain", None, text
 
 
+def _absorb_runt(groups: list[list[_Block]], *, header_len: int, cfg: ChunkConfig) -> list[list[_Block]]:
+    """min_chars 미만의 자투리 묶음을 이웃에 흡수시킨다.
+
+    ①②③ 을 그리디로 채우면 중간이나 끝에 한 줄짜리 자투리가 남기 쉽다. 자투리는
+    그 자체로 검색되지도 문맥이 되지도 못하므로, 상한을 조금(15%) 넘겨서라도 붙인다.
+    앞 묶음을 우선하고, 안 되면 뒤 묶음에 붙인다.
+    """
+    if len(groups) < 2:
+        return groups
+
+    limit = cfg.max_chars * 1.15
+
+    def size(group: list[_Block]) -> int:
+        return header_len + sum(len(u.text) + 1 for u in group)
+
+    result = list(groups)
+    index = 0
+    while index < len(result):
+        if len(result) < 2 or size(result[index]) - header_len >= cfg.min_chars:
+            index += 1
+            continue
+        prev_ok = index > 0 and size(result[index - 1] + result[index]) <= limit
+        next_ok = index + 1 < len(result) and size(result[index] + result[index + 1]) <= limit
+        if prev_ok:
+            result[index - 1] = result[index - 1] + result[index]
+            del result[index]
+        elif next_ok:
+            result[index + 1] = result[index] + result[index + 1]
+            del result[index]
+        else:
+            index += 1
+    return result
+
+
 def _group_units(blocks: list[_Block]) -> list[_Block]:
     """호/목은 자신이 속한 항에 붙여 하나의 분할 단위로 만든다."""
     units: list[_Block] = []
@@ -539,6 +679,42 @@ def _group_units(blocks: list[_Block]) -> list[_Block]:
             )
         )
     return units
+
+
+def _strip_title_prefix(chunks: list[Chunk], doc_title: str) -> None:
+    """제목 경로 맨 앞이 문서 제목과 같으면 지운다.
+
+    HTML/DOCX 는 본문 첫 H1 이 문서 제목과 같은 경우가 흔해서, 그대로 두면
+    출처가 "피드백 문서 피드백 문서 > 4. ..." 처럼 두 번 찍힌다.
+    """
+    if not doc_title:
+        return
+    prefix = f"{doc_title} > "
+    for chunk in chunks:
+        if chunk.heading == doc_title:
+            chunk.heading = ""
+        elif chunk.heading.startswith(prefix):
+            chunk.heading = chunk.heading[len(prefix) :]
+
+
+def _is_heading_only(chunk: Chunk) -> bool:
+    """본문 없이 제목 줄만 들어 있는 청크인가."""
+    if chunk.doc_kind != "문서" or not chunk.heading:
+        return False
+    return chunk.text.strip() == (chunk.article_title or "").strip()
+
+
+def _combine_headings(left: str, right: str) -> str:
+    """두 청크를 합칠 때 표시할 제목. 한쪽이 다른 쪽의 상위 경로면 상위만 남긴다."""
+    if not left:
+        return right
+    if not right or left == right:
+        return left
+    if right.startswith(left):
+        return left
+    if left.startswith(right):
+        return right
+    return f"{left} / {right}"
 
 
 def _paragraph_numbers(units: list[_Block]) -> list[int]:

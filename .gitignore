@@ -3,7 +3,12 @@ __pycache__/
 .venv/
 .env
 .store/
-data/terms/*.pdf
-!data/terms/.gitkeep
+# 원본 문서는 저장소에 올리지 않는다 (약관·내부 보고서 등)
+data/**/*.pdf
+data/**/*.html
+data/**/*.htm
+data/**/*.docx
+data/**/*.txt
+!data/**/.gitkeep
 .pytest_cache/
 *.egg-info/

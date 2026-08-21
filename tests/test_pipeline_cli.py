@@ -252,3 +252,44 @@ class TestExportCli:
         capsys.readouterr()
         assert main(["search", "면책", "--store", store, "-k", "1", "--format", "xml"]) == 0
         assert "<조항 번호=\"1\"" in capsys.readouterr().out
+
+
+class TestMixedCorpus:
+    """약관 PDF 와 보고서 HTML 을 한 인덱스에 함께 넣는다."""
+
+    @pytest.fixture
+    def corpus(self, sample_pdf, tmp_path):
+        from test_loaders import REPORT_HTML
+
+        folder = tmp_path / "corpus"
+        folder.mkdir()
+        (folder / "terms.pdf").write_bytes(sample_pdf.read_bytes())
+        (folder / "report.html").write_text(REPORT_HTML, encoding="utf-8")
+        (folder / "메모.md").write_text("# 메모\n환불 문의가 늘고 있습니다.", encoding="utf-8")
+        (folder / "무시.png").write_bytes(b"0")
+        return folder
+
+    def test_collects_supported_formats_only(self, corpus):
+        from terms_rag.pipeline import collect_documents
+
+        names = {p.name for p in collect_documents([corpus])}
+        assert names == {"terms.pdf", "report.html", "메모.md"}
+
+    def test_ingest_records_document_kind(self, corpus, tmp_path, settings):
+        store, reports = ingest(
+            [corpus], settings=settings, store_path=tmp_path / "store", embedder=HashEmbedder()
+        )
+        kinds = {r.title: r.kind for r in reports}
+        assert "약관" in kinds.values() and "문서" in kinds.values()
+        assert len(store) == sum(r.chunks for r in reports)
+
+    def test_search_spans_both_document_types(self, corpus, tmp_path, settings):
+        store, _ = ingest([corpus], settings=settings, store_path=tmp_path / "s", embedder=HashEmbedder())
+        hits = search("출처 우선순위", store=store, embedder=HashEmbedder(), settings=settings, top_k=3)
+        assert any(h.chunk.doc_kind == "문서" for h in hits)
+
+    def test_export_uses_generic_tag_for_documents(self, corpus, tmp_path, settings, capsys):
+        assert main(["export", str(corpus / "report.html")]) == 0
+        out = capsys.readouterr().out
+        assert "<자료 " in out and "<내용 " in out
+        assert "절=" in out
