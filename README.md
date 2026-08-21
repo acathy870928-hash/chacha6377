@@ -276,7 +276,7 @@ src/terms_rag/
   search.py      검색 + 근거 기반 답변
   cli.py         chunk / ingest / search / ask / export / info
 scripts/make_sample_terms_pdf.py   샘플 약관 PDF 생성
-tests/                             139개 테스트
+tests/                             143개 테스트
 data/terms/                        약관 파일 (git 에는 올라가지 않음)
 data/docs/                         그 외 참고 문서 (git 에는 올라가지 않음)
 ```
@@ -289,7 +289,7 @@ data/docs/                         그 외 참고 문서 (git 에는 올라가�
 ## 11. 테스트
 
 ```bash
-pytest -q          # 139 passed
+pytest -q          # 143 passed
 ```
 
 약관 청킹 규칙은 `tests/test_chunker.py`, 문서 청킹 규칙은 `tests/test_loaders.py` 가 사실상의
@@ -300,7 +300,16 @@ pytest -q          # 139 passed
 
 ## 12. 한계
 
-- **스캔 이미지 PDF 는 지원하지 않습니다.** 텍스트 레이어가 없으면 OCR(예: `ocrmypdf`)을 먼저 돌려야 합니다.
+- **스캔 이미지 PDF 는 지원하지 않습니다.** 텍스트 레이어가 없으면 OCR 을 먼저 돌려야 합니다.
+  파이프라인이 이를 감지해서 알려 줍니다 — 전체가 스캔이면 OCR 명령과 함께 오류를 내고,
+  **일부 페이지만 스캔이면(별표·부속서류에서 흔함) 경고를 띄웁니다.** 경고를 무시하면 그
+  페이지 내용은 조용히 인덱스에서 빠집니다.
+
+  ```bash
+  # 한국어 OCR (Ubuntu: apt install ocrmypdf tesseract-ocr-kor / macOS: brew install ocrmypdf tesseract-lang)
+  ocrmypdf -l kor --rotate-pages --deskew 약관.pdf 약관_ocr.pdf
+  python -m terms_rag chunk 약관_ocr.pdf
+  ```
 - **`.hwp`/`.hwpx`, 구형 `.doc` 은 지원하지 않습니다.** PDF 또는 `.docx` 로 내보낸 뒤 넣으세요.
 - HTML 의 복잡한 중첩 표(셀 병합 등)는 행 단위로 평탄화되면서 구조가 단순해집니다.
 - 2단 조판, 표 안에 든 조항은 pypdf 추출 순서가 뒤섞일 수 있습니다. `chunk` 로 먼저 검수하세요.

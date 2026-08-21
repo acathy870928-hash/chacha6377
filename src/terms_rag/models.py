@@ -30,6 +30,8 @@ class TermsDocument:
     source: str  # 원본 파일 경로 (또는 "<text>")
     lines: list[Line]
     page_count: int = 0
+    empty_pages: list[int] = field(default_factory=list)
+    """텍스트가 한 줄도 안 나온 페이지 번호. 스캔 이미지 페이지는 여기 잡힌다."""
     kind: str = "auto"
     """"약관"(조문 구조) / "문서"(제목 구조) / "auto"(청킹기가 판별). 청킹 전략이 갈린다."""
 

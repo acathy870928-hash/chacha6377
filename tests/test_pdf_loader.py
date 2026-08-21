@@ -79,3 +79,85 @@ class TestLoadText:
 
     def test_doc_id_is_stable(self):
         assert load_text("제1조(목적) 내용").doc_id == load_text("제1조(목적) 내용").doc_id
+
+
+@pytest.fixture
+def mixed_scan_pdf(tmp_path):
+    """본문은 텍스트, 뒤쪽 두 페이지는 그림만 있는 PDF (실제 약관의 별표·부속서류 패턴)."""
+    pytest.importorskip("reportlab")
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+    from reportlab.pdfgen import canvas
+
+    pdfmetrics.registerFont(UnicodeCIDFont("HYSMyeongJo-Medium"))
+    path = tmp_path / "mixed.pdf"
+    pdf = canvas.Canvas(str(path), pagesize=A4)
+    pdf.setFont("HYSMyeongJo-Medium", 11)
+    pdf.drawString(60, 760, "제1조(목적)")
+    pdf.drawString(60, 740, "이 약관은 보험계약에 관한 사항을 정합니다.")
+    pdf.drawString(60, 720, "제2조(용어의 정의)")
+    pdf.drawString(60, 700, "이 약관에서 사용하는 용어의 뜻은 다음과 같습니다.")
+    pdf.showPage()
+    for _ in range(2):  # 텍스트 없는 '스캔' 페이지
+        pdf.rect(60, 600, 400, 150, fill=0)
+        pdf.showPage()
+    pdf.save()
+    return path
+
+
+@pytest.fixture
+def scan_only_pdf(tmp_path):
+    pytest.importorskip("reportlab")
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+
+    path = tmp_path / "scan.pdf"
+    pdf = canvas.Canvas(str(path), pagesize=A4)
+    for _ in range(3):
+        pdf.rect(60, 600, 400, 150, fill=0)
+        pdf.showPage()
+    pdf.save()
+    return path
+
+
+class TestScanDetection:
+    def test_full_scan_raises_with_ocr_guidance(self, scan_only_pdf):
+        from terms_rag.pdf_loader import load_pdf
+
+        with pytest.raises(ValueError, match="ocrmypdf"):
+            load_pdf(scan_only_pdf)
+
+    def test_partial_scan_is_reported_not_swallowed(self, mixed_scan_pdf):
+        from terms_rag.pdf_loader import load_pdf, scan_warning
+
+        doc = load_pdf(mixed_scan_pdf)
+        assert doc.empty_pages == [2, 3]
+        warning = scan_warning(doc)
+        assert "3페이지 중 2페이지" in warning and "OCR" in warning
+
+    def test_clean_pdf_has_no_warning(self, sample_pdf):
+        from terms_rag.pdf_loader import load_pdf, scan_warning
+
+        doc = load_pdf(sample_pdf)
+        assert doc.empty_pages == []
+        assert scan_warning(doc) == ""
+
+    def test_ingest_surfaces_the_warning(self, mixed_scan_pdf, tmp_path, monkeypatch):
+        from terms_rag.config import Settings
+        from terms_rag.embedder import HashEmbedder
+        from terms_rag.pipeline import ingest
+
+        monkeypatch.setenv("EMBEDDING_PROVIDER", "hash")
+        settings = Settings.from_env(dotenv="/dev/null")
+        messages: list[str] = []
+        _store, reports = ingest(
+            [mixed_scan_pdf],
+            settings=settings,
+            store_path=tmp_path / "store",
+            embedder=HashEmbedder(),
+            progress=messages.append,
+        )
+        assert any("[경고]" in m for m in messages)
+        assert "스캔" in reports[0].warning
+        assert "⚠" in str(reports[0])

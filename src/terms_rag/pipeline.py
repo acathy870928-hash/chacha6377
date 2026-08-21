@@ -12,7 +12,7 @@ from .config import Settings
 from .embedder import Embedder, get_embedder
 from .models import Chunk
 from .loaders import SUFFIXES, load_document
-from .pdf_loader import load_text
+from .pdf_loader import load_text, scan_warning
 from .store import VectorStore
 
 
@@ -26,6 +26,7 @@ class IngestReport:
     avg_chars: float
     max_chars: int
     kind: str = "약관"
+    warning: str = ""
 
     def __str__(self) -> str:
         return (
@@ -33,6 +34,7 @@ class IngestReport:
             f"  문서 ID : {self.doc_id}  [{self.kind}]\n"
             f"  페이지  : {self.pages}\n"
             f"  청크    : {self.chunks}개 (평균 {self.avg_chars:.0f}자, 최대 {self.max_chars}자)"
+            + (f"\n  ⚠ {self.warning}" if self.warning else "")
         )
 
 
@@ -93,6 +95,9 @@ def ingest(
     for path in documents:
         progress(f"[읽는 중] {path}")
         document = load_document(path)
+        warning = scan_warning(document)
+        if warning:
+            progress(f"[경고] {warning}")
         chunks = chunk_document(document, settings.chunk)
         if not chunks:
             progress(f"[건너뜀] {path}: 청크가 생성되지 않았습니다.")
@@ -111,6 +116,7 @@ def ingest(
                 pages=document.page_count,
                 chunks=len(chunks),
                 kind=chunks[0].doc_kind,
+                warning=warning,
                 avg_chars=sum(lengths) / len(lengths),
                 max_chars=max(lengths),
             )

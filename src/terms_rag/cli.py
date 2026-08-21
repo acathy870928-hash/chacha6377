@@ -15,9 +15,12 @@ import sys
 from pathlib import Path
 
 from .config import Settings
+from .loaders import load_document
+from .pdf_loader import scan_warning
 from .pipeline import chunk_file, export_chunks, ingest
 from .render import FORMATS, count_tokens, estimate_tokens, filter_chunks, render, split_by_tokens
 from .search import answer as generate_answer
+from .doc_chunker import chunk_document
 from .search import search as run_search
 from .store import VectorStore
 
@@ -115,7 +118,11 @@ def _cmd_chunk(args, settings: Settings) -> int:
     config = settings.chunk
     if args.max_chars:
         config.max_chars = args.max_chars
-    chunks = chunk_file(args.file, config)
+    document = load_document(args.file)
+    warning = scan_warning(document)
+    if warning:
+        print(f"⚠ {warning}\n", file=sys.stderr)
+    chunks = chunk_document(document, config)
     lengths = [c.char_len for c in chunks]
     print(f"청크 {len(chunks)}개 · 평균 {sum(lengths)/len(lengths):.0f}자 · 최대 {max(lengths)}자")
 

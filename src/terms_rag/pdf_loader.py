@@ -95,6 +95,7 @@ def load_pdf(path: str | Path, *, title: str | None = None) -> TermsDocument:
         raw_pages.append([line for line in lines if line])
 
     pages = _strip_boilerplate(raw_pages)
+    empty_pages = [no for no, lines in enumerate(raw_pages, start=1) if not lines]
 
     doc_lines: list[Line] = []
     for page_no, lines in enumerate(pages, start=1):
@@ -102,7 +103,9 @@ def load_pdf(path: str | Path, *, title: str | None = None) -> TermsDocument:
 
     if not doc_lines:
         raise ValueError(
-            f"{path} 에서 텍스트를 추출하지 못했습니다. 스캔 이미지 PDF 라면 OCR 이 먼저 필요합니다."
+            f"{path.name}: {len(raw_pages)}페이지 전체에서 텍스트를 추출하지 못했습니다. "
+            "텍스트 레이어가 없는 스캔 이미지 PDF 입니다. OCR 을 먼저 돌린 뒤 다시 넣으세요.\n"
+            f"  예) ocrmypdf -l kor --rotate-pages --deskew '{path.name}' '{path.stem}_ocr.pdf'"
         )
 
     doc_title = title or _guess_title(pages, fallback=path.stem)
@@ -112,6 +115,25 @@ def load_pdf(path: str | Path, *, title: str | None = None) -> TermsDocument:
         source=str(path),
         lines=doc_lines,
         page_count=len(pages),
+        empty_pages=empty_pages,
+    )
+
+
+def scan_warning(doc: TermsDocument) -> str:
+    """일부 페이지만 스캔 이미지인 경우의 경고 문구. 문제없으면 빈 문자열.
+
+    실제 약관 PDF 는 본문은 텍스트인데 별표·부속서류만 스캔인 경우가 흔하다.
+    그런 페이지는 조용히 통째로 빠지므로 반드시 알려야 한다.
+    """
+    if not doc.empty_pages or not doc.page_count:
+        return ""
+    ratio = len(doc.empty_pages) / doc.page_count
+    shown = ", ".join(str(p) for p in doc.empty_pages[:10])
+    more = f" 외 {len(doc.empty_pages) - 10}개" if len(doc.empty_pages) > 10 else ""
+    return (
+        f"주의: {doc.page_count}페이지 중 {len(doc.empty_pages)}페이지({ratio:.0%})에서 텍스트가 나오지 않았습니다"
+        f" (p.{shown}{more}). 스캔 이미지 페이지로 보이며, 그 내용은 인덱스에 들어가지 않습니다."
+        " 필요하면 OCR(ocrmypdf -l kor) 후 다시 넣으세요."
     )
 
 
