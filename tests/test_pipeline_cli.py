@@ -199,3 +199,56 @@ class TestAnswer:
         result = search_module.answer("환불", hits, settings=settings)
         assert "3영업일" in result.text
         assert result.sources()[0].startswith("[1] ")
+
+
+class TestExportCli:
+    def test_export_from_pdf_to_stdout(self, sample_pdf, capsys, settings):
+        assert main(["export", str(sample_pdf)]) == 0
+        captured = capsys.readouterr()
+        assert captured.out.strip().endswith("</약관>")
+        assert "토큰" in captured.err  # 통계는 stderr 로 (파이프 오염 방지)
+
+    def test_export_filters_by_article(self, sample_pdf, capsys, settings):
+        assert main(["export", str(sample_pdf), "--article", "12", "--no-instructions"]) == 0
+        out = capsys.readouterr().out
+        assert "제12조(청약철회 및 환불)" in out
+        assert "제1조(목적)" not in out
+        assert "추측하지" not in out
+
+    def test_export_to_file(self, sample_pdf, tmp_path, settings):
+        target = tmp_path / "context.md"
+        assert main(["export", str(sample_pdf), "--format", "markdown", "--out", str(target)]) == 0
+        assert "## [1] " in target.read_text(encoding="utf-8")
+
+    def test_export_splits_by_token_budget(self, sample_pdf, tmp_path, settings):
+        target = tmp_path / "ctx.xml"
+        assert main(["export", str(sample_pdf), "--max-tokens", "800", "--out", str(target)]) == 0
+        parts = sorted(tmp_path.glob("ctx.*.xml"))
+        assert len(parts) > 1
+        assert all(p.read_text(encoding="utf-8").rstrip().endswith("</약관>") for p in parts)
+
+    def test_export_from_index_with_query(self, sample_pdf, tmp_path, capsys, settings):
+        store = str(tmp_path / "store")
+        main(["ingest", str(sample_pdf), "--store", store])
+        capsys.readouterr()
+        assert main(["export", "--query", "청약철회", "-k", "2", "--store", store, "--format", "text"]) == 0
+        assert "제12조" in capsys.readouterr().out
+
+    def test_query_with_pdf_is_rejected(self, sample_pdf, capsys, settings):
+        assert main(["export", str(sample_pdf), "--query", "환불"]) == 1
+        assert "오류" in capsys.readouterr().err
+
+    def test_export_without_index_or_pdf(self, tmp_path, capsys, settings):
+        assert main(["export", "--store", str(tmp_path / "none")]) == 1
+        assert "비어" in capsys.readouterr().err
+
+    def test_empty_filter_is_an_error(self, sample_pdf, capsys, settings):
+        assert main(["export", str(sample_pdf), "--article", "999"]) == 1
+        assert "내보낼 조항이 없습니다" in capsys.readouterr().err
+
+    def test_search_can_emit_llm_format(self, sample_pdf, tmp_path, capsys, settings):
+        store = str(tmp_path / "store")
+        main(["ingest", str(sample_pdf), "--store", store])
+        capsys.readouterr()
+        assert main(["search", "면책", "--store", store, "-k", "1", "--format", "xml"]) == 0
+        assert "<조항 번호=\"1\"" in capsys.readouterr().out

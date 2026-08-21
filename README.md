@@ -6,6 +6,8 @@
 ```
 PDF ─► 텍스트 정제 ─► 구조 기반 청킹 ─► 임베딩 ─► 로컬 벡터스토어 ─► 하이브리드 검색 ─► Claude 답변
       (머리말 제거)    (장/조/항/호)     (Voyage 등)   (.store)        (벡터+BM25)     (조항 인용)
+                            │
+                            └─► export ─► LLM 컨텍스트에 그대로 붙일 XML/Markdown/텍스트
 ```
 
 ---
@@ -71,6 +73,9 @@ python -m terms_rag search "환불은 며칠 안에 받을 수 있나요?" -k 5
 # (4) 근거를 붙인 답변
 python -m terms_rag ask "정기결제를 중간에 해지하면 얼마를 돌려받나요?"
 
+# (5) 다른 LLM 에 붙여 넣을 컨텍스트로 내보내기
+python -m terms_rag export data/terms/sample_terms.pdf > 약관_context.xml
+
 # 인덱스 상태
 python -m terms_rag info
 ```
@@ -132,7 +137,78 @@ Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 
 
 ---
 
-## 7. 튜닝
+## 7. LLM 에 붙여 넣기 (`export`)
+
+검색·답변을 이 저장소에서 하지 않고 **출력물을 다른 LLM(ChatGPT, Gemini, 사내 모델 등)에
+그대로 붙여 넣고 싶을 때** 쓰는 명령입니다. 청킹 결과를 컨텍스트로 바로 쓸 수 있는 형태로 렌더링합니다.
+
+```bash
+# 약관 전체를 XML 로 (기본 형식)
+python -m terms_rag export data/terms/약관.pdf > context.xml
+
+# 필요한 조항만
+python -m terms_rag export data/terms/약관.pdf --article 12 12-2
+python -m terms_rag export data/terms/약관.pdf --chapter 3
+python -m terms_rag export data/terms/약관.pdf --section 부칙
+
+# 인덱스에서 질문 관련 조항만 골라서
+python -m terms_rag export --query "환불 기한" -k 8
+
+# 컨텍스트 한도에 맞춰 여러 개로 쪼개기 (조 경계는 유지)
+python -m terms_rag export data/terms/약관.pdf --max-tokens 30000 --out context.xml
+#   → context.1.xml, context.2.xml ...
+
+# 형식 선택 / 지시문 제거 / 토큰 실측
+python -m terms_rag export data/terms/약관.pdf --format markdown --no-instructions
+python -m terms_rag export data/terms/약관.pdf --exact-tokens
+
+# 검색 결과를 바로 붙여넣기 형태로
+python -m terms_rag search "면책" -k 3 --format xml | pbcopy
+```
+
+출력 예시(XML):
+
+```xml
+아래 <약관> 안의 조항만 근거로 답하십시오. 없는 내용은 추측하지 말고
+"제공된 약관에서 확인할 수 없습니다" 라고 답하십시오.
+각 주장 뒤에는 근거 조항을 [1], [2] 처럼 번호로 표시하십시오.
+
+<약관 제목="차차 서비스 이용약관" 조항수="12">
+  <조항 번호="6" 출처="차차 서비스 이용약관 제3장 유료서비스와 결제 &gt; 제12조(청약철회 및 환불), p.2" 조="제12조(청약철회 및 환불)">
+    제12조(청약철회 및 환불)
+    ① 회원은 유료서비스 결제일로부터 7일 이내에 청약을 철회할 수 있습니다. ...
+    ② 회사는 청약철회의 의사표시를 받은 날부터 3영업일 이내에 이미 지급받은 대금을 환급합니다.
+  </조항>
+</약관>
+```
+
+**왜 이렇게 생겼나**
+
+| 요소 | 이유 |
+|---|---|
+| `<약관>` 태그로 감쌈 | 어디부터 어디까지가 약관 원문인지 모델이 헷갈리지 않는다. 사용자 질문과 원문이 섞이는 사고를 막는다 |
+| 조항마다 `번호` | 모델이 `[1]`, `[2]` 로 짧게 인용할 수 있어 답변을 검증할 수 있다 |
+| 조항마다 `출처` | "제12조 제2항에 따르면" 같은 인용이 나온다. 페이지까지 들어 있어 원문 대조가 쉽다 |
+| 조 단위 유지 | 조가 잘려 들어가면 모델도 답을 못 찾는다 |
+| 상단 지시문 | 발췌에 없는 내용을 지어내지 않게 한다. `--no-instructions` 로 끌 수 있다 |
+
+| 형식 | 언제 |
+|---|---|
+| `xml` (기본) | Claude 등 대부분의 LLM 컨텍스트. 경계가 가장 분명함 |
+| `markdown` | 사람도 같이 읽는 문서, 노션/위키 붙여넣기 |
+| `text` | 태그를 싫어하는 모델, 단순 붙여넣기 |
+| `jsonl` | 다른 파이프라인에 넘길 때 |
+
+> 본문은 **표준출력**, 통계(조항 수·글자 수·토큰 수)는 **표준에러**로 나갑니다.
+> 그래서 `> context.xml` 이나 `| pbcopy` 로 바로 넘겨도 결과가 오염되지 않습니다.
+
+토큰 수는 기본적으로 글자 수 기반 추정치(한국어 1자 ≈ 1토큰으로 넉넉하게)이고,
+`--exact-tokens` 를 주면 Claude 의 `count_tokens` 로 실측합니다(API 키 필요).
+tiktoken 류는 Claude 토크나이저가 아니라서 쓰지 않습니다.
+
+---
+
+## 8. 튜닝
 
 `.env` 또는 `ChunkConfig` 로 조정합니다.
 
@@ -149,7 +225,7 @@ Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 
 
 ---
 
-## 8. 구조
+## 9. 구조
 
 ```
 src/terms_rag/
@@ -158,11 +234,12 @@ src/terms_rag/
   chunker.py     장/조/항/호 파싱과 청킹 규칙          ← 핵심
   embedder.py    Voyage / OpenAI / hash 백엔드
   store.py       로컬 벡터스토어 + BM25 + 하이브리드 융합
+  render.py      LLM 컨텍스트용 렌더링(XML/MD/텍스트) + 토큰 계산 + 분할
   pipeline.py    ingest (PDF → 청킹 → 임베딩 → 저장)
   search.py      검색 + 근거 기반 답변
-  cli.py         chunk / ingest / search / ask / info
+  cli.py         chunk / ingest / search / ask / export / info
 scripts/make_sample_terms_pdf.py   샘플 약관 PDF 생성
-tests/                             82개 테스트
+tests/                             111개 테스트
 data/terms/                        약관 PDF 를 여기에 (git 에는 올라가지 않음)
 ```
 
@@ -171,17 +248,17 @@ data/terms/                        약관 PDF 를 여기에 (git 에는 올라�
 
 ---
 
-## 9. 테스트
+## 10. 테스트
 
 ```bash
-pytest -q          # 82 passed
+pytest -q          # 111 passed
 ```
 
 청킹 규칙은 `tests/test_chunker.py` 가 사실상의 명세입니다. 청킹 동작을 바꾸려면 여기부터 보세요.
 
 ---
 
-## 10. 한계
+## 11. 한계
 
 - **스캔 이미지 PDF 는 지원하지 않습니다.** 텍스트 레이어가 없으면 OCR(예: `ocrmypdf`)을 먼저 돌려야 합니다.
 - 2단 조판, 표 안에 든 조항은 pypdf 추출 순서가 뒤섞일 수 있습니다. `chunk` 로 먼저 검수하세요.
