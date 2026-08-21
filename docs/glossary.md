@@ -123,8 +123,12 @@ MediCode AI (엔진)
 
 | 용어 | 대상 | 표준 정의 문장 |
 | --- | --- | --- |
-| **iFA AI** | 설계사·FA 등 전문가 | iFA AI는 설계사 옆에 앉은 보험 전문가로, 전문가를 대체하지 않고 증강합니다. |
-| **Insurance AI** | 고객 | Insurance AI는 모든 사람이 갖게 되는 보험전문가 수준의 AI로, 내 보험을 이해시키고 평생 함께 관리합니다. |
+| **iNSURANCE AI** | 고객 (B2C) · 보험사·GA (B2B) | iNSURANCE AI는 모든 사람이 갖게 되는 보험전문가 수준의 AI로, 내 보험을 이해시키고 평생 함께 관리합니다. |
+| **iFA AI** | 설계사·FA 등 전문가 | iFA AI는 설계사 옆에 앉은 보험 전문가로, 전문가를 대체하지 않고 증강합니다. *(아이에프에이 내부)* |
+
+**iNSURANCE AI 표기** — 소문자 `i` + 대문자 `NSURANCE AI`. 문장 첫머리에 와도 그대로 씁니다.
+❌ Insurance AI / insurance AI / INSURANCE AI / iNSURANCE Ai / 인슈어런스AI
+전문 페르소나 4인(MediCode·VFA·HopePlan·Legacy Plan) 구성: [insurance-ai/personas.md](insurance-ai/personas.md)
 
 두 페르소나는 [Manifesto](manifesto.md)와 [Charter](charter.md)를 **공유**합니다.
 상세: [`persona/`](persona/)
@@ -171,7 +175,8 @@ MediCode AI (엔진)
 | 회사(국문) | 아이에프에이 | 아이에프에이(주), iFA사 |
 | 플랫폼 | iFA 클라우드 | iFA Cloud, 클라우드 |
 | FA용 AI | ORCA Ai | Orca AI, 오르카 |
-| 고객용 AI | Ai Link *(표기 확정 필요)* | AI Link와 혼용 |
+| 고객용 AI(신설) | **iNSURANCE AI** | Insurance AI, INSURANCE AI, 인슈어런스AI |
+| 고객용 AI(내부) | Ai Link | AI Link와 혼용 |
 | 데이터 | Micky DATA / Veluga DATA / BumE_F DATA / BumE_C DATA / Cloud DATA / My DATA / External MCP | VELUGA, micky data |
 
 ---
@@ -212,7 +217,7 @@ MediCode AI (엔진)
 ### Specialized AI 4종
 | 서비스 | 축 | 역할 |
 | --- | --- | --- |
-| **MediCode** | If (Protection) | 건강검진·유전자 분석 기반 AI 보장설계 |
+| **MediCode** | If (Protection) | 건강검진·유전자 분석 기반 AI 보장설계 (질병 발생 가능성 예측 포함) |
 | **VFA** | When (Retirement) | 변액보험·변액연금 수익률 관리 |
 | **HopePlan** | When (Retirement) | AI 기반 은퇴·연금 설계 |
 | **Legacy Plan** | When (Legacy) | AI 기반 상속·자산승계 설계 |
@@ -237,4 +242,6 @@ MediCode AI (엔진)
   "질병을 예측합니다"보다 **"질병 발생 가능성을 예측합니다"** 가 표준 표기입니다. (원문 정의 문장 그대로)
 - **인수·지급 심사와의 구분** — 메디코드 보험설계는 *설계* 방법론입니다.
   보험사의 인수(언더라이팅)나 지급 심사 결과를 대신 판단하지 않습니다. (Charter 제6조)
-- 법무·컴플라이언스 검토 시 위 세 항목을 함께 확인하시길 권합니다.
+- **명칭 단일화** — 「AI 질병예측」을 별도 서비스명으로 쓰지 않습니다.
+  질병 발생 가능성 예측은 메디코드 보험설계의 분석 단계이며, 고객에게는 **메디코드 하나의 이름**으로 전달합니다.
+- 법무·컴플라이언스 검토 시 위 항목을 함께 확인하시길 권합니다.

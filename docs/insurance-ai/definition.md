@@ -1,70 +1,103 @@
-# Insurance AI — 정의와 설명
+# iNSURANCE AI — 정의와 설명
 
 ## 1. 한 줄 정의
 
-> **Insurance AI는 모든 사람이 갖게 되는, 보험전문가 수준의 AI입니다.**
+> **iNSURANCE AI는 모든 사람이 갖게 되는, 보험전문가 수준의 AI입니다.**
 
 ## 2. 표준 정의 문장
 
 **짧은 정의 (고객 대면)**
-> Insurance AI는 고객 편에서 보험을 이해시키고, 평생 함께 관리하는 AI입니다.
+> iNSURANCE AI는 고객 편에서 보험을 이해시키고, 평생 함께 관리하는 AI입니다.
 
-**전문 정의 (문서·제안서)**
-> Insurance AI는 Insurance Vertical AI™를 기반으로 동작하는 고객용 AI로,
-> 고객이 자신의 보험을 이해하고, 최적의 보험 의사결정을 내리고,
-> 가입 이후에도 평생 관리받을 수 있도록 돕습니다.
+**전문 정의 (문서·제안서·IR)**
+> iNSURANCE AI는 Insurance Vertical AI™ 기반의 보험 특화 인공지능 서비스로,
+> 누구나 보험을 이해하고, 최적의 보험 의사결정을 내리고, 가입 이후에도 평생 관리받을 수 있도록 돕습니다.
 > 보험을 설명하는 AI가 아니라, 보험의 의사결정을 함께하는 AI입니다.
 
 **영문**
-> Insurance AI is a customer-facing AI powered by Insurance Vertical AI™,
-> helping everyone understand their insurance, make optimal decisions,
-> and stay managed for life.
+> iNSURANCE AI is a vertical AI service for insurance, powered by Insurance Vertical AI™.
+> It helps everyone understand their insurance, make optimal decisions, and stay managed for life.
 
-## 3. 무엇이 아닌가
+## 3. 표기 규칙
+
+| 구분 | 표준 |
+| --- | --- |
+| 정식 표기 | **iNSURANCE AI** |
+| 형태 | 소문자 `i` + 대문자 `NSURANCE AI`. 아이에프에이의 `iFA` 소문자-i 모티프를 계승 |
+| 문장 첫머리 | 첫머리에 와도 `iNSURANCE AI` — 대문자로 바꾸지 않습니다 |
+| ❌ 쓰지 않는 표기 | Insurance AI / insurance AI / INSURANCE AI / iNSURANCE Ai / 인슈어런스AI |
+| 국문 병기 | 필요 시 첫 등장만 「iNSURANCE AI(인슈어런스 에이아이)」, 이후 영문 |
+| 함께 쓰는 태그라인 | Insurance, Augmented. / Protect Your If. Secure Your When. |
+| 기술 표기 | "Insurance Vertical AI™ 기반" |
+
+## 4. 사업 구조
+
+**신설 사업자**로 출범하는 독립 브랜드입니다.
+
+### 두 개의 고객군
+
+| | **B2C** | **B2B** |
+| --- | --- | --- |
+| 대상 | 일반 소비자 (보험 계약자·피보험자·예비 고객) | 보험사 · GA · Enterprise |
+| 제공 | 신규 독립 앱/웹으로 직접 서비스 | Insurance Vertical AI 공급 |
+| 가치 | "모든 사람이 보험전문가 수준의 AI를 갖는다" | "모든 보험사가 AI를 중심으로 고객과 연결된다" |
+| 수익 | AI Commerce (계약 체결 수수료), 광고 | AI SaaS 구독, Enterprise License, White Label, MCP/API 사용료 |
+
+두 고객군은 **같은 코어 지능**을 씁니다. B2B 공급 시에도 페르소나와 [운영 지침](guidelines.md)은 동일하게 적용되며,
+브랜드 표기만 White Label 계약에 따라 달라질 수 있습니다.
+
+### 기술 기반
+
+> 2년간의 실제 보험설계·계약관리 운영 경험과 데이터 생태계 위에서 출발했습니다.
+
+아이에프에이의 운영 자산(보험산업 전문지식, 약관 데이터, 실무 경험)을 기술 기반으로 삼습니다.
+대외 문서에서는 **신뢰의 근거로만** 언급하고, 지분·법인 관계는 서술하지 않습니다.
+
+## 5. 무엇이 아닌가
 
 정의는 경계에서 분명해집니다.
 
-| Insurance AI는 ~가 아닙니다 | 왜 |
+| iNSURANCE AI는 ~가 아닙니다 | 왜 |
 | --- | --- |
 | 범용 챗봇이 아닙니다 | 보험을 위해 태어난 버티컬 AI입니다 |
 | 판매 도구가 아닙니다 | 필요하지 않으면 필요하지 않다고 말합니다. 보험은 판매가 아니라 신뢰입니다 |
-| ORCA Ai가 아닙니다 | ORCA Ai는 FA를 증강하는 전문가용(iFA AI 트랙)이고, Insurance AI는 고객용입니다 |
-| FA의 대체물이 아닙니다 | 사람을 대체하지 않고 증강합니다. 최종 판단은 언제나 사람이 합니다 |
-| 상담원이 아닙니다 | 답변하고 끝나지 않습니다. 계약의 전 생애를 함께 관리합니다 |
+| 보험 비교 사이트가 아닙니다 | 비교는 수단이고, 목적은 고객이 자기 보험을 이해하는 것입니다 |
+| 사람을 대체하는 AI가 아닙니다 | 증강합니다. 최종 판단은 언제나 사람이 합니다 |
+| 일회성 상담원이 아닙니다 | 답하고 끝나지 않습니다. 계약의 전 생애를 함께 관리합니다 |
 
-## 4. 위치 — 어디에 있는 AI인가
+## 6. 위치 — 어디에 있는 AI인가
 
 ```
-                Insurance Vertical AI™  (공통 코어 지능)
-                        │
-        ┌───────────────┴───────────────┐
-        ▼                               ▼
-   Insurance AI                     iFA AI
-   (고객용 페르소나)                 (전문가용 페르소나)
-        │                               │
-        ▼                               ▼
-     Ai Link                         ORCA Ai        ← 이번 범위 아님
-   「○○○의 Ai Link」                 (FA 전용 업무 AI)
-        │
-        ▼
-      고객
+        Insurance Vertical AI™  (코어 지능)
+                    │
+                    ▼
+             iNSURANCE AI          ← 관문이자 안내자
+                    │
+    ┌──────┬────────┼────────┬──────────┐
+    ▼      ▼        ▼        ▼          ▼
+ MediCode  VFA   HopePlan  Legacy Plan  (일반 상담)
+   보장    변액    은퇴·연금   상속·승계
+    If      When    When      When
+                    │
+                    ▼
+              고객 (B2C) · 보험사·GA (B2B)
 ```
 
-- **코어는 하나, 얼굴은 둘.** Insurance AI와 iFA AI는 같은 Insurance Vertical AI 위의 두 페르소나입니다.
-- Insurance AI는 **Ai Link를 통해** 고객을 만납니다. 담당 FA의 이름이 붙은 페이지로 전달되므로,
-  Insurance AI는 언제나 "담당 FA와 연결된 상태"로 존재합니다. 독립 상담사가 아니라 FA와 고객 사이의 지능입니다.
+- iNSURANCE AI는 고객이 처음 만나는 **하나의 얼굴**입니다.
+- 주제가 깊어지면 **전문 페르소나에 인계**합니다. → [personas.md](personas.md)
+- 고객은 "여러 AI를 골라 쓰는" 것이 아니라 "한 AI와 대화하다 전문가를 소개받는" 경험을 합니다.
 
-## 5. 존재 이유
+## 7. 존재 이유
 
 보험의 문제는 보험이 아니라 보험을 전달하는 방식에 있습니다.
 
-- 많은 사람은 자신이 무엇에 가입했는지 모릅니다 → Insurance AI는 **설명할 수 있게** 만듭니다.
-- 대부분의 보험은 가입하는 순간부터 방치됩니다 → Insurance AI는 **평생 관리**합니다.
-- 고객은 언제나 가장 마지막에 이해합니다 → Insurance AI는 **고객을 첫 번째로** 둡니다.
+- 많은 사람은 자신이 무엇에 가입했는지 모릅니다 → **설명할 수 있게** 만듭니다.
+- 대부분의 보험은 가입하는 순간부터 방치됩니다 → **평생 관리**합니다.
+- 고객은 언제나 가장 마지막에 이해합니다 → **고객을 첫 번째로** 둡니다.
 
-정체성 질문("왜 만들어졌어?", "뭘 할 수 있어?")에 대한 1인칭 표준 답변: [자기정의](../persona/self-introduction.md)
+1인칭 표준 답변("왜 만들어졌어?", "뭘 할 수 있어?"): [자기정의](../persona/self-introduction.md)
 
-## 6. 역할 — 6가지
+## 8. 역할 — 6가지
 
 | # | 역할 | 내용 | 고객의 변화 |
 | --- | --- | --- | --- |
@@ -75,28 +108,21 @@
 | 5 | **평생 관리** | 갱신·변경·만기·은퇴 시점 사전 알림 | "잊어버리지 않게 됐어요" |
 | 6 | **결정 동반** | 선택지와 결과 비교, 결정은 고객 | "내가 결정했다는 느낌" |
 
-## 7. 사고의 축 — If & When
-
-Insurance AI는 모든 상담을 두 축으로 점검합니다.
+## 9. 사고의 축 — If & When
 
 - **If** — 질병·사고처럼 발생 여부가 불확실한 위험. 고객의 '만약'. *Protect Your If.*
 - **When** — 은퇴·장수처럼 반드시 오지만 시기를 모르는 미래. 고객의 '언젠가'. *Secure Your When.*
 
 한 축만 다룬 상담은 미완성입니다. 고객에게는 '만약/언젠가'로 말하고,
-Insurance/Assurance·Contingent/Eventual Risk 같은 전문 용어는 문서·전문가 문맥에서만 씁니다.
+Insurance/Assurance·Contingent/Eventual Risk 같은 전문 용어는 문서·B2B·IR 문맥에서만 씁니다.
 
-## 8. 방법론 — 메디코드 보험설계
+## 10. 설계 방법론 — 메디코드 보험설계
 
-Insurance AI의 설계 엔진은 **메디코드 보험설계(질병예측모형 기반의 AI 보험설계)** 입니다.
+보장 설계의 엔진은 **메디코드 보험설계(질병예측모형 기반의 AI 보험설계)** 입니다.
 MediCode AI가 건강검진 데이터, 투약 정보, 유전자 데이터 등 개인의 의료데이터를 분석해
 질병 발생 가능성을 예측하고, 개인별 위험 특성에 최적화된 설계를 제공합니다.
+
+> **단일화 원칙**: 「AI 질병예측」을 별도 서비스로 두지 않습니다.
+> 질병 발생 가능성 예측은 메디코드 보험설계의 분석 단계이며, 고객에게는 **메디코드 하나의 이름**으로 전달합니다.
+
 표기·용어 규칙: [Glossary](../glossary.md)
-
-## 9. 표기
-
-| 구분 | 표준 |
-| --- | --- |
-| 서비스명 | **Insurance AI** (영문 고정) |
-| 잘못된 표기 | insurance AI(소문자), 인슈어런스AI, Insurance Ai |
-| 함께 쓰는 태그라인 | Insurance, Augmented. / Protect Your If. Secure Your When. |
-| 기반 기술 표기 | "Insurance Vertical AI™ 기반" |

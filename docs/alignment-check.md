@@ -201,7 +201,35 @@ Ai Link 맞춤 분석 서비스 3종: 메디코드 보험설계 / VFA / **AI 질
 
 ---
 
-## 결정 요청 항목 요약
+---
+
+# ✅ 확정 (2026-08-21)
+
+대표님 결정으로 다음이 확정되었습니다. 관련 항목은 종료합니다.
+
+| # | 항목 | 확정 내용 | 반영 |
+| --- | --- | --- | --- |
+| — | **iNSURANCE AI 신설** | 신설 사업자로 출범하는 독립 브랜드. B2C + B2B | [insurance-ai/](insurance-ai/) |
+| — | 채널 | 신규 독립 앱/웹 (Ai Link 탑재 아님) | definition·layers |
+| 6 | 표기 | **iNSURANCE AI** (소문자 i, iFA 모티프 계승) | Glossary, 전 문서 |
+| 4 | 질병예측 ↔ 메디코드 | **메디코드로 단일화.** 「AI 질병예측」 별도 서비스 폐지 | Glossary, services |
+| 9 | HopePlan·Legacy Plan | **독립 페르소나로 정의**, 개발 중으로 구분 표기 | personas.md |
+| 1 | Specialized AI vs Agent | **페르소나(고객 가치) / 에이전트(시스템 업무)** 로 분리. 직교 관계 명시 | layers.md 3항 |
+| 2 | ORCA Ai | 아이에프에이 **내부 서비스**. iNSURANCE AI 문서에서 다루지 않음 | insurance-ai/README |
+| 7 | 페르소나 명칭 | iNSURANCE AI + 전문 4인. 인계 구조 | personas.md |
+| 5 | Insurance/Assurance | 고객에게는 만약/언젠가, 문서·B2B·IR에서만 전문 용어 | definition 9항 |
+| — | 아이에프에이 관계 | **기술 기반으로만 언급.** 지분·법인 관계 서술 없음 | insurance-ai/README |
+
+## 남은 결정 (기존 자산 정리용, 우선순위 낮음)
+
+| # | 항목 | 비고 |
+| --- | --- | --- |
+| 3 | 데이터 명칭 표준화 (BumE_F/C 누락, Veluga 대소문자) | 내부 자료 정리 시 |
+| 10 | Today/Tomorrow/Future 배지 | IR·제안서 작성 시 적용 |
+
+---
+
+## (참고) 원 결정 요청 항목 요약
 
 | # | 항목 | 권장안 | 영향 범위 |
 | --- | --- | --- | --- |
