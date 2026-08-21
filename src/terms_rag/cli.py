@@ -17,6 +17,7 @@ from pathlib import Path
 
 from .config import Settings
 from .loaders import load_document
+from .metadata import read_meta
 from .ocr import available_backends, needs_ocr, run_ocr
 from .pdf_loader import scan_warning
 from .pipeline import chunk_file, export_chunks, ingest
@@ -31,6 +32,16 @@ BAR = "─" * 72
 
 def _add_common(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--store", default=None, help="벡터스토어 경로 (기본: .store)")
+
+
+def _add_filters(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--insurer", default=None, help="보험사로 한정 (예: 현대해상)")
+    parser.add_argument("--product", default=None, help="상품코드로 한정 (예: HI0908)")
+    parser.add_argument("--as-of", default=None, help="그 날짜에 유효한 약관만 (예: 2009-09-01)")
+    parser.add_argument(
+        "--no-auto-insurer", action="store_true",
+        help="질문 속 보험사명을 자동으로 우선하지 않는다",
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -65,12 +76,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_search.add_argument(
         "--format", default=None, choices=list(FORMATS), help="검색 결과를 LLM 에 붙일 형태로 출력"
     )
+    _add_filters(p_search)
     _add_common(p_search)
 
     p_ask = sub.add_parser("ask", help="검색 결과를 근거로 Claude 가 답변한다")
     p_ask.add_argument("query")
     p_ask.add_argument("-k", "--top-k", type=int, default=5)
     p_ask.add_argument("--doc", default=None)
+    _add_filters(p_ask)
     _add_common(p_ask)
 
     p_export = sub.add_parser(
@@ -90,6 +103,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_export.add_argument("--max-tokens", type=int, default=None, help="이 토큰 수에 맞춰 여러 개로 나눈다")
     p_export.add_argument("--no-instructions", action="store_true", help="상단 지시문 없이 원문만")
     p_export.add_argument("--exact-tokens", action="store_true", help="Claude API 로 토큰 수를 실측한다")
+    _add_filters(p_export)
     _add_common(p_export)
 
     p_ocr = sub.add_parser("ocr", help="스캔 PDF 를 OCR 해서 텍스트로 만든다 (청킹 전처리)")
@@ -104,6 +118,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_ocr.add_argument("--out-dir", default=None, help="결과를 저장할 디렉터리 (기본: 원본과 같은 위치)")
     p_ocr.add_argument("--check", action="store_true", help="OCR 필요 여부만 확인하고 끝낸다")
     p_ocr.add_argument("--chunk", action="store_true", help="OCR 후 청킹 결과까지 보여준다")
+
+    p_meta = sub.add_parser("meta", help="파일명·사이드카에서 뽑은 문서 메타데이터를 본다")
+    p_meta.add_argument("file", help="문서 경로")
+    p_meta.add_argument("--json", action="store_true", help="JSON 으로 출력")
 
     p_info = sub.add_parser("info", help="인덱스 상태를 본다")
     _add_common(p_info)
@@ -125,6 +143,8 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_search(args, settings, store_path)
         if args.command == "ask":
             return _cmd_ask(args, settings, store_path)
+        if args.command == "meta":
+            return _cmd_meta(args)
         if args.command == "ocr":
             return _cmd_ocr(args, settings)
         if args.command == "export":
@@ -190,6 +210,7 @@ def _cmd_search(args, settings: Settings, store_path: str) -> int:
         doc_id=args.doc,
         section=args.section,
         lexical_only=args.lexical_only,
+        **_filters(args),
     )
     if not hits:
         print("검색 결과가 없습니다.")
@@ -208,7 +229,9 @@ def _cmd_search(args, settings: Settings, store_path: str) -> int:
 
 def _cmd_ask(args, settings: Settings, store_path: str) -> int:
     store = VectorStore.load(store_path)
-    hits = run_search(args.query, store=store, settings=settings, top_k=args.top_k, doc_id=args.doc)
+    hits = run_search(
+        args.query, store=store, settings=settings, top_k=args.top_k, doc_id=args.doc, **_filters(args)
+    )
     result = generate_answer(args.query, hits, settings=settings)
     print(result.text)
     if result.hits:
@@ -216,6 +239,28 @@ def _cmd_ask(args, settings: Settings, store_path: str) -> int:
         for line in result.sources():
             print(f"  {line}")
     return 1 if result.refused else 0
+
+
+def _filters(args) -> dict:
+    return {
+        "insurer": getattr(args, "insurer", None),
+        "product_code": getattr(args, "product", None),
+        "as_of": getattr(args, "as_of", None),
+        "auto_insurer": not getattr(args, "no_auto_insurer", False),
+    }
+
+
+def _cmd_meta(args) -> int:
+    meta = read_meta(args.file)
+    if args.json:
+        import json
+
+        print(json.dumps({"document": meta.to_dict()}, ensure_ascii=False, indent=2))
+        return 0
+    print(Path(args.file).name)
+    body = str(meta)
+    print(body if body else "  (메타데이터를 찾지 못했습니다 — 파일명 규칙을 확인하거나 .meta.json 을 두세요)")
+    return 0
 
 
 def _cmd_ocr(args, settings: Settings) -> int:
@@ -300,7 +345,9 @@ def _export_source(args, settings: Settings, store_path: str):
             f"{store_path} 가 비어 있습니다. 문서 경로를 직접 주거나 먼저 `ingest` 를 실행하세요."
         )
     if args.query:
-        hits = run_search(args.query, store=store, settings=settings, top_k=args.top_k)
+        hits = run_search(
+            args.query, store=store, settings=settings, top_k=args.top_k, **_filters(args)
+        )
         return [hit.chunk for hit in hits]
     return store.chunks
 
@@ -335,9 +382,15 @@ def _cmd_info(store_path: str) -> int:
     print(f"임베딩     : {manifest.get('provider')}/{manifest.get('model')} (dim={manifest.get('dim')})")
     print(f"청크 수    : {len(store)}")
     print(f"갱신 시각  : {manifest.get('updated_at')}")
+    insurers = store.insurers()
+    if insurers:
+        print(f"보험사     : {', '.join(insurers)}")
     print("문서")
     for doc in store.documents():
-        print(f"  - {doc['title']}  [{doc['doc_id']}]  청크 {doc['chunks']}개  ({doc['source']})")
+        identity = " ".join(p for p in (doc.get("insurer"), doc.get("product")) if p)
+        head = f"{identity} — {doc['title']}" if identity else doc["title"]
+        period = f"  시행 {doc['effective']}" if doc.get("effective") else ""
+        print(f"  - {head}  [{doc['doc_id']}]  청크 {doc['chunks']}개{period}")
     return 0
 
 

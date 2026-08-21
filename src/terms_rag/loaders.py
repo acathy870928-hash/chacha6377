@@ -16,6 +16,7 @@ from pathlib import Path
 
 from .docx_loader import load_docx
 from .html_loader import load_html
+from .metadata import read_meta
 from .models import TermsDocument
 from .ocr import OCR_SUFFIX, load_ocr_text
 from .pdf_loader import load_pdf, load_text
@@ -24,7 +25,13 @@ SUFFIXES = {".pdf", ".html", ".htm", ".docx", ".txt", ".md"}
 
 
 def load_document(path: str | Path, *, title: str | None = None) -> TermsDocument:
-    """확장자를 보고 알맞은 로더로 넘긴다."""
+    """확장자를 보고 알맞은 로더로 넘기고, 문서 메타데이터를 붙인다."""
+    document = _load(path, title=title)
+    document.meta = read_meta(path).to_dict()
+    return document
+
+
+def _load(path: str | Path, *, title: str | None = None) -> TermsDocument:
     path = Path(path)
     suffix = path.suffix.lower()
 

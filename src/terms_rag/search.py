@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 from .config import Settings
 from .embedder import Embedder, get_embedder
+from .metadata import detect_insurers
 from .store import SearchHit, VectorStore
 
 SYSTEM_PROMPT = """당신은 약관 해석을 돕는 어시스턴트입니다.
@@ -44,11 +45,21 @@ def search(
     top_k: int = 5,
     doc_id: str | None = None,
     section: str | None = None,
+    insurer: str | None = None,
+    product_code: str | None = None,
+    as_of: str | None = None,
+    auto_insurer: bool = True,
+    boost: float = 0.5,
     lexical_only: bool = False,
     alpha: float = 0.5,
     fusion: str = "score",
 ) -> list[SearchHit]:
-    """질의에 해당하는 약관 조항을 찾는다."""
+    """질의에 해당하는 조항을 찾는다.
+
+    `auto_insurer` 가 켜져 있으면 질문에서 보험사명을 찾아 그 회사 자료를 위로 올린다.
+    "흥국화재 암보험…" 이라고 물었는데 삼성생명 자료가 먼저 나오는 문제를 막기 위한 것이다.
+    보험사가 둘 이상 언급되면(비교 질문) 아무것도 밀어 올리지 않는다.
+    """
     if not len(store):
         raise ValueError("벡터스토어가 비어 있습니다. 먼저 `ingest` 를 실행하세요.")
 
@@ -64,12 +75,23 @@ def search(
             )
         query_vector = embedder.embed_query(query)
 
+    boost_insurer = None
+    if auto_insurer and not insurer:
+        mentioned = detect_insurers(query)
+        if len(mentioned) == 1:
+            boost_insurer = mentioned[0]
+
     return store.search(
         query_vector,
         query_text=query,
         top_k=top_k,
         doc_id=doc_id,
         section=section,
+        insurer=insurer,
+        product_code=product_code,
+        as_of=as_of,
+        boost_insurer=boost_insurer,
+        boost=boost,
         alpha=alpha,
         fusion=fusion,
     )

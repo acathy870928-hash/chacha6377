@@ -20,6 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .chunker import RE_SENT_SPLIT, ChunkConfig, _join, _match_article
+from .metadata import DocumentMeta, apply_to_chunks
 from .models import Chunk, Line, TermsDocument
 
 
@@ -352,12 +353,17 @@ def _combine_headings(left: str, right: str) -> str:
 
 
 def chunk_document(doc: TermsDocument, config: ChunkConfig | None = None) -> list[Chunk]:
-    """문서 종류를 판별해 알맞은 청킹기로 넘긴다.
+    """문서 종류를 판별해 알맞은 청킹기로 넘기고, 문서 신원을 찍는다.
 
     약관이면 `chunker.TermsChunker`(원본 그대로), 아니면 `DocumentChunker`.
     """
     if detect_kind(doc) == "약관":
         from .chunker import TermsChunker
 
-        return TermsChunker(config).chunk(doc)
-    return DocumentChunker(config).chunk(doc)
+        chunks = TermsChunker(config).chunk(doc)
+    else:
+        chunks = DocumentChunker(config).chunk(doc)
+
+    if doc.meta:
+        apply_to_chunks(chunks, DocumentMeta.from_dict(doc.meta))
+    return chunks

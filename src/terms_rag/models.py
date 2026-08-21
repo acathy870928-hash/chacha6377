@@ -30,6 +30,8 @@ class TermsDocument:
     source: str  # 원본 파일 경로 (또는 "<text>")
     lines: list[Line]
     page_count: int = 0
+    meta: dict[str, Any] = field(default_factory=dict)
+    """보험사·상품·시행일 등 문서 신원 (metadata.DocumentMeta.to_dict())."""
     empty_pages: list[int] = field(default_factory=list)
     """텍스트가 한 줄도 안 나온 페이지 번호. 스캔 이미지 페이지는 여기 잡힌다."""
     kind: str = "auto"
@@ -60,6 +62,14 @@ class Chunk:
     section: str = "본문"  # 본문 | 전문 | 부칙
     doc_kind: str = "약관"  # 약관 | 문서
 
+    # 문서 신원 — 보험사/상품 필터링과 인용에 쓴다
+    insurer: str = ""
+    product_name: str = ""
+    product_code: str = ""
+    document_type: str = ""
+    effective_from: str = ""
+    effective_to: str = ""
+
     # 위치 메타데이터
     page_start: int = 0
     page_end: int = 0
@@ -73,19 +83,29 @@ class Chunk:
             self.char_len = len(self.text)
 
     @property
+    def identity(self) -> str:
+        """보험사·상품 표기. 메타데이터가 없으면 빈 문자열."""
+        parts = [p for p in (self.insurer, self.product_name) if p]
+        label = " ".join(parts)
+        if self.product_code and self.product_code not in label:
+            label = f"{label}({self.product_code})" if label else self.product_code
+        return label
+
+    @property
     def embed_text(self) -> str:
-        """임베딩할 문자열. 제목 경로를 앞에 붙여 맥락을 보존한다."""
-        prefix_parts = [p for p in (self.doc_title, self.heading) if p]
-        prefix = " | ".join(prefix_parts)
+        """임베딩할 문자열. 보험사·상품·제목 경로를 앞에 붙여 맥락을 보존한다."""
+        prefix_parts = [p for p in (self.identity, self.doc_title, self.heading) if p]
+        prefix = " | ".join(dict.fromkeys(prefix_parts))
         return f"{prefix}\n{self.text}" if prefix else self.text
 
     @property
     def citation(self) -> str:
-        """답변에 붙일 짧은 출처 표기."""
+        """답변에 붙일 짧은 출처 표기. 보험사·상품이 있으면 맨 앞에 둔다."""
         loc = f"p.{self.page_start}" if self.page_start == self.page_end else f"p.{self.page_start}-{self.page_end}"
         head = self.heading or self.section
         tail = f" ({self.part}/{self.part_count})" if self.part_count > 1 else ""
-        return f"{self.doc_title} {head}{tail}, {loc}"
+        title = self.identity or self.doc_title
+        return f"{title} {head}{tail}, {loc}"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

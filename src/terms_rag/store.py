@@ -165,10 +165,23 @@ class VectorStore:
         for chunk in self.chunks:
             entry = seen.setdefault(
                 chunk.doc_id,
-                {"doc_id": chunk.doc_id, "title": chunk.doc_title, "source": chunk.source, "chunks": 0},
+                {
+                    "doc_id": chunk.doc_id,
+                    "title": chunk.doc_title,
+                    "source": chunk.source,
+                    "chunks": 0,
+                    "insurer": chunk.insurer,
+                    "product": chunk.product_name,
+                    "product_code": chunk.product_code,
+                    "effective": f"{chunk.effective_from}~{chunk.effective_to}".strip("~"),
+                },
             )
             entry["chunks"] += 1
         return list(seen.values())
+
+    def insurers(self) -> list[str]:
+        """인덱스에 들어 있는 보험사 목록."""
+        return sorted({c.insurer for c in self.chunks if c.insurer})
 
     # -- 검색 --------------------------------------------------------------
 
@@ -180,6 +193,11 @@ class VectorStore:
         top_k: int = 5,
         doc_id: str | None = None,
         section: str | None = None,
+        insurer: str | None = None,
+        product_code: str | None = None,
+        as_of: str | None = None,
+        boost_insurer: str | None = None,
+        boost: float = 0.5,
         alpha: float = 0.5,
         fusion: str = "score",
         rrf_k: int = 60,
@@ -192,6 +210,11 @@ class VectorStore:
             "제12조", "청약철회" 같은 강한 어휘 매칭을 놓치지 않는다.
           - ``"rrf"``: 순위만 사용하는 Reciprocal Rank Fusion. 점수 분포가
             이상한 임베딩을 쓸 때 더 안정적이다.
+
+        보험사 처리가 둘로 나뉜다.
+          - ``insurer``: 하드 필터. 그 보험사 문서만 본다.
+          - ``boost_insurer``: 소프트 가산점. 질문에 보험사명이 있으면 그 회사 자료를
+            위로 올리되, 다른 회사 자료를 완전히 지우지는 않는다(비교 질문 대비).
         """
         if not self.chunks:
             return []
@@ -203,6 +226,13 @@ class VectorStore:
             mask &= np.array([c.doc_id == doc_id for c in self.chunks])
         if section:
             mask &= np.array([c.section == section for c in self.chunks])
+        if insurer:
+            mask &= np.array([c.insurer == insurer for c in self.chunks])
+        if product_code:
+            code = product_code.upper()
+            mask &= np.array([c.product_code.upper() == code for c in self.chunks])
+        if as_of:
+            mask &= np.array([_effective_on(c, as_of) for c in self.chunks])
         candidates = np.flatnonzero(mask)
         if candidates.size == 0:
             return []
@@ -246,6 +276,12 @@ class VectorStore:
         else:
             raise ValueError(f"알 수 없는 fusion: {fusion!r} (score | rrf)")
 
+        if boost_insurer and boost:
+            fused = [
+                (idx, score + boost if self.chunks[idx].insurer == boost_insurer else score)
+                for idx, score in fused
+            ]
+
         fused.sort(key=lambda pair: (-pair[1], pair[0]))
         return [
             SearchHit(
@@ -265,6 +301,16 @@ class VectorStore:
 
     def __len__(self) -> int:
         return len(self.chunks)
+
+
+def _effective_on(chunk: Chunk, when: str) -> bool:
+    """그 시점에 유효한 문서인가. 시행일 정보가 없으면 배제하지 않는다."""
+    start, end = chunk.effective_from, chunk.effective_to
+    if start and when < start:
+        return False
+    if end and when > end:
+        return False
+    return True
 
 
 def _normalize(matrix: np.ndarray) -> np.ndarray:

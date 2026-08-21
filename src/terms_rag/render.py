@@ -71,6 +71,12 @@ def _render_xml(chunks: Sequence[Chunk], *, title: str | None, instructions: boo
     parts.append(f'<{root} 제목="{_esc(_doc_title(chunks, title))}" 개수="{len(chunks)}">')
     for i, chunk in enumerate(chunks, start=1):
         attrs = [f'번호="{i}"', f'출처="{_esc(chunk.citation)}"']
+        if chunk.insurer:
+            attrs.append(f'보험사="{_esc(chunk.insurer)}"')
+        if chunk.product_name:
+            attrs.append(f'상품="{_esc(chunk.product_name)}"')
+        if chunk.effective_from:
+            attrs.append(f'시행="{_esc(chunk.effective_from)}"')
         if chunk.article_no:
             attrs.append(f'조="{_esc(_article_label(chunk))}"')
         elif chunk.heading:
