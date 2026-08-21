@@ -1,34 +1,38 @@
-# iNSURANCE AI — 정의와 설명
+# insurance AI — 정의와 설명
 
 ## 1. 한 줄 정의
 
-> **iNSURANCE AI는 모든 사람이 갖게 되는, 보험전문가 수준의 AI입니다.**
+> **insurance AI는 모든 사람이 갖게 되는, 보험전문가 수준의 AI입니다.**
 
 ## 2. 표준 정의 문장
 
 **짧은 정의 (고객 대면)**
-> iNSURANCE AI는 고객 편에서 보험을 이해시키고, 평생 함께 관리하는 AI입니다.
+> insurance AI는 고객 편에서 보험을 이해시키고, 평생 함께 관리하는 AI입니다.
 
 **전문 정의 (문서·제안서·IR)**
-> iNSURANCE AI는 Insurance Vertical AI™ 기반의 보험 특화 인공지능 서비스로,
+> insurance AI는 Insurance Vertical AI™ 기반의 보험 특화 인공지능 서비스로,
 > 누구나 보험을 이해하고, 최적의 보험 의사결정을 내리고, 가입 이후에도 평생 관리받을 수 있도록 돕습니다.
 > 보험을 설명하는 AI가 아니라, 보험의 의사결정을 함께하는 AI입니다.
 
 **영문**
-> iNSURANCE AI is a vertical AI service for insurance, powered by Insurance Vertical AI™.
+> insurance AI is a vertical AI service for insurance, powered by Insurance Vertical AI™.
 > It helps everyone understand their insurance, make optimal decisions, and stay managed for life.
 
 ## 3. 표기 규칙
 
 | 구분 | 표준 |
 | --- | --- |
-| 정식 표기 | **iNSURANCE AI** |
-| 형태 | 소문자 `i` + 대문자 `NSURANCE AI`. 아이에프에이의 `iFA` 소문자-i 모티프를 계승 |
-| 문장 첫머리 | 첫머리에 와도 `iNSURANCE AI` — 대문자로 바꾸지 않습니다 |
-| ❌ 쓰지 않는 표기 | Insurance AI / insurance AI / INSURANCE AI / iNSURANCE Ai / 인슈어런스AI |
-| 국문 병기 | 필요 시 첫 등장만 「iNSURANCE AI(인슈어런스 에이아이)」, 이후 영문 |
+| 정식 표기 | **insurance AI** |
+| 형태 | 소문자 `insurance` + 대문자 `AI` |
+| 문장 첫머리 | 첫머리에 와도 `insurance AI` — 대문자로 바꾸지 않습니다 |
+| ❌ 쓰지 않는 표기 | Insurance AI / INSURANCE AI / iNSURANCE AI / insurance Ai / 인슈어런스AI |
+| 국문 병기 | 필요 시 첫 등장만 「insurance AI(인슈어런스 에이아이)」, 이후 영문 |
 | 함께 쓰는 태그라인 | Insurance, Augmented. / Protect Your If. Secure Your When. |
 | 기술 표기 | "Insurance Vertical AI™ 기반" |
+
+> **주의**: 자동 대문자 변환(워드·PPT의 문장 첫 글자 대문자화, CSS `text-transform`)이
+> 브랜드 표기를 훼손하는 가장 흔한 지점입니다. 템플릿에서 해당 기능을 꺼 두십시오.
+> 보통명사 '보험(insurance)'과 구분이 필요한 문맥에서는 굵게 또는 브랜드 서체로 표기합니다.
 
 ## 4. 사업 구조
 
@@ -46,18 +50,21 @@
 두 고객군은 **같은 코어 지능**을 씁니다. B2B 공급 시에도 페르소나와 [운영 지침](guidelines.md)은 동일하게 적용되며,
 브랜드 표기만 White Label 계약에 따라 달라질 수 있습니다.
 
-### 기술 기반
+### 아이에프에이와의 관계
 
-> 2년간의 실제 보험설계·계약관리 운영 경험과 데이터 생태계 위에서 출발했습니다.
+**insurance AI는 아이에프에이(iFA AI & Co.)의 자회사입니다.**
 
-아이에프에이의 운영 자산(보험산업 전문지식, 약관 데이터, 실무 경험)을 기술 기반으로 삼습니다.
-대외 문서에서는 **신뢰의 근거로만** 언급하고, 지분·법인 관계는 서술하지 않습니다.
+- 모회사의 운영 자산 — 보험산업 전문지식, 약관 데이터, 2년간의 실제 보험설계·계약관리 경험,
+  보험사·GA 데이터 생태계 — 을 그대로 기술 기반으로 삼습니다.
+- 표준 문장: *"insurance AI는 아이에프에이(iFA AI & Co.)의 자회사로, 2년간의 실제 보험설계·계약관리
+  운영 경험과 데이터 생태계 위에서 출발했습니다."*
+- 모회사의 내부 서비스(ORCA Ai, Ai Link)는 insurance AI의 제품 범위에 포함되지 않습니다.
 
 ## 5. 무엇이 아닌가
 
 정의는 경계에서 분명해집니다.
 
-| iNSURANCE AI는 ~가 아닙니다 | 왜 |
+| insurance AI는 ~가 아닙니다 | 왜 |
 | --- | --- |
 | 범용 챗봇이 아닙니다 | 보험을 위해 태어난 버티컬 AI입니다 |
 | 판매 도구가 아닙니다 | 필요하지 않으면 필요하지 않다고 말합니다. 보험은 판매가 아니라 신뢰입니다 |
@@ -71,7 +78,7 @@
         Insurance Vertical AI™  (코어 지능)
                     │
                     ▼
-             iNSURANCE AI          ← 관문이자 안내자
+             insurance AI          ← 관문이자 안내자
                     │
     ┌──────┬────────┼────────┬──────────┐
     ▼      ▼        ▼        ▼          ▼
@@ -83,7 +90,7 @@
               고객 (B2C) · 보험사·GA (B2B)
 ```
 
-- iNSURANCE AI는 고객이 처음 만나는 **하나의 얼굴**입니다.
+- insurance AI는 고객이 처음 만나는 **하나의 얼굴**입니다.
 - 주제가 깊어지면 **전문 페르소나에 인계**합니다. → [personas.md](personas.md)
 - 고객은 "여러 AI를 골라 쓰는" 것이 아니라 "한 AI와 대화하다 전문가를 소개받는" 경험을 합니다.
 

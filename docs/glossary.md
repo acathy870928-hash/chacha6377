@@ -123,11 +123,11 @@ MediCode AI (엔진)
 
 | 용어 | 대상 | 표준 정의 문장 |
 | --- | --- | --- |
-| **iNSURANCE AI** | 고객 (B2C) · 보험사·GA (B2B) | iNSURANCE AI는 모든 사람이 갖게 되는 보험전문가 수준의 AI로, 내 보험을 이해시키고 평생 함께 관리합니다. |
+| **insurance AI** | 고객 (B2C) · 보험사·GA (B2B) | insurance AI는 모든 사람이 갖게 되는 보험전문가 수준의 AI로, 내 보험을 이해시키고 평생 함께 관리합니다. |
 | **iFA AI** | 설계사·FA 등 전문가 | iFA AI는 설계사 옆에 앉은 보험 전문가로, 전문가를 대체하지 않고 증강합니다. *(아이에프에이 내부)* |
 
-**iNSURANCE AI 표기** — 소문자 `i` + 대문자 `NSURANCE AI`. 문장 첫머리에 와도 그대로 씁니다.
-❌ Insurance AI / insurance AI / INSURANCE AI / iNSURANCE Ai / 인슈어런스AI
+**insurance AI 표기** — 소문자 `insurance` + 대문자 `AI`. 문장 첫머리에 와도 그대로 씁니다.
+❌ Insurance AI / INSURANCE AI / iNSURANCE AI / insurance Ai / 인슈어런스AI
 전문 페르소나 4인(MediCode·VFA·HopePlan·Legacy Plan) 구성: [insurance-ai/personas.md](insurance-ai/personas.md)
 
 두 페르소나는 [Manifesto](manifesto.md)와 [Charter](charter.md)를 **공유**합니다.
@@ -175,7 +175,7 @@ MediCode AI (엔진)
 | 회사(국문) | 아이에프에이 | 아이에프에이(주), iFA사 |
 | 플랫폼 | iFA 클라우드 | iFA Cloud, 클라우드 |
 | FA용 AI | ORCA Ai | Orca AI, 오르카 |
-| 고객용 AI(신설) | **iNSURANCE AI** | Insurance AI, INSURANCE AI, 인슈어런스AI |
+| 자회사 서비스 | **insurance AI** | Insurance AI, INSURANCE AI, iNSURANCE AI, 인슈어런스AI |
 | 고객용 AI(내부) | Ai Link | AI Link와 혼용 |
 | 데이터 | Micky DATA / Veluga DATA / BumE_F DATA / BumE_C DATA / Cloud DATA / My DATA / External MCP | VELUGA, micky data |
 
