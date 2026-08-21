@@ -1,5 +1,6 @@
 """명령줄 인터페이스.
 
+    python -m terms_rag ocr    data/terms/스캔약관.pdf --check     # OCR 필요 여부 확인
     python -m terms_rag chunk  data/terms/약관.pdf --preview      # PDF/HTML/DOCX/TXT
     python -m terms_rag ingest data/terms
     python -m terms_rag export data/terms/약관.pdf > 약관.xml
@@ -16,6 +17,7 @@ from pathlib import Path
 
 from .config import Settings
 from .loaders import load_document
+from .ocr import available_backends, needs_ocr, run_ocr
 from .pdf_loader import scan_warning
 from .pipeline import chunk_file, export_chunks, ingest
 from .render import FORMATS, count_tokens, estimate_tokens, filter_chunks, render, split_by_tokens
@@ -45,6 +47,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_ingest.add_argument(
         "inputs", nargs="*", default=["data/terms"], help="문서 파일 또는 디렉터리 (PDF/HTML/DOCX/TXT/MD)"
     )
+    p_ingest.add_argument(
+        "--ocr", default="off", choices=["off", "auto"],
+        help="auto 면 스캔 페이지가 있는 PDF 를 자동으로 OCR 한다",
+    )
+    p_ingest.add_argument("--ocr-backend", default="auto", choices=["auto", "ocrmypdf", "tesseract", "claude"])
+    p_ingest.add_argument("--ocr-lang", default="kor+eng")
     _add_common(p_ingest)
 
     p_search = sub.add_parser("search", help="관련 조항을 검색한다")
@@ -84,6 +92,19 @@ def build_parser() -> argparse.ArgumentParser:
     p_export.add_argument("--exact-tokens", action="store_true", help="Claude API 로 토큰 수를 실측한다")
     _add_common(p_export)
 
+    p_ocr = sub.add_parser("ocr", help="스캔 PDF 를 OCR 해서 텍스트로 만든다 (청킹 전처리)")
+    p_ocr.add_argument("pdf", help="스캔 PDF 경로")
+    p_ocr.add_argument(
+        "--backend", default="auto", choices=["auto", "ocrmypdf", "tesseract", "claude"],
+        help="auto 면 쓸 수 있는 것 중 가장 좋은 것을 고른다",
+    )
+    p_ocr.add_argument("--lang", default="kor+eng", help="tesseract 언어 코드 (기본 kor+eng)")
+    p_ocr.add_argument("--pages", default=None, help='페이지 범위 (예: "1-50" 또는 "1-10,20")')
+    p_ocr.add_argument("--dpi", type=int, default=300, help="tesseract 백엔드의 렌더링 해상도")
+    p_ocr.add_argument("--out-dir", default=None, help="결과를 저장할 디렉터리 (기본: 원본과 같은 위치)")
+    p_ocr.add_argument("--check", action="store_true", help="OCR 필요 여부만 확인하고 끝낸다")
+    p_ocr.add_argument("--chunk", action="store_true", help="OCR 후 청킹 결과까지 보여준다")
+
     p_info = sub.add_parser("info", help="인덱스 상태를 본다")
     _add_common(p_info)
 
@@ -104,6 +125,8 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_search(args, settings, store_path)
         if args.command == "ask":
             return _cmd_ask(args, settings, store_path)
+        if args.command == "ocr":
+            return _cmd_ocr(args, settings)
         if args.command == "export":
             return _cmd_export(args, settings, store_path)
         if args.command == "info":
@@ -142,7 +165,15 @@ def _cmd_chunk(args, settings: Settings) -> int:
 
 
 def _cmd_ingest(args, settings: Settings, store_path: str) -> int:
-    _, reports = ingest(args.inputs, settings=settings, store_path=store_path, progress=print)
+    _, reports = ingest(
+        args.inputs,
+        settings=settings,
+        store_path=store_path,
+        ocr=args.ocr,
+        ocr_backend=args.ocr_backend,
+        ocr_lang=args.ocr_lang,
+        progress=print,
+    )
     print(BAR)
     for report in reports:
         print(report)
@@ -185,6 +216,43 @@ def _cmd_ask(args, settings: Settings, store_path: str) -> int:
         for line in result.sources():
             print(f"  {line}")
     return 1 if result.refused else 0
+
+
+def _cmd_ocr(args, settings: Settings) -> int:
+    need = needs_ocr(args.pdf)
+    print(need)
+
+    if not need.needed:
+        print("OCR 없이 바로 청킹할 수 있습니다: python -m terms_rag chunk " + args.pdf)
+        return 0
+
+    backends = available_backends(api_key=settings.anthropic_api_key)
+    print(f"사용 가능한 백엔드: {', '.join(backends) if backends else '없음'}")
+    if args.check:
+        return 0
+
+    result = run_ocr(
+        args.pdf,
+        backend=args.backend,
+        lang=args.lang,
+        pages=args.pages,
+        dpi=args.dpi,
+        out_dir=args.out_dir,
+        api_key=settings.anthropic_api_key,
+        model=settings.answer_model,
+        progress=print,
+    )
+    print(result)
+
+    if args.chunk:
+        chunks = chunk_file(result.text_path, settings.chunk)
+        lengths = [c.char_len for c in chunks] or [0]
+        print(f"\n청크 {len(chunks)}개 · 평균 {sum(lengths) / len(lengths):.0f}자 · 최대 {max(lengths)}자")
+        for chunk in chunks[:20]:
+            print(f"[{chunk.order:>4}] {chunk.char_len:>5}자  {chunk.citation}")
+    else:
+        print(f"\n다음 단계: python -m terms_rag chunk {result.text_path}")
+    return 0
 
 
 def _cmd_export(args, settings: Settings, store_path: str) -> int:

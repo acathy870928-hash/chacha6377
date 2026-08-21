@@ -12,6 +12,7 @@ from .config import Settings
 from .embedder import Embedder, get_embedder
 from .models import Chunk
 from .loaders import SUFFIXES, load_document
+from .ocr import needs_ocr, run_ocr
 from .pdf_loader import load_text, scan_warning
 from .store import VectorStore
 
@@ -77,6 +78,9 @@ def ingest(
     settings: Settings | None = None,
     store_path: str | Path | None = None,
     embedder: Embedder | None = None,
+    ocr: str = "off",
+    ocr_backend: str = "auto",
+    ocr_lang: str = "kor+eng",
     progress: Callable[[str], None] = lambda _msg: None,
 ) -> tuple[VectorStore, list[IngestReport]]:
     """PDF 들을 청킹·임베딩해 벡터스토어에 넣는다. 같은 문서를 다시 넣으면 교체된다."""
@@ -94,6 +98,8 @@ def ingest(
 
     for path in documents:
         progress(f"[읽는 중] {path}")
+        if ocr == "auto" and path.suffix.lower() == ".pdf":
+            path = _maybe_ocr(path, backend=ocr_backend, lang=ocr_lang, settings=settings, progress=progress)
         document = load_document(path)
         warning = scan_warning(document)
         if warning:
@@ -125,6 +131,24 @@ def ingest(
     store.save()
     progress(f"[저장] {store.path} (총 청크 {len(store)}개)")
     return store, reports
+
+
+def _maybe_ocr(path: Path, *, backend: str, lang: str, settings: Settings, progress) -> Path:
+    """스캔 페이지가 있으면 OCR 해서 그 결과 경로를 돌려준다. 아니면 원본 그대로."""
+    need = needs_ocr(path)
+    if not need.needed:
+        return path
+    progress(f"[OCR 필요] {need}")
+    result = run_ocr(
+        path,
+        backend=backend,
+        lang=lang,
+        api_key=settings.anthropic_api_key,
+        model=settings.answer_model,
+        progress=progress,
+    )
+    progress(f"[OCR] {result}")
+    return result.text_path
 
 
 def export_chunks(chunks: Iterable[Chunk], path: str | Path) -> Path:

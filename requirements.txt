@@ -10,6 +10,12 @@ openai>=1.40.0        # EMBEDDING_PROVIDER=openai
 # --- 답변 생성(RAG의 G) ---
 anthropic>=0.40.0     # Claude 로 근거 기반 답변 생성
 
+# --- OCR (스캔 PDF 전처리, 선택) ---
+# 시스템 패키지가 필요합니다. 셋 중 하나만 있으면 됩니다.
+#   ocrmypdf  : apt install ocrmypdf tesseract-ocr-kor   (권장)
+#   tesseract : apt install tesseract-ocr tesseract-ocr-kor poppler-utils
+#   claude    : 위 anthropic 패키지 + ANTHROPIC_API_KEY (시스템 도구 불필요)
+
 # --- 개발/테스트 ---
 pytest>=8.0
 reportlab>=4.0        # 샘플 약관 PDF 생성용 (scripts/make_sample_terms_pdf.py)

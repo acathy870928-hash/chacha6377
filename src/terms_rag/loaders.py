@@ -4,7 +4,7 @@
   - ``.pdf``            PDF (pypdf)
   - ``.html`` / ``.htm``  HTML (표준 라이브러리)
   - ``.docx``           Word (python-docx)
-  - ``.txt`` / ``.md``    평문
+  - ``.txt`` / ``.md``    평문 (``.ocr.txt`` 는 OCR 결과로 인식해 쪽번호를 살린다)
 
 약관(조문 구조)이든 보고서(제목 구조)든 같은 경로로 들어오고,
 어느 쪽인지는 청킹 단계에서 판별한다.
@@ -17,6 +17,7 @@ from pathlib import Path
 from .docx_loader import load_docx
 from .html_loader import load_html
 from .models import TermsDocument
+from .ocr import OCR_SUFFIX, load_ocr_text
 from .pdf_loader import load_pdf, load_text
 
 SUFFIXES = {".pdf", ".html", ".htm", ".docx", ".txt", ".md"}
@@ -27,6 +28,9 @@ def load_document(path: str | Path, *, title: str | None = None) -> TermsDocumen
     path = Path(path)
     suffix = path.suffix.lower()
 
+    # OCR 결과는 페이지 표지를 갖고 있어서 일반 텍스트와 다르게 읽는다
+    if path.name.lower().endswith(OCR_SUFFIX):
+        return load_ocr_text(path, title=title)
     if suffix == ".pdf":
         return load_pdf(path, title=title)
     if suffix in {".html", ".htm"}:

@@ -4,12 +4,20 @@
 문서 구조에 맞게 청킹하고, 임베딩해서 검색하고, 근거를 붙여 답변까지 만드는 파이프라인입니다.
 
 ```
-PDF/HTML/DOCX ─► 텍스트 정제 ─► 구조 기반 청킹 ─► 임베딩 ─► 벡터스토어 ─► 하이브리드 검색 ─► Claude 답변
-                 (머리말 제거)   약관: 장/조/항/호   (Voyage)   (.store)     (벡터+BM25)     (근거 인용)
-                                문서: H1/H2/H3 절
-                                      │
-                                      └─► export ─► Claude 에 그대로 붙일 XML/Markdown/텍스트
+PDF/HTML/DOCX ─► [OCR] ─► 텍스트 정제 ─► 구조 기반 청킹 ─► 임베딩 ─► 벡터스토어 ─► 검색 ─► Claude 답변
+                 스캔일     (머리말 제거)  약관: 장/조/항/호  (Voyage)   (.store)   (벡터+BM25)  (근거 인용)
+                 때만                    문서: H1/H2/H3 절
+                                              │
+                                              └─► export ─► Claude 에 붙일 XML/Markdown/텍스트
 ```
+
+전처리(OCR)와 청킹은 **서로 다른 모듈**이고 서로를 import 하지 않습니다.
+
+| 단계 | 모듈 | 역할 |
+|---|---|---|
+| OCR | `ocr.py` | 스캔 페이지만 골라 텍스트로. 백엔드 3종 (ocrmypdf / tesseract / claude) |
+| 청킹(약관) | `chunker.py` | 장/조/항/호 — **고정 영역, 수정하지 않음** |
+| 청킹(문서) | `doc_chunker.py` | 제목(H1~H6) 절 + 종류 판별 + 디스패처 |
 
 | 입력 | 형식 | 비고 |
 |---|---|---|
@@ -76,7 +84,44 @@ PDF 단계에서는 페이지마다 반복되는 **머리말/꼬리말/쪽번호
 
 ---
 
-## 3. 설치
+## 3. OCR (스캔 약관 전처리)
+
+보험 약관은 스캔 PDF 인 경우가 흔합니다. 텍스트 레이어가 없으면 **어떤 청킹기도 처리할 수
+없으므로** 먼저 이 단계를 거칩니다.
+
+```bash
+# 1) OCR 이 필요한지부터 확인 (백엔드 없어도 동작)
+python -m terms_rag ocr 약관.pdf --check
+#   약관.pdf: 일부만 스캔 — 320페이지 중 47페이지(15%)에 텍스트 없음
+#   사용 가능한 백엔드: ocrmypdf, tesseract
+
+# 2) OCR 실행 → 약관.ocr.txt 생성
+python -m terms_rag ocr 약관.pdf
+python -m terms_rag ocr 약관.pdf --pages 1-50 --chunk   # 앞 50쪽만, 청킹 결과까지 확인
+
+# 3) 인덱싱할 때 자동으로
+python -m terms_rag ingest data/terms --ocr auto
+```
+
+| 백엔드 | 필요한 것 | 결과 | 특징 |
+|---|---|---|---|
+| `ocrmypdf` | `apt install ocrmypdf tesseract-ocr-kor` | 텍스트 레이어 PDF + 텍스트 | **권장.** 원본 PDF 를 그대로 재사용 가능 |
+| `tesseract` | `apt install tesseract-ocr tesseract-ocr-kor poppler-utils` | 텍스트 | ocrmypdf 가 없을 때 |
+| `claude` | `ANTHROPIC_API_KEY` | 텍스트 | **시스템 도구 설치 없이 동작.** 표·세로쓰기에 강하지만 느리고 비용이 든다 |
+
+`--backend auto`(기본)는 위 순서로 있는 것을 고릅니다.
+
+**설계상 중요한 두 가지**
+
+1. **이미 텍스트가 있는 페이지는 OCR 하지 않습니다.** 실제 약관은 본문은 텍스트인데 별표·
+   부속서류만 스캔인 경우가 많습니다. 전부 다시 OCR 하면 느릴 뿐 아니라 멀쩡한 본문 품질까지
+   떨어집니다. 스캔 페이지만 인식하고 나머지는 원래 텍스트를 그대로 씁니다.
+2. **쪽번호를 잃지 않습니다.** 결과는 `<<<PAGE 47>>>` 표지가 붙은 `.ocr.txt` 로 저장되고,
+   로더가 이를 알아보므로 청킹 후에도 인용에 `p.47` 이 그대로 남습니다.
+
+---
+
+## 4. 설치
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
@@ -86,7 +131,7 @@ cp .env.example .env                 # 키와 파라미터 설정
 
 ---
 
-## 4. 빠른 시작
+## 5. 빠른 시작
 
 ```bash
 # (0) 샘플 약관 PDF 만들기 — 실제 약관이 아직 없을 때
@@ -127,7 +172,7 @@ python -m terms_rag info
 
 ---
 
-## 5. 임베딩 백엔드
+## 6. 임베딩 백엔드
 
 Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 **답변 생성**에만 씁니다).
 임베딩은 `.env` 의 `EMBEDDING_PROVIDER` 로 고릅니다.
@@ -144,7 +189,7 @@ Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 
 
 ---
 
-## 6. 검색 방식 — 벡터 + BM25 하이브리드
+## 7. 검색 방식 — 벡터 + BM25 하이브리드
 
 약관 질의는 순수 벡터 검색만으로는 약합니다. `제12조`, `청약철회`, `지연배상금` 처럼
 **법령 용어와 조 번호가 질문에 그대로 들어오는** 경우가 많기 때문입니다.
@@ -158,7 +203,7 @@ Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 
 
 ---
 
-## 7. 답변 생성
+## 8. 답변 생성
 
 `ask` 는 검색된 조항만 근거로 쓰도록 Claude(`claude-opus-5`)에게 지시하고, 각 주장에 `[1]`, `[2]`
 형식으로 근거 번호를 붙이게 합니다. 발췌로 답할 수 없으면 그렇게 말하도록 되어 있습니다 —
@@ -170,7 +215,7 @@ Anthropic 은 임베딩 엔드포인트를 제공하지 않습니다(Claude 는 
 
 ---
 
-## 8. LLM 에 붙여 넣기 (`export`)
+## 9. LLM 에 붙여 넣기 (`export`)
 
 검색·답변을 이 저장소에서 하지 않고 **출력물을 다른 LLM(ChatGPT, Gemini, 사내 모델 등)에
 그대로 붙여 넣고 싶을 때** 쓰는 명령입니다. 청킹 결과를 컨텍스트로 바로 쓸 수 있는 형태로 렌더링합니다.
@@ -241,7 +286,7 @@ tiktoken 류는 Claude 토크나이저가 아니라서 쓰지 않습니다.
 
 ---
 
-## 9. 튜닝
+## 10. 튜닝
 
 `.env` 또는 `ChunkConfig` 로 조정합니다.
 
@@ -258,11 +303,12 @@ tiktoken 류는 Claude 토크나이저가 아니라서 쓰지 않습니다.
 
 ---
 
-## 10. 구조
+## 11. 구조
 
 ```
 src/terms_rag/
   models.py      Chunk / Line / TermsDocument
+  ocr.py         스캔 PDF → 텍스트 (백엔드 3종, 스캔 페이지만 처리, 쪽번호 보존)
   pdf_loader.py  PDF → 정제된 라인 (머리말·쪽번호 제거, 페이지 추적)
   html_loader.py HTML → 라인 (제목/목록/표, 표준 라이브러리만 사용)
   docx_loader.py DOCX → 라인 (제목 스타일/목록/표)
@@ -276,7 +322,7 @@ src/terms_rag/
   search.py      검색 + 근거 기반 답변
   cli.py         chunk / ingest / search / ask / export / info
 scripts/make_sample_terms_pdf.py   샘플 약관 PDF 생성
-tests/                             143개 테스트
+tests/                             184개 테스트
 data/terms/                        약관 파일 (git 에는 올라가지 않음)
 data/docs/                         그 외 참고 문서 (git 에는 올라가지 않음)
 ```
@@ -286,10 +332,10 @@ data/docs/                         그 외 참고 문서 (git 에는 올라가�
 
 ---
 
-## 11. 테스트
+## 12. 테스트
 
 ```bash
-pytest -q          # 143 passed
+pytest -q          # 184 passed
 ```
 
 약관 청킹 규칙은 `tests/test_chunker.py`, 문서 청킹 규칙은 `tests/test_loaders.py` 가 사실상의
@@ -298,18 +344,12 @@ pytest -q          # 143 passed
 
 ---
 
-## 12. 한계
+## 13. 한계
 
-- **스캔 이미지 PDF 는 지원하지 않습니다.** 텍스트 레이어가 없으면 OCR 을 먼저 돌려야 합니다.
-  파이프라인이 이를 감지해서 알려 줍니다 — 전체가 스캔이면 OCR 명령과 함께 오류를 내고,
-  **일부 페이지만 스캔이면(별표·부속서류에서 흔함) 경고를 띄웁니다.** 경고를 무시하면 그
-  페이지 내용은 조용히 인덱스에서 빠집니다.
-
-  ```bash
-  # 한국어 OCR (Ubuntu: apt install ocrmypdf tesseract-ocr-kor / macOS: brew install ocrmypdf tesseract-lang)
-  ocrmypdf -l kor --rotate-pages --deskew 약관.pdf 약관_ocr.pdf
-  python -m terms_rag chunk 약관_ocr.pdf
-  ```
+- **스캔 PDF 는 OCR 을 먼저 거쳐야 합니다** (3장 참고). 파이프라인이 감지해서 알려주고
+  `--ocr auto` 로 자동 처리할 수 있지만, OCR 백엔드는 별도로 설치해야 합니다.
+- OCR 결과 품질은 원본 스캔 상태에 달려 있습니다. 조 번호가 깨지면(`제1조` → `제1丕`) 청킹이
+  틀어지므로, 큰 문서는 `--pages 1-50 --chunk` 로 일부만 먼저 확인하는 것을 권합니다.
 - **`.hwp`/`.hwpx`, 구형 `.doc` 은 지원하지 않습니다.** PDF 또는 `.docx` 로 내보낸 뒤 넣으세요.
 - HTML 의 복잡한 중첩 표(셀 병합 등)는 행 단위로 평탄화되면서 구조가 단순해집니다.
 - 2단 조판, 표 안에 든 조항은 pypdf 추출 순서가 뒤섞일 수 있습니다. `chunk` 로 먼저 검수하세요.

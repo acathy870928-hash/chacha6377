@@ -7,6 +7,7 @@ from .models import Chunk, Line, TermsDocument
 from .chunker import TermsChunker, ChunkConfig
 from .doc_chunker import DocumentChunker, chunk_document, detect_kind
 from .loaders import load_document
+from .ocr import OcrResult, needs_ocr, run_ocr
 from .pdf_loader import load_pdf, load_text
 from .html_loader import load_html
 from .docx_loader import load_docx
@@ -21,6 +22,9 @@ __all__ = [
     "chunk_document",
     "ChunkConfig",
     "load_document",
+    "run_ocr",
+    "needs_ocr",
+    "OcrResult",
     "load_pdf",
     "load_html",
     "load_docx",
