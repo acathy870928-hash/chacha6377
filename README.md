@@ -25,6 +25,7 @@
 | 커뮤니케이션 | [회사소개 카피](docs/website/company-intro.md) | 홈페이지 회사소개 섹션 원고 |
 | 커뮤니케이션 | [서비스소개 카피](docs/website/service-intro.md) | 홈페이지 서비스소개 섹션 원고 |
 | 커뮤니케이션 | [광고 카피·포스트](docs/content/posts.md) | 반복 사용 콘텐츠 시리즈 + 제작 템플릿 |
+| **배포** | [시스템 프롬프트 패키지](docs/prompt/README.md) | Insurance AI(Ai Link)·ORCA Ai 완성 프롬프트 + 연동 노트 + 수용 테스트 |
 
 ## AI 학습·주입 순서
 
