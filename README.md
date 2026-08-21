@@ -24,10 +24,14 @@ PDF/HTML/DOCX ─► 텍스트 정제 ─► 구조 기반 청킹 ─► 임베�
 
 ## 1. 문서 종류를 먼저 판별한다
 
-같은 파이프라인을 타지만 청킹 전략은 둘로 갈립니다. `제N조` 헤더가 2개 이상이면 **약관**,
-아니면 **문서**로 보고 자동으로 갈라집니다(`detect_kind`).
+같은 파이프라인을 타지만 청킹은 **서로 다른 모듈**이 맡습니다. `제N조` 헤더가 2개 이상이면
+**약관**, 아니면 **문서**로 보고 자동으로 갈라집니다(`doc_chunker.detect_kind`).
 
-| | 약관 모드 | 문서 모드 |
+약관 청킹기(`chunker.py`)는 조(條)가 검색 단위라는 전제 위에 규칙이 굳어져 있어서,
+문서용 예외를 섞으면 약관 청킹 품질이 조용히 흔들립니다. 그래서 문서 청킹은
+`doc_chunker.py` 로 완전히 분리했고, **약관 청킹기는 건드리지 않습니다.**
+
+| | 약관 (`chunker.py`) | 문서 (`doc_chunker.py`) |
 |---|---|---|
 | 대상 | 이용약관, 개인정보처리방침, 사업방법서 | 피드백 보고서, 가이드, 회의록 |
 | 검색 단위 | 조(條) | 제목(H1~H6) 기준 절 |
@@ -263,7 +267,8 @@ src/terms_rag/
   html_loader.py HTML → 라인 (제목/목록/표, 표준 라이브러리만 사용)
   docx_loader.py DOCX → 라인 (제목 스타일/목록/표)
   loaders.py     확장자별 디스패처 (load_document)
-  chunker.py     약관(조문) / 문서(제목) 두 청킹 경로   ← 핵심
+  chunker.py     약관 청킹: 장/조/항/호               ← 핵심 (수정 금지 영역)
+  doc_chunker.py 문서 청킹: 제목(H1~H6) 절 + 종류 판별 + 디스패처
   embedder.py    Voyage / OpenAI / hash 백엔드
   store.py       로컬 벡터스토어 + BM25 + 하이브리드 융합
   render.py      LLM 컨텍스트용 렌더링(XML/MD/텍스트) + 토큰 계산 + 분할
@@ -271,7 +276,7 @@ src/terms_rag/
   search.py      검색 + 근거 기반 답변
   cli.py         chunk / ingest / search / ask / export / info
 scripts/make_sample_terms_pdf.py   샘플 약관 PDF 생성
-tests/                             138개 테스트
+tests/                             139개 테스트
 data/terms/                        약관 파일 (git 에는 올라가지 않음)
 data/docs/                         그 외 참고 문서 (git 에는 올라가지 않음)
 ```
@@ -284,10 +289,12 @@ data/docs/                         그 외 참고 문서 (git 에는 올라가�
 ## 11. 테스트
 
 ```bash
-pytest -q          # 138 passed
+pytest -q          # 139 passed
 ```
 
-청킹 규칙은 `tests/test_chunker.py` 가 사실상의 명세입니다. 청킹 동작을 바꾸려면 여기부터 보세요.
+약관 청킹 규칙은 `tests/test_chunker.py`, 문서 청킹 규칙은 `tests/test_loaders.py` 가 사실상의
+명세입니다. **약관 청킹기(`chunker.py`)는 고정 영역입니다** — 새 문서 유형을 지원해야 한다면
+`doc_chunker.py` 처럼 별도 경로를 추가하고 약관 쪽은 그대로 두세요.
 
 ---
 

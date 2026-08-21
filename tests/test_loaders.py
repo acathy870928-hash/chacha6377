@@ -2,7 +2,8 @@
 
 import pytest
 
-from terms_rag.chunker import ChunkConfig, TermsChunker, detect_kind
+from terms_rag.chunker import ChunkConfig
+from terms_rag.doc_chunker import DocumentChunker, chunk_document, detect_kind
 from terms_rag.docx_loader import load_docx
 from terms_rag.html_loader import load_html, parse_html
 from terms_rag.loaders import load_document
@@ -140,8 +141,15 @@ class TestKindDetection:
     def test_html_terms_still_use_article_path(self):
         doc = parse_html(TERMS_HTML)
         assert detect_kind(doc) == "약관"
-        chunks = TermsChunker().chunk(doc)
+        chunks = chunk_document(doc)
         assert {c.article_no for c in chunks} == {"1", "2", "3"}
+
+    def test_dispatch_picks_the_right_chunker(self):
+        """약관은 원본 조문 청킹기가, 문서는 문서 청킹기가 처리한다."""
+        terms = chunk_document(parse_html(TERMS_HTML))
+        report = chunk_document(parse_html(REPORT_HTML))
+        assert all(c.doc_kind == "약관" and c.article_no for c in terms)
+        assert all(c.doc_kind == "문서" and not c.article_no for c in report)
 
     def test_explicit_kind_wins(self):
         doc = parse_html(TERMS_HTML)
@@ -152,7 +160,7 @@ class TestKindDetection:
 class TestDocumentChunking:
     @pytest.fixture
     def chunks(self):
-        return TermsChunker(ChunkConfig(max_chars=400, min_chars=20)).chunk(parse_html(REPORT_HTML))
+        return DocumentChunker(ChunkConfig(max_chars=400, min_chars=20)).chunk(parse_html(REPORT_HTML))
 
     def test_headings_become_breadcrumbs(self, chunks):
         headings = [c.heading for c in chunks]

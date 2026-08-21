@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
-from .chunker import ChunkConfig, TermsChunker
+from .chunker import ChunkConfig
+from .doc_chunker import chunk_document
 from .config import Settings
 from .embedder import Embedder, get_embedder
 from .models import Chunk
@@ -58,14 +59,14 @@ collect_pdfs = collect_documents
 def chunk_file(path: str | Path, config: ChunkConfig | None = None, *, title: str | None = None) -> list[Chunk]:
     """임베딩 없이 청킹만 수행한다(청킹 결과 검수용). PDF/HTML/DOCX/텍스트 모두 지원."""
     document = load_document(path, title=title)
-    return TermsChunker(config).chunk(document)
+    return chunk_document(document, config)
 
 
 chunk_pdf = chunk_file
 
 
 def chunk_plain_text(text: str, config: ChunkConfig | None = None, *, title: str = "약관") -> list[Chunk]:
-    return TermsChunker(config).chunk(load_text(text, title=title))
+    return chunk_document(load_text(text, title=title), config)
 
 
 def ingest(
@@ -87,13 +88,12 @@ def ingest(
             "처리할 문서가 없습니다. data/terms/ 에 PDF·HTML·DOCX 를 넣어 주세요."
         )
 
-    chunker = TermsChunker(settings.chunk)
     reports: list[IngestReport] = []
 
     for path in documents:
         progress(f"[읽는 중] {path}")
         document = load_document(path)
-        chunks = chunker.chunk(document)
+        chunks = chunk_document(document, settings.chunk)
         if not chunks:
             progress(f"[건너뜀] {path}: 청크가 생성되지 않았습니다.")
             continue

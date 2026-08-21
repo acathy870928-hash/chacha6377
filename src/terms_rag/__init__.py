@@ -4,7 +4,8 @@
 """
 
 from .models import Chunk, Line, TermsDocument
-from .chunker import TermsChunker, ChunkConfig, detect_kind
+from .chunker import TermsChunker, ChunkConfig
+from .doc_chunker import DocumentChunker, chunk_document, detect_kind
 from .loaders import load_document
 from .pdf_loader import load_pdf, load_text
 from .html_loader import load_html
@@ -16,6 +17,8 @@ __all__ = [
     "Line",
     "TermsDocument",
     "TermsChunker",
+    "DocumentChunker",
+    "chunk_document",
     "ChunkConfig",
     "load_document",
     "load_pdf",
