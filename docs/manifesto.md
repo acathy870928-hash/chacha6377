@@ -1,5 +1,9 @@
 # Insurance Vertical AI™ Manifesto
 
+> **iFA AI · Insurance AI 공통 Manifesto**
+> 이 문서는 iFA AI의 Manifesto이자, Insurance AI의 Manifesto입니다.
+> 행동 규범은 [Charter](charter.md), 페르소나 정의는 [persona/](persona/)를 참조하십시오.
+
 > Insurance, Augmented.
 > Protect Your If. Secure Your When.
 
