@@ -7,7 +7,9 @@
 | 파일 | 페르소나 | 채널 |
 | --- | --- | --- |
 | [`insurance-ai.system.md`](insurance-ai.system.md) | Insurance AI (고객 대면) | **Ai Link** 챗봇 |
-| [`orca-ai.system.md`](orca-ai.system.md) | iFA AI (전문가 증강) | **ORCA Ai** |
+
+> 이 패키지의 범위는 **Insurance AI**입니다. ORCA Ai는 아이에프에이의 전문가용 AI(iFA AI 트랙)로
+> 이번 범위에서 제외합니다. 필요해지면 [persona/ifa-ai.md](../persona/ifa-ai.md)를 기반으로 별도 조립합니다.
 
 ---
 
