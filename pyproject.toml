@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "terms-rag"
+version = "0.1.0"
+description = "한국어 약관 PDF 를 구조 기반으로 청킹하고 임베딩·검색하는 RAG 파이프라인"
+requires-python = ">=3.10"
+dependencies = ["pypdf>=5.0.0", "numpy>=1.26"]
+
+[project.optional-dependencies]
+voyage = ["voyageai>=0.3.0"]
+openai = ["openai>=1.40.0"]
+answer = ["anthropic>=0.40.0"]
+dev = ["pytest>=8.0", "reportlab>=4.0"]
+
+[project.scripts]
+terms-rag = "terms_rag.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

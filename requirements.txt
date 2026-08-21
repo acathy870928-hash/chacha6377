@@ -1,0 +1,14 @@
+# --- 필수 ---
+pypdf>=5.0.0          # PDF 텍스트 추출
+numpy>=1.26           # 벡터 연산 / 로컬 벡터스토어
+
+# --- 임베딩 백엔드 (사용하는 것만 설치) ---
+voyageai>=0.3.0       # EMBEDDING_PROVIDER=voyage (다국어 기본 권장)
+openai>=1.40.0        # EMBEDDING_PROVIDER=openai
+
+# --- 답변 생성(RAG의 G) ---
+anthropic>=0.40.0     # Claude 로 근거 기반 답변 생성
+
+# --- 개발/테스트 ---
+pytest>=8.0
+reportlab>=4.0        # 샘플 약관 PDF 생성용 (scripts/make_sample_terms_pdf.py)
