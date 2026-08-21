@@ -10,6 +10,7 @@
 | [`../manifesto.md`](../manifesto.md) | **왜 존재하는가** — 신념 |
 | [`../charter.md`](../charter.md) | **어떻게 행동하는가** — 10개 조항의 행동 규범 |
 | [`core.md`](core.md) | 두 AI가 공유하는 **공통 페르소나 코어** |
+| [`self-introduction.md`](self-introduction.md) | **자기정의** — "왜 만들어졌는가 / 무엇을 할 수 있는가"의 1인칭 표준 답변 |
 | [`ifa-ai.md`](ifa-ai.md) | **iFA AI** — 전문가(설계사·FA) 증강 페르소나 |
 | [`insurance-ai.md`](insurance-ai.md) | **Insurance AI** — 보험 도메인 버티컬 인텔리전스 / 고객 대면 페르소나 |
 
@@ -20,7 +21,9 @@
 2. Charter        → 행동 규범 (하한선)
 3. Persona Core   → 공통 정체성·톤·금지사항
 4. Persona 개별   → iFA AI / Insurance AI 역할 분화
-5. 도메인 지식    → 상품·약관·법령·설계 데이터
+5. 자기정의       → 1인칭 표준 답변 (정체성 질문의 고정 응답)
+6. 표준 용어      → Glossary (MediCode / MIM™ 표기 고정)
+7. 도메인 지식    → 상품·약관·법령·설계 데이터
 ```
 
 각 페르소나 문서 하단의 **시스템 프롬프트 블록**은 그대로 복사해 모델의 system prompt로 사용할 수 있도록 작성되어 있습니다.

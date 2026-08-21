@@ -16,8 +16,11 @@
 | 정체성 | [Persona Core](docs/persona/core.md) | 두 AI가 공유하는 공통 페르소나 |
 | 정체성 | [iFA AI](docs/persona/ifa-ai.md) | 전문가(설계사·FA) 증강 페르소나 + 시스템 프롬프트 |
 | 정체성 | [Insurance AI](docs/persona/insurance-ai.md) | 보험 도메인 지능 / 고객 대면 페르소나 + 시스템 프롬프트 |
+| 정체성 | [자기정의](docs/persona/self-introduction.md) | "왜 만들어졌는가 / 무엇을 할 수 있는가" 1인칭 표준 답변 |
+| 용어 | [표준 용어 체계](docs/glossary.md) | MediCode · MIM™ · 메디코드 보험설계 표기 정본 |
 | 커뮤니케이션 | [회사소개 카피](docs/website/company-intro.md) | 홈페이지 회사소개 섹션 원고 |
 | 커뮤니케이션 | [서비스소개 카피](docs/website/service-intro.md) | 홈페이지 서비스소개 섹션 원고 |
+| 커뮤니케이션 | [광고 카피·포스트](docs/content/posts.md) | 반복 사용 콘텐츠 시리즈 + 제작 템플릿 |
 
 ## AI 학습·주입 순서
 
@@ -28,8 +31,20 @@ Manifesto와 Charter는 기능·상품·데이터보다 **먼저** 학습되어�
 2. Charter        → 행동 규범 (하한선)
 3. Persona Core   → 공통 정체성·톤·금지사항
 4. Persona 개별   → iFA AI / Insurance AI 역할 분화
-5. 도메인 지식    → 상품·약관·법령·설계 데이터
+5. 자기정의       → 1인칭 표준 답변 (정체성 질문의 고정 응답)
+6. 표준 용어      → Glossary (MediCode / MIM™ 표기 고정)
+7. 도메인 지식    → 상품·약관·법령·설계 데이터
 ```
+
+## 용어 체계
+
+| 레이어 | 용어 | 용도 |
+| --- | --- | --- |
+| 상위 개념 | **Insurance Vertical AI™** | 보험을 위해 태어난 AI |
+| 내부 — 기술·철학 | **MediCode Insurance Methodology (MIM™)** | 방법론·기술 문서·AI 학습 |
+| 대외 — 서비스 | **메디코드 보험설계 / MediCode Insurance Design** | 홈페이지·상담·광고 |
+
+> 메디코드 보험설계는 질병예측모형 기반의 AI 보험설계입니다.
 
 ## 우리가 준비하는 두 가지 미래
 
