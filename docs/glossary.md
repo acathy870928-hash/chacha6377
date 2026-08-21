@@ -131,14 +131,28 @@ MediCode AI (엔진)
 
 ---
 
-## 6. If & When
+## 6. If & When — Insurance & Assurance
 
-| 용어 | 정의 | 태그라인 |
-| --- | --- | --- |
-| **If** | 질병, 사고, 예상하지 못한 위험과 같은 고객의 '만약' | *Protect Your If.* |
-| **When** | 은퇴, 장수처럼 반드시 찾아오지만 언제인지는 알 수 없는 고객의 '언젠가' | *Secure Your When.* |
+| 축 | 정식 개념 | 위험의 성격 | 대상 | 태그라인 |
+| --- | --- | --- | --- | --- |
+| **If** | **Insurance** | 발생 여부가 불확실한 위험<br>(**Contingent Risk**) | 질병·암·뇌혈관·심장질환·사고·사망·장해 | *Protect Your If.* |
+| **When** | **Assurance** | 반드시 발생하나 시기를 특정하기 어려운 미래<br>(**Eventual Risk**) | 은퇴·장수·노후소득·상속·자산이전 | *Secure Your When.* |
 
-**주의** If와 When은 **항상 짝으로** 씁니다. 한쪽만 단독으로 쓰지 않습니다.
+**표준 정의 문장**
+> Insurance는 발생 여부가 불확실한 위험(Contingent Risk)을 대비하는 보장성 보험이며,
+> 핵심 목적은 예상하지 못한 위험으로부터 고객과 가족을 보호하는 것입니다.
+> Assurance는 반드시 발생하지만 시기를 특정하기 어려운 미래(Eventual Risk)를 대비하는 연금 중심의 보험이며,
+> 핵심 목적은 고객이 미래를 안정적으로 준비하고 평생의 재무적 지속가능성을 확보하도록 돕는 것입니다.
+
+**사용 범위**
+| 문맥 | 쓰는 말 |
+| --- | --- |
+| 고객 대면 (카피·상담·챗봇) | **만약 / 언젠가**, If / When |
+| 전문가·IR·제안서·기술 문서 | **Insurance / Assurance**, Contingent Risk / Eventual Risk |
+
+**주의**
+- If와 When은 **항상 짝으로** 씁니다. 한쪽만 단독으로 쓰지 않습니다.
+- 이 구분은 수사가 아니라 **제품 구조**입니다 → Specialized AI Layer가 Insurance Domain / Assurance Domain으로 나뉩니다.
 
 ---
 
@@ -153,6 +167,12 @@ MediCode AI (엔진)
 | 상위 개념 | Insurance Vertical AI™ | 보험 버티컬 AI, Vertical Insurance AI |
 | 핵심 규정어 | 질병예측모형 기반의 AI 보험설계 | 질병예측 AI, 예측형 보험설계 |
 | 태그라인 | Protect Your If. Secure Your When. | Protect your if / Secure the when |
+| 회사(영문) | iFA AI & Co. | FA AI & Co., IFA AI, iFA |
+| 회사(국문) | 아이에프에이 | 아이에프에이(주), iFA사 |
+| 플랫폼 | iFA 클라우드 | iFA Cloud, 클라우드 |
+| FA용 AI | ORCA Ai | Orca AI, 오르카 |
+| 고객용 AI | Ai Link *(표기 확정 필요)* | AI Link와 혼용 |
+| 데이터 | Micky DATA / Veluga DATA / BumE_F DATA / BumE_C DATA / Cloud DATA / My DATA / External MCP | VELUGA, micky data |
 
 ---
 
@@ -171,6 +191,38 @@ MediCode AI (엔진)
 
 **영문 (1문장)**
 > MediCode Insurance Design is an AI-powered, disease prediction-based insurance methodology.
+
+---
+
+## 8-1. 회사·서비스·데이터 명칭
+
+### 회사
+| 구분 | 표준 표기 |
+| --- | --- |
+| 영문 | **iFA AI & Co.** — an AI-Native Vertical AI Company for the insurance industry |
+| 국문 | **아이에프에이** |
+| 플랫폼 | **iFA 클라우드** |
+
+### 서비스 (2024년 7월 출시, 2년 운영)
+| 서비스 | 대상 | 표준 정의 문장 |
+| --- | --- | --- |
+| **ORCA Ai** | FA | ORCA Ai는 FA 전용 업무 AI로, 상품·약관·사내 제도와 교육까지 24시간 확인할 수 있습니다. |
+| **Ai Link** | 고객 | Ai Link는 보험소비자가 Insurance Vertical AI에 접근하는 AI Gateway로, 담당 FA의 이름이 붙은 「○○○의 Ai Link」로 전달됩니다. |
+
+### Specialized AI 4종
+| 서비스 | 축 | 역할 |
+| --- | --- | --- |
+| **MediCode** | If (Protection) | 건강검진·유전자 분석 기반 AI 보장설계 |
+| **VFA** | When (Retirement) | 변액보험·변액연금 수익률 관리 |
+| **HopePlan** | When (Retirement) | AI 기반 은퇴·연금 설계 |
+| **Legacy Plan** | When (Legacy) | AI 기반 상속·자산승계 설계 |
+
+### 데이터 7종
+`Micky DATA` 보험산업 전문지식 · `Veluga DATA` 보험상품·약관 · `BumE_F DATA` FA 세일즈·사내 제도 ·
+`BumE_C DATA` 고객 필요 데이터 · `Cloud DATA` 계약·수수료·상담 이력 · `My DATA` 건강검진·유전자·타사 보험 ·
+`External MCP` 법령·공공·제휴
+
+→ 상세 및 연결 시점: [Services](services.md)
 
 ---
 

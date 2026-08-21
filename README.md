@@ -11,6 +11,10 @@
 
 | 계층 | 문서 | 내용 |
 | --- | --- | --- |
+| 전략 | [회사 정본](docs/company.md) | 회사정의 · 핵심가치 · Vision · Mission · 6대 증강 · Roadmap · BM |
+| 전략 | [아키텍처](docs/architecture.md) | 전략 6계층 ↔ 구축 L1~L5 **매핑** |
+| 전략 | [서비스 맵](docs/services.md) | ORCA Ai · Ai Link · 데이터 연결 타임라인 |
+| 점검 | [정합성 점검](docs/alignment-check.md) | 자료 간 불일치 10건 · **결정 요청 8건** |
 | 신념 | [Manifesto](docs/manifesto.md) | **왜 존재하는가** — iFA AI · Insurance AI 공통 선언 |
 | 규범 | [Charter](docs/charter.md) | **어떻게 행동하는가** — 10개 조항의 행동 규범 |
 | 정체성 | [Persona Core](docs/persona/core.md) | 두 AI가 공유하는 공통 페르소나 |
@@ -35,6 +39,17 @@ Manifesto와 Charter는 기능·상품·데이터보다 **먼저** 학습되어�
 6. 표준 용어      → Glossary (MediCode / MIM™ 표기 고정)
 7. 도메인 지식    → 상품·약관·법령·설계 데이터
 ```
+
+## 문서 계층
+
+```
+철학   Manifesto · Charter              왜 존재하는가 / 어떻게 행동하는가
+전략   Company · Architecture · Services  무엇을 만드는가 / 어떻게 만드는가
+체계   Glossary                          같은 것을 같은 이름으로
+실행   Persona (ORCA Ai · Ai Link)       AI가 실제로 말하는 방식
+표현   Website · Posts                   고객·시장에 전달되는 문장
+```
+위층이 바뀌면 아래층을 고칩니다. 아래층에서 새 문장을 창작하지 않습니다.
 
 ## 용어 체계
 
