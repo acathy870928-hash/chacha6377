@@ -91,6 +91,8 @@ class VectorStore:
         self.chunks: list[Chunk] = []
         self.vectors: np.ndarray = np.zeros((0, 0), dtype=np.float32)
         self.manifest: dict = {}
+        self.concepts: list[dict] = []
+        """약관이 정의한 개념 목록. 질의를 특약으로 라우팅하는 데 쓴다."""
         self._bm25: _BM25 | None = None
 
     # -- 영속화 ------------------------------------------------------------
@@ -112,6 +114,9 @@ class VectorStore:
             store.vectors = np.load(vectors_file)
         if manifest_file.exists():
             store.manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+        concepts_file = store.path / "concepts.json"
+        if concepts_file.exists():
+            store.concepts = json.loads(concepts_file.read_text(encoding="utf-8"))
         if len(store.chunks) != len(store.vectors):
             raise ValueError(
                 f"인덱스가 손상되었습니다: 청크 {len(store.chunks)}개 vs 벡터 {len(store.vectors)}개. "
@@ -131,8 +136,16 @@ class VectorStore:
         (self.path / "manifest.json").write_text(
             json.dumps(self.manifest, ensure_ascii=False, indent=2), encoding="utf-8"
         )
+        (self.path / "concepts.json").write_text(
+            json.dumps(self.concepts, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
 
     # -- 색인 --------------------------------------------------------------
+
+    def add_concepts(self, concepts: Sequence[dict], *, doc_id: str) -> None:
+        """문서의 개념 목록을 갈아 끼운다(재수집 시 중복 방지)."""
+        self.concepts = [c for c in self.concepts if c.get("doc_id") != doc_id]
+        self.concepts.extend({**c, "doc_id": doc_id} for c in concepts)
 
     def upsert(self, chunks: Sequence[Chunk], vectors: np.ndarray, *, provider: str, model: str) -> int:
         """같은 doc_id 의 기존 청크를 지우고 새로 넣는다(재수집 시 중복 방지)."""
@@ -183,6 +196,10 @@ class VectorStore:
         """인덱스에 들어 있는 보험사 목록."""
         return sorted({c.insurer for c in self.chunks if c.insurer})
 
+    def special_clauses(self) -> list[str]:
+        """인덱스에 들어 있는 특약 목록."""
+        return sorted({c.special_clause for c in self.chunks if c.special_clause})
+
     # -- 검색 --------------------------------------------------------------
 
     def search(
@@ -195,8 +212,11 @@ class VectorStore:
         section: str | None = None,
         insurer: str | None = None,
         product_code: str | None = None,
+        special_clause: str | None = None,
+        article_role: str | None = None,
         as_of: str | None = None,
         boost_insurer: str | None = None,
+        boost_clause: str | None = None,
         boost: float = 0.5,
         alpha: float = 0.5,
         fusion: str = "score",
@@ -231,6 +251,10 @@ class VectorStore:
         if product_code:
             code = product_code.upper()
             mask &= np.array([c.product_code.upper() == code for c in self.chunks])
+        if special_clause:
+            mask &= np.array([special_clause in c.special_clause for c in self.chunks])
+        if article_role:
+            mask &= np.array([c.article_role == article_role for c in self.chunks])
         if as_of:
             mask &= np.array([_effective_on(c, as_of) for c in self.chunks])
         candidates = np.flatnonzero(mask)
@@ -276,9 +300,14 @@ class VectorStore:
         else:
             raise ValueError(f"알 수 없는 fusion: {fusion!r} (score | rrf)")
 
-        if boost_insurer and boost:
+        if boost and (boost_insurer or boost_clause):
             fused = [
-                (idx, score + boost if self.chunks[idx].insurer == boost_insurer else score)
+                (
+                    idx,
+                    score
+                    + (boost if boost_insurer and self.chunks[idx].insurer == boost_insurer else 0.0)
+                    + (boost if boost_clause and self.chunks[idx].special_clause == boost_clause else 0.0),
+                )
                 for idx, score in fused
             ]
 

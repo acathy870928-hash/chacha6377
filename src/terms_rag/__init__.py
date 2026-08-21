@@ -8,6 +8,8 @@ from .chunker import TermsChunker, ChunkConfig
 from .doc_chunker import DocumentChunker, chunk_document, detect_kind
 from .loaders import load_document
 from .metadata import DocumentMeta, detect_insurers, read_meta
+from .structure import classify_article, detect_clauses, section_schema
+from .concepts import build_graph, extract_definitions, route_query
 from .ocr import OcrResult, needs_ocr, run_ocr
 from .pdf_loader import load_pdf, load_text
 from .html_loader import load_html
@@ -26,6 +28,12 @@ __all__ = [
     "DocumentMeta",
     "read_meta",
     "detect_insurers",
+    "detect_clauses",
+    "classify_article",
+    "section_schema",
+    "extract_definitions",
+    "build_graph",
+    "route_query",
     "run_ocr",
     "needs_ocr",
     "OcrResult",

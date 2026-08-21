@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 from .config import Settings
 from .embedder import Embedder, get_embedder
+from .concepts import route_query
 from .metadata import detect_insurers
 from .store import SearchHit, VectorStore
 
@@ -47,14 +48,20 @@ def search(
     section: str | None = None,
     insurer: str | None = None,
     product_code: str | None = None,
+    special_clause: str | None = None,
+    article_role: str | None = None,
     as_of: str | None = None,
     auto_insurer: bool = True,
+    auto_concept: bool = True,
     boost: float = 0.5,
     lexical_only: bool = False,
     alpha: float = 0.5,
     fusion: str = "score",
 ) -> list[SearchHit]:
     """질의에 해당하는 조항을 찾는다.
+
+    `auto_concept` 가 켜져 있으면 질문 속 용어("고액암")를 약관이 정의한 개념
+    ("고액치료비암")으로 이어 그 특약 조항을 위로 올린다.
 
     `auto_insurer` 가 켜져 있으면 질문에서 보험사명을 찾아 그 회사 자료를 위로 올린다.
     "흥국화재 암보험…" 이라고 물었는데 삼성생명 자료가 먼저 나오는 문제를 막기 위한 것이다.
@@ -75,6 +82,13 @@ def search(
             )
         query_vector = embedder.embed_query(query)
 
+    boost_clause = None
+    if auto_concept and not special_clause and store.concepts:
+        routed = route_query(query, store.concepts)
+        clauses = {r["special_clause"] for r in routed if r.get("special_clause")}
+        if len(clauses) == 1:
+            boost_clause = clauses.pop()
+
     boost_insurer = None
     if auto_insurer and not insurer:
         mentioned = detect_insurers(query)
@@ -89,8 +103,11 @@ def search(
         section=section,
         insurer=insurer,
         product_code=product_code,
+        special_clause=special_clause,
+        article_role=article_role,
         as_of=as_of,
         boost_insurer=boost_insurer,
+        boost_clause=boost_clause,
         boost=boost,
         alpha=alpha,
         fusion=fusion,

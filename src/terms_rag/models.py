@@ -62,6 +62,11 @@ class Chunk:
     section: str = "본문"  # 본문 | 전문 | 부칙
     doc_kind: str = "약관"  # 약관 | 문서
 
+    # 상위 구조 — 특약 계층과 조항 성격 (structure.py 가 채운다)
+    special_clause: str = ""
+    clause_kind: str = ""
+    article_role: str = ""
+
     # 문서 신원 — 보험사/상품 필터링과 인용에 쓴다
     insurer: str = ""
     product_name: str = ""
@@ -94,7 +99,7 @@ class Chunk:
     @property
     def embed_text(self) -> str:
         """임베딩할 문자열. 보험사·상품·제목 경로를 앞에 붙여 맥락을 보존한다."""
-        prefix_parts = [p for p in (self.identity, self.doc_title, self.heading) if p]
+        prefix_parts = [p for p in (self.identity, self.special_clause, self.doc_title, self.heading) if p]
         prefix = " | ".join(dict.fromkeys(prefix_parts))
         return f"{prefix}\n{self.text}" if prefix else self.text
 
@@ -105,7 +110,8 @@ class Chunk:
         head = self.heading or self.section
         tail = f" ({self.part}/{self.part_count})" if self.part_count > 1 else ""
         title = self.identity or self.doc_title
-        return f"{title} {head}{tail}, {loc}"
+        scope = f" {self.special_clause}" if self.special_clause else ""
+        return f"{title}{scope} {head}{tail}, {loc}"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

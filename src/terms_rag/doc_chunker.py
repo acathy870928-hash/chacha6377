@@ -364,6 +364,10 @@ def chunk_document(doc: TermsDocument, config: ChunkConfig | None = None) -> lis
     else:
         chunks = DocumentChunker(config).chunk(doc)
 
+    if detect_kind(doc) == "약관":
+        from .structure import apply as apply_structure
+
+        apply_structure(doc, chunks)
     if doc.meta:
         apply_to_chunks(chunks, DocumentMeta.from_dict(doc.meta))
     return chunks

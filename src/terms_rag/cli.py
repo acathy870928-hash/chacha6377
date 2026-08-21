@@ -37,10 +37,20 @@ def _add_common(parser: argparse.ArgumentParser) -> None:
 def _add_filters(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--insurer", default=None, help="보험사로 한정 (예: 현대해상)")
     parser.add_argument("--product", default=None, help="상품코드로 한정 (예: HI0908)")
+    parser.add_argument("--clause", default=None, help="특약으로 한정 (부분 일치, 예: 고액치료비암)")
+    parser.add_argument(
+        "--role", default=None,
+        choices=["정의", "지급사유", "면책", "감액", "보험기간", "계약", "절차", "기타"],
+        help="조항 성격으로 한정",
+    )
     parser.add_argument("--as-of", default=None, help="그 날짜에 유효한 약관만 (예: 2009-09-01)")
     parser.add_argument(
         "--no-auto-insurer", action="store_true",
         help="질문 속 보험사명을 자동으로 우선하지 않는다",
+    )
+    parser.add_argument(
+        "--no-auto-concept", action="store_true",
+        help="질문 속 용어를 약관 정의 개념으로 잇지 않는다",
     )
 
 
@@ -123,6 +133,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_meta.add_argument("file", help="문서 경로")
     p_meta.add_argument("--json", action="store_true", help="JSON 으로 출력")
 
+    p_terms = sub.add_parser("terms", help="약관이 정의한 용어를 뽑는다 (3차: 개념 정규화)")
+    p_terms.add_argument("file", help="약관 경로")
+    p_terms.add_argument("--json", action="store_true")
+
+    p_graph = sub.add_parser("graph", help="보험사→상품→특약→조항→개념 관계를 만든다 (4차)")
+    p_graph.add_argument("file", help="약관 경로")
+    p_graph.add_argument("--out", default=None, help="JSON 저장 경로 (생략 시 요약만 출력)")
+
     p_info = sub.add_parser("info", help="인덱스 상태를 본다")
     _add_common(p_info)
 
@@ -143,6 +161,10 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_search(args, settings, store_path)
         if args.command == "ask":
             return _cmd_ask(args, settings, store_path)
+        if args.command == "terms":
+            return _cmd_terms(args, settings)
+        if args.command == "graph":
+            return _cmd_graph(args, settings)
         if args.command == "meta":
             return _cmd_meta(args)
         if args.command == "ocr":
@@ -245,9 +267,67 @@ def _filters(args) -> dict:
     return {
         "insurer": getattr(args, "insurer", None),
         "product_code": getattr(args, "product", None),
+        "special_clause": getattr(args, "clause", None),
+        "article_role": getattr(args, "role", None),
         "as_of": getattr(args, "as_of", None),
         "auto_insurer": not getattr(args, "no_auto_insurer", False),
+        "auto_concept": not getattr(args, "no_auto_concept", False),
     }
+
+
+def _cmd_terms(args, settings: Settings) -> int:
+    from .concepts import extract_definitions
+
+    chunks = chunk_file(args.file, settings.chunk)
+    concepts = extract_definitions(chunks)
+    if not concepts:
+        print("정의 조항에서 용어를 찾지 못했습니다.", file=sys.stderr)
+        return 0
+
+    if args.json:
+        import json
+
+        print(json.dumps([c.to_full_dict() for c in concepts], ensure_ascii=False, indent=2))
+        return 0
+
+    print(f"정의된 용어 {len(concepts)}개\n")
+    for concept in concepts:
+        taxonomy = " > ".join(p for p in (concept.category, concept.sub_category, concept.raw_term) if p)
+        where = concept.defined_in
+        print(f"■ {concept.raw_term}  [{concept.concept_type}]")
+        if concept.category:
+            print(f"   표준 개념 : {taxonomy}")
+        if where:
+            scope = where.special_clause or "보통약관"
+            print(f"   근거      : {scope} 제{where.article_no}조({where.article_title}) p.{where.page}")
+        print(f"   정의      : {_shorten(concept.definition, 120)}\n")
+    return 0
+
+
+def _cmd_graph(args, settings: Settings) -> int:
+    import json
+
+    from .concepts import build_graph
+
+    graph = build_graph(chunk_file(args.file, settings.chunk))
+    if args.out:
+        path = Path(args.out)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(graph, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"저장: {path}")
+
+    document = graph["document"]
+    identity = " ".join(p for p in (document.get("insurer"), document.get("product_name")) if p)
+    print(f"{identity or Path(args.file).name}")
+    print(f"  특약   : {len(graph['clauses'])}개")
+    print(f"  개념   : {len(graph['concepts'])}개")
+    print(f"  관계   : {len(graph['relations'])}건")
+    for concept in graph["concepts"]:
+        print(f"\n■ {concept['raw_term']}")
+        for relation in concept["relations"]:
+            scope = relation["special_clause"] or "보통약관"
+            print(f"   {relation['relation']:<6} → {scope} 제{relation['article_no']}조({relation['article_title']}) p.{relation['page']}")
+    return 0
 
 
 def _cmd_meta(args) -> int:
@@ -385,6 +465,10 @@ def _cmd_info(store_path: str) -> int:
     insurers = store.insurers()
     if insurers:
         print(f"보험사     : {', '.join(insurers)}")
+    clauses = store.special_clauses()
+    if clauses:
+        preview = ", ".join(clauses[:5]) + (f" 외 {len(clauses) - 5}개" if len(clauses) > 5 else "")
+        print(f"특약       : {preview}")
     print("문서")
     for doc in store.documents():
         identity = " ".join(p for p in (doc.get("insurer"), doc.get("product")) if p)

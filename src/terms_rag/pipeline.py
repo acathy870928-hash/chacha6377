@@ -8,6 +8,7 @@ from typing import Callable, Iterable, Sequence
 
 from .chunker import ChunkConfig
 from .doc_chunker import chunk_document
+from .concepts import extract_definitions, index_entries
 from .config import Settings
 from .embedder import Embedder, get_embedder
 from .models import Chunk
@@ -112,6 +113,7 @@ def ingest(
         progress(f"[임베딩] {document.title}: 청크 {len(chunks)}개 → {embedder.provider}/{embedder.model}")
         vectors = embedder.embed_documents([c.embed_text for c in chunks])
         store.upsert(chunks, vectors, provider=embedder.provider, model=embedder.model)
+        store.add_concepts(index_entries(extract_definitions(chunks)), doc_id=document.doc_id)
 
         lengths = [c.char_len for c in chunks]
         reports.append(
