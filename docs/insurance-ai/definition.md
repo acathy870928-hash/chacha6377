@@ -80,11 +80,11 @@
                     ▼
              insurance AI          ← 관문이자 안내자
                     │
-    ┌──────┬────────┼────────┬──────────┐
-    ▼      ▼        ▼        ▼          ▼
- MediCode  VFA   HopePlan  Legacy Plan  (일반 상담)
-   보장    변액    은퇴·연금   상속·승계
-    If      When    When      When
+  ┌───────┬──────┬──┴───┬─────────┬──────────┐
+  ▼       ▼      ▼      ▼         ▼          ▼
+MediCode  VFA   VFA2  HopePlan  Legacy Plan  (일반 상담)
+  보장    변액  (정의 필요) 은퇴·연금  상속·승계
+   If     When    —      When      When
                     │
                     ▼
               고객 (B2C) · 보험사·GA (B2B)

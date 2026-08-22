@@ -19,7 +19,7 @@
       대화 ↔ 워크플로우 모드 전환
 ──────────────────────────────────────────────────────────────
  L3  페르소나 & 에이전트
-      페르소나: insurance AI │ MediCode │ VFA │ HopePlan │ Legacy Plan
+      페르소나: insurance AI │ MediCode │ VFA │ VFA2(정의 필요) │ HopePlan │ Legacy Plan
       에이전트: 상품(약관)★ │ 계약 │ 청구 │ 연금  — 단계적 확장
       가드레일 내장 Tool Calling: 호출 전 검증 레이어 필수 통과
 ──────────────────────────────────────────────────────────────
@@ -69,7 +69,7 @@ insurance AI가 근거로 삼는 원천. **연결 여부가 곧 답변 범위**�
 
 | | 축 | 구성 | 고객에게 |
 | --- | --- | --- | --- |
-| **페르소나** | 고객 가치 (If/When) | insurance AI · MediCode · VFA · HopePlan · Legacy Plan | 보인다 (이름·인격) |
+| **페르소나** | 고객 가치 (If/When) | insurance AI · MediCode · VFA · VFA2 · HopePlan · Legacy Plan | 보인다 (이름·인격) |
 | **에이전트** | 시스템 업무 | 상품(약관) · 계약 · 청구 · 연금 | 보이지 않는다 |
 
 둘은 포함 관계가 아니라 **직교**입니다. MediCode 하나가 답하려면 상품 에이전트와 계약 에이전트를 함께 호출합니다.
