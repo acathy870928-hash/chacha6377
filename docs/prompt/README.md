@@ -10,7 +10,7 @@
 
 > 이 패키지의 범위는 **insurance AI**(신설 사업자)입니다.
 > ORCA Ai·Ai Link는 아이에프에이 내부 서비스로 이번 범위에서 제외합니다.
-> 전문 페르소나 4인(MediCode·VFA·HopePlan·Legacy Plan)은 **페르소나 수준까지만 정의**하며
+> 전문 페르소나(MediCode·VFA2·HopePlan·Legacy Plan)는 **페르소나 수준까지만 정의**하며
 > 개별 프롬프트를 만들지 않습니다. 이 프롬프트 하나가 인계 규칙(5-1절)으로 네 인격을 모두 담습니다.
 > 정의 원본: [insurance-ai/personas.md](../insurance-ai/personas.md)
 
