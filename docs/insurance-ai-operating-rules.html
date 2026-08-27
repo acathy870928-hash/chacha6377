@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Insurance AI 보험상품 운영 규칙 v1.1</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 14mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #1b2330;
+    font-size: 10.2pt;
+    line-height: 1.62;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  h1 { font-size: 19pt; margin: 0 0 4px; letter-spacing: -0.5px; }
+  .sub { color: #5a6675; font-size: 10.5pt; margin: 0 0 4px; }
+  .meta { color: #8a94a3; font-size: 8.8pt; margin: 0; }
+  .titlebar { border-bottom: 3px solid #1f4e8c; padding-bottom: 10px; margin-bottom: 16px; }
+  h2 {
+    font-size: 13pt; margin: 20px 0 9px; padding: 7px 12px;
+    background: #1f4e8c; color: #fff; border-radius: 4px;
+    break-after: avoid;
+  }
+  h3 {
+    font-size: 10.8pt; margin: 14px 0 6px; color: #1f4e8c;
+    border-left: 4px solid #1f4e8c; padding-left: 8px;
+    break-after: avoid;
+  }
+  h3 .new { background:#e8342f; color:#fff; font-size:7.5pt; border-radius:3px; padding:1px 5px; margin-left:6px; vertical-align:2px; letter-spacing:0.3px; }
+  p { margin: 0 0 7px; }
+  ol, ul { margin: 0 0 8px; padding-left: 19px; }
+  li { margin-bottom: 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 9.3pt; }
+  th, td { border: 1px solid #c8d2de; padding: 5px 8px; vertical-align: top; text-align: left; }
+  th { background: #eef3f9; color: #1f4e8c; font-weight: 700; }
+  td.k { background: #f7f9fc; font-weight: 700; width: 20%; }
+  .lead { background: #f4f7fb; border-left: 4px solid #1f4e8c; padding: 9px 12px; margin: 0 0 10px; border-radius: 0 4px 4px 0; }
+  .quote { background: #fffaf0; border: 1px solid #f0d9a8; border-radius: 4px; padding: 9px 12px; margin: 6px 0 8px; }
+  .quote .q { color: #7a5a12; }
+  .flow { background: #eef3f9; border-radius: 4px; padding: 7px 12px; font-size: 9.4pt; color: #1f4e8c; font-weight: 700; margin-bottom: 6px; }
+  .btn { display: inline-block; background: #1f4e8c; color: #fff; border-radius: 14px; padding: 2px 12px; font-size: 8.8pt; font-weight: 700; }
+  .badge { display:inline-block; background:#e8342f; color:#fff; font-size:8pt; border-radius:3px; padding:1px 6px; margin-right:5px; }
+  .badge.g { background:#0f7b5f; }
+  .note { font-size: 9pt; color: #5a6675; }
+  .page-break { break-before: page; }
+  ul.cols { column-count: 2; column-gap: 14px; font-size: 8.9pt; padding-left: 16px; }
+  ul.cols li { break-inside: avoid; margin-bottom: 2px; }
+  strong.hl { background: linear-gradient(transparent 58%, #ffe07a 58%); }
+</style>
+</head>
+<body>
+
+<div class="titlebar">
+  <h1>Insurance AI 보험상품 운영 규칙</h1>
+  <p class="sub">보험료 안내 제한 · <strong>최신 파일 기준 안내</strong> · 상품 최신성 및 현재 판매 여부 검증</p>
+  <p class="meta">v1.1 개정 · 보험료 안내 답변 최적화 및 현재 판매 상품 답변 최적화 반영</p>
+</div>
+
+<h3>개정 이력</h3>
+<table>
+  <tr><th style="width:12%">버전</th><th style="width:20%">구분</th><th>주요 개정 내용</th></tr>
+  <tr><td>v1.0</td><td>최초 제정</td><td>보험료 안내 제한 규칙, 상품 최신성 및 판매여부 운영 규칙</td></tr>
+  <tr><td><strong>v1.1</strong></td><td>개정</td><td>
+    ① <strong>보험료 안내 시 최신 파일 기준 원칙 신설</strong>(1-2항)<br>
+    ② 보험료 안내 답변 최적화 과제 반영(3-1항)<br>
+    ③ 현재 판매 상품 데이터 우선 적용 규칙 신설 및 현재 판매 상품 답변 최적화 과제 반영(2-2항 / 3-2항)
+  </td></tr>
+</table>
+
+<h2>1. 보험료 안내 제한 규칙</h2>
+<p class="lead">공식 보험료 산출 시스템이 연동되기 전까지 보험상품의 <strong>구체적인 보험료 금액은 안내하지 않는다.</strong>
+보험료와 관련한 모든 판단과 근거 확인은 <strong class="hl">항상 최신 파일을 기준으로 수행한다.</strong></p>
+
+<h3>1-1. 보험료 금액 안내 금지</h3>
+<ol>
+  <li>보험료, 예상보험료, 월납·연납보험료, 최저·평균보험료 등 보험료 관련 구체적인 금액을 생성·추정·계산하거나 안내하지 않는다.</li>
+  <li>상품안내장, 가입예시, 교육자료, 내부자료 등 검색자료에 보험료가 포함되어 있더라도 해당 금액을 답변에 노출하거나 인용하지 않는다.</li>
+  <li>사용자가 나이, 성별, 직업, 가입금액, 담보구성 등을 제공하더라도 보험료를 임의로 계산하거나 추정하지 않는다.</li>
+  <li>상품 간 보험료를 비교하거나 특정 상품의 보험료가 저렴하다·비싸다·유리하다 등의 판단을 하지 않는다.</li>
+  <li>사용자가 과거 보험료 또는 문서상 가입예시 보험료를 직접 요청하더라도 구체적인 보험료 금액은 제공하지 않는다.</li>
+  <li>보험료 이외의 상품정보는 확인 가능한 근거자료를 기반으로 정상적으로 안내한다.</li>
+</ol>
+
+<h3>1-2. 보험료 관련 안내는 최신 파일 기준 <span class="new">신설</span></h3>
+<ol start="7">
+  <li><strong class="hl">보험료 및 보험료 산출 조건과 관련된 안내는 반드시 최신 파일(최신 게시일·적용일 기준의 최종 버전 자료)을 기준으로 한다.</strong></li>
+  <li>동일 상품에 대해 여러 시점의 자료가 검색된 경우, <strong>가장 최근에 적용·개정된 파일만을 근거로 채택</strong>하고 과거 버전 파일의 보험료 관련 정보는 인용·요약·비교 대상에서 제외한다.</li>
+  <li>보험료율·요율표·가입예시 등이 개정된 경우, 개정 전 파일의 내용은 현재 기준으로 안내하지 않는다.</li>
+  <li>최신 파일이 확인되지 않거나 자료 간 시점이 상충하는 경우에는 보험료 관련 안내를 <strong>보류</strong>하고 고정 응답으로 전환한다.</li>
+  <li>보험료 외 상품정보를 안내할 때에도 근거자료의 <strong>출처와 게시일·적용일(기준일)</strong>을 함께 표시하여 최신성을 명확히 한다.</li>
+  <li>동일 상품군 내에서는 <strong>상품명 말미의 개정코드(YYMM, 예: <em>2607</em>)</strong>가 가장 높은 자료를 최신 파일로 판별하며,
+      개정코드가 낮은 과거 상품은 최신 기준 자료로 사용하지 않는다.</li>
+  <li>단, <strong>과거 가입상품에 대한 질문</strong>은 예외로 하여 최신 파일이 아닌 <strong>가입시점에 적용된 약관·상품자료</strong>를 기준으로 확인한다.</li>
+</ol>
+
+<h3>보험료 질문 시 고정 응답</h3>
+<div class="quote">
+  <p class="q">“보험료는 가입조건, 담보 구성 및 보험사의 인수기준 등에 따라 달라질 수 있어 정확한 산출 없이 안내하기 어렵습니다.
+  정확한 보험료는 FA를 통해 안내받으시길 추천합니다.”</p>
+  <p style="margin:0">→ <span class="btn">FA 상담하기</span> 버튼 노출</p>
+</div>
+<div class="flow">적용 흐름 : 보험료 질문 감지 → 최신 파일 확인 → 보험료 금액 답변 차단 → 고정 안내문 출력 → FA 상담하기 연결</div>
+
+<h2 class="page-break">2. 상품 최신성 및 판매여부 운영 규칙</h2>
+<p class="lead">과거 상품자료가 검색되었다는 이유만으로 현재 판매 중인 상품으로 안내하지 않는다.
+메타데이터에는 사실정보를 저장하고, 최신성과 현재 판매 여부는 답변 시점에 판단한다.</p>
+
+<h3>2-1. 상품자료 기본 메타데이터</h3>
+<table>
+  <tr><th style="width:24%">항목</th><th>저장 내용</th></tr>
+  <tr><td class="k">보험사 / 상품명</td><td>상품 식별을 위한 기본 정보</td></tr>
+  <tr><td class="k">문서종류</td><td>상품안내장, 약관, 공시, 내부자료 등</td></tr>
+  <tr><td class="k">게시일</td><td>문서가 게시된 날짜</td></tr>
+  <tr><td class="k">적용일·개정일</td><td>상품조건 또는 문서가 실제 적용되는 시점</td></tr>
+  <tr><td class="k">출처</td><td>보험사 공식자료 등 원천정보</td></tr>
+  <tr><td class="k">수집일</td><td>Insurance AI에 수집된 날짜</td></tr>
+  <tr><td class="k">파일버전 <span class="new" style="margin-left:0">신설</span></td><td>동일 상품 자료의 최신 여부 식별값(최종본 여부) — 보험료 안내 시 최신 파일 판별 기준</td></tr>
+</table>
+
+<h3>2-2. 현재 판매 상품 데이터 우선 적용 <span class="new">신설</span></h3>
+<ol>
+  <li><strong class="hl">현재 판매 중인 상품 여부는 별도로 관리하는 ‘현재 판매 상품 데이터’를 최우선 기준으로 판단한다.</strong></li>
+  <li>검색된 상품자료가 존재하더라도 <strong>현재 판매 상품 데이터에 포함되어 있지 않은 상품</strong>은 현재 판매 중인 상품으로 안내하지 않는다.</li>
+  <li>판매종료 상품에 대한 질문에는 <strong>판매종료 사실을 먼저 안내</strong>한 후, 필요한 경우 보장내용 등 사실정보만 설명한다.</li>
+  <li>현재 판매 상품 데이터와 검색자료의 내용이 상충하는 경우 <strong>현재 판매 상품 데이터를 우선</strong>한다.</li>
+  <li>현재 판매 상품 데이터는 <strong>종(種)·플랜 단위까지 구분</strong>하여 관리하며, 데이터에 존재하지 않는 종·플랜은 현재 판매 대상으로 안내하지 않는다.</li>
+  <li>현재 판매 상품 데이터는 최신성 유지를 위해 <strong>월 1회 정기 업데이트</strong>하며, 업데이트 기준일을 함께 관리한다.</li>
+</ol>
+<p class="note">※ 현재 판매 상품 데이터의 구성 예시는 <strong>부록 A</strong> 참조.</p>
+
+<h3>2-3. 현재 판매 여부 확인이 필요한 질문</h3>
+<p>“어느 보험사에서 판매하나요?”, “현재 가입 가능한 상품인가요?”, “이 보장 판매하는 회사가 어디인가요?”,
+“○○특약이 있는 보험사는 어디인가요?”, “지금 판매 중인 상품이 있나요?” 등의 질문은 현재 판매 여부 확인 대상으로 분류한다.</p>
+
+<h3>2-4. 최종 답변 검증</h3>
+<p>‘현재 판매 중’, ‘가입 가능’, ‘특약 운영 중’, ‘현재 해당 보장을 판매’, ‘구성 가능’ 등 현재 판매 사실을 의미하는 표현은
+<strong>현재 판매 상품 데이터 및 최신 근거가 확인된 경우에만</strong> 사용한다.</p>
+<div class="quote">
+  <p style="margin:0" class="q">최신 근거가 확인되지 않는 경우 →
+  “관련 상품 또는 특약 자료는 확인되지만 현재 판매 여부는 확인이 필요합니다.”</p>
+</div>
+
+<h3>2-5. 상품자료 최신성</h3>
+<p>1년 이상 경과 여부를 별도 상태값으로 계속 수정하지 않고, 게시일·적용일과 현재 날짜를 비교하여 답변 시점에 판단한다.
+자료가 1년 이상 경과했거나 최신 여부·현재 판매 여부가 불명확한 경우, 동일 상품의 다른 시점 자료가 존재하는 경우,
+사용자가 현재·최신·지금 판매 여부를 질문한 경우에는 출처와 게시일 또는 기준일을 함께 표시한다.</p>
+
+<h3>2-6. 자료 선택 기준(우선순위)</h3>
+<table>
+  <tr><th style="width:14%">순위</th><th style="width:34%">기준</th><th>적용 대상</th></tr>
+  <tr><td class="k">1순위</td><td>현재 판매 상품 데이터</td><td>현재 판매 여부·가입 가능 여부 판단</td></tr>
+  <tr><td class="k">2순위</td><td>최신 파일(최신 게시일·적용일 자료)</td><td>보험료 관련 확인 및 현재 상품정보 안내</td></tr>
+  <tr><td class="k">3순위</td><td>기타 공식 상품자료</td><td>보장내용 등 사실정보 보완</td></tr>
+  <tr><td class="k">예외</td><td>가입시점 적용 약관·상품자료</td><td>과거 가입상품에 대한 질문</td></tr>
+</table>
+
+<h3>2-7. 운영 원칙</h3>
+<p>메타데이터에는 사실(Fact)을 저장하고, 변하는 상태(State)는 답변 시점에 판단한다.
+모든 상품의 판매상태를 사람이 지속적으로 변경하는 방식은 지양하고, 현재 판매 상품 데이터의 정기 업데이트를 기본으로 하되
+향후 보험사 공식 상품정보 또는 상품공시 데이터를 자동 수집하여 판매상태를 정기적으로 검증하는 방식으로 고도화한다.</p>
+
+<h2 class="page-break">3. 답변 최적화 개선 과제</h2>
+
+<h3>3-1. 보험료 안내 답변 최적화</h3>
+<table>
+  <tr><td class="k">현황</td><td>보험료 관련 질문에서 보험료가 <strong>구체적인 금액으로 답변되는 사례</strong> 확인</td></tr>
+  <tr><td class="k">개선 방향</td><td>AI가 보험료를 안내하지 않도록 <strong>보험료 안내 금지 규칙 적용</strong> 필요<br>
+    보험료 관련 확인이 필요한 경우 <strong>최신 파일을 기준</strong>으로만 근거를 확인하고, 금액은 노출하지 않음</td></tr>
+  <tr><td class="k">적용 규칙</td><td>1-1항(보험료 금액 안내 금지) · 1-2항(최신 파일 기준) · 보험료 질문 시 고정 응답 + FA 상담 연결</td></tr>
+  <tr><td class="k">R&amp;R</td><td><span class="badge">벨루가</span>관련 개선사항은 벨루가 R&amp;R 범위로 취합하여 <strong>일괄 적용 요청 예정</strong></td></tr>
+</table>
+
+<h3>3-2. 현재 판매 상품 답변 최적화</h3>
+<table>
+  <tr><td class="k">현황</td><td>현재 판매 중인 보험상품을 묻는 질문에 <strong>과거 판매종료 상품까지 현재 판매 상품처럼 답변</strong>하는 문제 확인</td></tr>
+  <tr><td class="k">개선 방향</td><td>현재 판매 상품 <strong>데이터 수집 완료(엄범식M)</strong><br>
+    최신성 유지를 위해 <strong>월 1회 정기 업데이트</strong> 예정</td></tr>
+  <tr><td class="k">적용 규칙</td><td>현재 판매 상품 데이터를 <strong>우선 기준</strong>으로 답변하도록 별도 규칙 적용(2-2항) · 미포함 상품은 현재 판매로 단정 금지</td></tr>
+  <tr><td class="k">R&amp;R</td><td><span class="badge">벨루가</span>관련 개선사항은 벨루가 R&amp;R 범위로 취합하여 <strong>일괄 적용 요청 예정</strong></td></tr>
+</table>
+
+<h2>4. 정책 요약</h2>
+<table>
+  <tr><th style="width:26%">구분</th><th>정책</th></tr>
+  <tr><td class="k" style="width:26%">보험료</td><td><strong>차단(Block)</strong> — 구체적인 금액 생성·추정·인용·비교 금지, 고정 응답 및 FA 상담 연결</td></tr>
+  <tr><td class="k">보험료 근거자료</td><td><strong>최신 기준(Latest)</strong> — 보험료 관련 안내는 항상 최신 파일 기준, 과거 버전 자료 인용 금지</td></tr>
+  <tr><td class="k">현재 판매 여부</td><td><strong>검증(Verify)</strong> — 현재 판매 상품 데이터와 최신 근거가 있을 때만 현재 판매로 단정</td></tr>
+  <tr><td class="k">현재 판매 상품 데이터</td><td><strong>우선(Priority)</strong> — 검색자료보다 우선 적용, 월 1회 정기 업데이트</td></tr>
+  <tr><td class="k">오래된 상품자료</td><td><strong>표시(Disclose)</strong> — 출처와 게시일·기준일을 함께 안내</td></tr>
+  <tr><td class="k">과거 가입상품</td><td><strong>시점 일치(Match)</strong> — 가입시점에 적용된 약관·상품자료 우선</td></tr>
+  <tr><td class="k">개선 적용 방식</td><td><strong>일괄 적용(Batch)</strong> — 벨루가 R&amp;R 범위로 취합 후 일괄 적용 요청</td></tr>
+</table>
+
+<h2 class="page-break">부록 A. 현재 판매 상품 데이터 구성 예시</h2>
+<p class="lead">아래는 <strong>현재 판매 상품 데이터</strong>의 구성 예시(개정코드 <strong>2607</strong> 기준, 총 40건)이다.
+이 목록에 포함된 상품·종·플랜만 <strong>‘현재 판매 중’</strong>으로 안내할 수 있으며,
+목록에 없는 과거 개정코드 상품은 <strong>판매종료</strong>로 처리한다.</p>
+
+<table>
+  <tr><td class="k" style="width:22%">기준일</td><td>매월 정기 업데이트 시점(월 1회)</td></tr>
+  <tr><td class="k">관리 단위</td><td>상품명 + 개정코드(YYMM) + 종·플랜·채널(1종/10종/CM/TM/기본플랜 등)</td></tr>
+  <tr><td class="k">담당</td><td>데이터 수집 완료 — 엄범식M</td></tr>
+  <tr><td class="k">적용</td><td>답변 시 1순위 기준 적용 · 미포함 상품은 현재 판매로 단정 금지</td></tr>
+</table>
+
+<ul class="cols">
+  <li>(무)참좋은더보장간병보험2607(6종)</li>
+  <li>(무)참좋은더보장간병보험2607(7종)</li>
+  <li>(무)참좋은더보장간병보험2607(8종)</li>
+  <li>(무)참좋은더보장간병보험2607(9종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(10종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(11종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(12종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(13종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(30종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(31종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(32종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(33종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(40종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(41종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(42종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(43종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(50종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(51종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(52종)</li>
+  <li>(무)참좋은더보장치매요양간편건강보험2607(53종)</li>
+  <li>(무)참좋은라이더 보험2607(1종)</li>
+  <li>(무)참좋은라이더 보험2607(4종)</li>
+  <li>(무)참좋은암보험2607(CM)</li>
+  <li>(무)참좋은운전자보험2607(CM)</li>
+  <li>(무)참좋은운전자상해보험(TM)2607</li>
+  <li>(무)참좋은운전자상해보험2607</li>
+  <li>(무)참좋은치아사랑보험2607</li>
+  <li>(무)참좋은치아안심보험2607(VIP플랜)</li>
+  <li>(무)참좋은치아안심보험2607(기본강화플랜)</li>
+  <li>(무)참좋은치아안심보험2607(기본플랜)</li>
+  <li>(무)참좋은치아안심보험2607(자녀플랜)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(10종)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(11종)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(12종)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(1종)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(2종)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(3종)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(4종)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(7종)</li>
+  <li>(무)참좋은행복더블플러스종합보험2607(8종)</li>
+</ul>
+<p class="note">※ 예시 목록이며, 실제 운영 시에는 정기 업데이트된 최신 데이터를 기준으로 한다.</p>
+
+</body>
+</html>
