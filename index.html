@@ -244,6 +244,27 @@ input,textarea{font:inherit;letter-spacing:inherit}
 .lnd-foot{
   text-align:center;font-size:12px;color:var(--faint);padding:50px 24px 34px;line-height:1.9;
 }
+.lnd-about-lk{
+  margin-top:28px;font-size:13.5px;color:var(--dim);
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line);
+}
+.lnd-about-lk:hover{color:var(--text)}
+.abt{max-width:680px;margin:0 auto;padding:40px 24px 10px;width:100%}
+.abt h1{font-size:34px;font-weight:700;letter-spacing:-.05em;line-height:1.32;margin-bottom:16px}
+.abt .lead{font-size:16px;color:var(--dim);line-height:1.8}
+.abt .lead b{color:var(--text)}
+.abt .sec-h{margin-top:42px;margin-bottom:12px}
+.abt .abt-grid{margin:0;padding:0;max-width:none}
+.abt-step{display:flex;gap:14px;align-items:flex-start;padding:12px 0}
+.abt-step + .abt-step{border-top:1px solid var(--line2)}
+.abt-step .no{
+  width:26px;height:26px;flex:0 0 26px;border-radius:50%;display:grid;place-items:center;
+  background:var(--text);color:#fff;font-size:12.5px;font-weight:700;margin-top:1px;
+}
+.abt-step b{font-size:14.5px}
+.abt-step .d{font-size:13.5px;color:var(--dim);margin-top:3px;line-height:1.7}
+.abt-cta{display:flex;gap:8px;margin-top:36px}
+@media (max-width:640px){ .abt .abt-grid{grid-template-columns:1fr} .abt h1{font-size:28px} }
 
 /* ══════════════ 홈 ══════════════ */
 .hi{font-size:30px;font-weight:700;letter-spacing:-.045em;text-align:center;margin:0 0 22px}
@@ -791,6 +812,7 @@ input,textarea{font:inherit;letter-spacing:inherit}
   <div class="lnd-top">
     <div class="logo"><span class="logo-lockup"><img class="logo-full" src="data:image/png;base64,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" alt="insurance AI"></span></div>
     <div class="right">
+      <button class="btn btn-sm" style="color:var(--dim)" onclick="openAbout()">서비스 소개</button>
       <button class="btn btn-line btn-sm" onclick="goAuth()">로그인</button>
       <button class="btn btn-primary btn-sm" onclick="goAuth()">무료로 시작하기</button>
     </div>
@@ -814,9 +836,81 @@ input,textarea{font:inherit;letter-spacing:inherit}
       <button class="chip" onclick="enterAsk('암보험은 얼마나 있어야 해요?')">암보험 얼마나 필요해요?</button>
     </div>
 
+    <button class="lnd-about-lk" onclick="openAbout()">insurance AI는 어떤 서비스인가요? →</button>
 
   </div>
 
+
+  <div class="lnd-foot">
+    아이에프에이에이아이 주식회사 · 서비스명 insurance AI · 사업자등록번호 000-00-00000<br>
+    본 화면은 UI 프로토타입이며, 표시된 수치는 모두 예시 데이터입니다.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     서비스 소개 (로그인 전)
+     ═══════════════════════════════════════════════════ -->
+<div id="aboutScreen" class="landing" style="display:none">
+  <div class="lnd-top">
+    <button class="backbtn" onclick="closeAbout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      처음으로
+    </button>
+    <div class="right">
+      <button class="btn btn-line btn-sm" onclick="goAuth()">로그인</button>
+      <button class="btn btn-primary btn-sm" onclick="goAuth()">무료로 시작하기</button>
+    </div>
+  </div>
+
+  <div class="abt">
+    <h1>보험을 아는 AI가<br>당신 편에서 일합니다.</h1>
+    <p class="lead">insurance AI는 어려운 보험을 쉬운 말로 풀어주는 보험 전용 AI 서비스입니다.
+    일반적인 지식이 아니라, <b>내가 가입한 보험과 내 건강 데이터를 근거로</b> 답합니다.</p>
+
+    <div class="sec-h"><h2>무엇을 해주나요?</h2></div>
+    <div class="lnd-three abt-grid">
+      <div class="card">
+        <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15a3 3 0 0 1-3 3H8l-4 3V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3z"/></svg></div>
+        <div class="card-t">물어보면 답합니다</div>
+        <div class="card-d">"실손보험이 뭐예요?"부터 "언제까지 청구할 수 있어요?"까지, 결론부터 쉬운 말로 답해드립니다.</div>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+        <div class="card-t">내 보험을 한눈에</div>
+        <div class="card-d">금융데이터를 연결하면 여기저기 흩어진 보험과 매달 내는 보험료를 한 번에 보여드립니다.</div>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7l1.5-2h5L16 7"/></svg></div>
+        <div class="card-t">받을 돈을 챙겨드립니다</div>
+        <div class="card-d">의료데이터를 연결하면 청구할 수 있는 보험금을 찾아드리고, 서류 사진만 올리면 대신 접수까지 해드립니다.</div>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.3-2.9 7.7-7 8.5-4.1-.8-7-4.2-7-8.5V6l7-3zM9 12l2 2 4-4"/></svg></div>
+        <div class="card-t">내 몸 기준 보험설계</div>
+        <div class="card-d">건강검진 결과를 근거로 지금 나에게 부족한 보장이 무엇인지 확인해 드립니다.</div>
+      </div>
+    </div>
+
+    <div class="sec-h"><h2>이렇게 시작합니다</h2></div>
+    <div class="card">
+      <div class="abt-step"><span class="no">1</span><div><b>가입 없이 먼저 물어보세요.</b><div class="d">로그인 없이도 5개까지 자유롭게 질문할 수 있습니다.</div></div></div>
+      <div class="abt-step"><span class="no">2</span><div><b>휴대폰 번호로 가입하세요.</b><div class="d">번호 확인만 하면 끝. 매일 20개까지 무료로 질문할 수 있습니다.</div></div></div>
+      <div class="abt-step"><span class="no">3</span><div><b>내 데이터를 연결하세요.</b><div class="d">금융·의료 데이터를 연결하는 순간, 답이 "일반 상식"에서 "내 이야기"로 바뀝니다.</div></div></div>
+    </div>
+
+    <div class="sec-h"><h2>내 정보는 안전한가요?</h2></div>
+    <div class="privacy">
+      · 연결한 정보는 <b>질문에 답할 때 근거로만 조회</b>하며 <b>AI 학습에는 사용하지 않습니다.</b><br>
+      · <b>보험 가입 심사나 인수 판단에는 사용하지 않습니다.</b><br>
+      · 유전정보는 건강관리 안내에만 쓰이며, 보험 라인과 완전히 분리되어 있습니다.<br>
+      · 연결을 끊으면 불러온 정보도 함께 삭제됩니다. 로그인 후 언제든 직접 관리할 수 있습니다.
+    </div>
+
+    <div class="abt-cta">
+      <button class="btn btn-primary" onclick="goAuth()">무료로 시작하기</button>
+      <button class="btn btn-line" onclick="closeAbout()">먼저 물어보기</button>
+    </div>
+  </div>
 
   <div class="lnd-foot">
     아이에프에이에이아이 주식회사 · 서비스명 insurance AI · 사업자등록번호 000-00-00000<br>
@@ -853,6 +947,10 @@ input,textarea{font:inherit;letter-spacing:inherit}
 
   <div class="gmain">
     <div class="gtop">
+      <button class="backbtn" onclick="backToLanding2()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        처음으로
+      </button>
       <div class="right">
         <button class="btn btn-line btn-sm" onclick="goAuth()">로그인</button>
         <button class="btn btn-primary btn-sm" onclick="goAuth()">무료로 시작하기</button>
@@ -988,7 +1086,7 @@ input,textarea{font:inherit;letter-spacing:inherit}
       </div>
       <button class="btn btn-primary btn-block" onclick="enter()" style="margin-top:14px">확인하고 시작하기</button>
       <p class="alt">
-        <b onclick="authBack()">번호 다시 입력하기</b> · <b onclick="alert('인증번호를 다시 보냈습니다.')">재전송</b>
+        <b onclick="authBack()">번호 다시 입력하기</b> · <b onclick="soon('인증번호를 다시 보냈습니다.')">재전송</b>
       </p>
     </div>
   </div>
@@ -1054,13 +1152,16 @@ input,textarea{font:inherit;letter-spacing:inherit}
       </button>
     </div>
 
-    <div class="side-foot">
-      <button class="me" onclick="go('mypage')">
+    <div class="side-foot" style="display:flex;align-items:center;gap:4px">
+      <button class="me" style="flex:1;min-width:0" onclick="go('mypage')">
         <div class="avatar">서</div>
         <div>
           <div class="nm">서아윤</div>
           <div class="st" id="meState">데이터 미연결</div>
         </div>
+      </button>
+      <button class="iconbtn" onclick="go('logoutConfirm')" title="로그아웃" aria-label="로그아웃">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M15 8l4 4-4 4M19 12H9"/></svg>
       </button>
     </div>
   </aside>
@@ -1146,7 +1247,7 @@ const TITLES = {
   connectFin:'나의 금융 정보 불러오기', connectMed:'나의 의료 정보 불러오기', vfa:'변액보험 관리', 
   gene:'유전자 분석', addManual:'보험 직접 추가', claimFlow:'보험금 청구하기',
   alerts:'알림 설정', addTerms:'내 보험 약관 추가하기', plan:'요금제', help:'고객센터',
-  claimStatus:'청구 진행 상황'
+  claimStatus:'청구 진행 상황', logoutConfirm:'로그아웃'
 };
 
 const ROOT_ROUTES = ['home','chat','policies','coverage','claims','mypage'];
@@ -1273,7 +1374,7 @@ function go(r, fresh, isBack){
   syncChrome();
 }
 function topRight(r){
-  if(r === 'home' || r === 'chat') return '';
+  if(r === 'home' || r === 'chat' || r === 'logoutConfirm') return '';
   return '<button class="btn btn-line btn-sm" onclick="go(\'chat\', true)">AI에게 물어보기</button>';
 }
 const FEATURES = [
@@ -1351,8 +1452,18 @@ function syncChrome(){
   const rd = document.getElementById('railDot');
   if(rd) rd.classList.toggle('on', S.fin || S.med);
 }
+function openAbout(){
+  document.getElementById('landing').style.display='none';
+  const a = document.getElementById('aboutScreen');
+  a.style.display='flex'; a.scrollTop = 0;
+}
+function closeAbout(){
+  document.getElementById('aboutScreen').style.display='none';
+  document.getElementById('landing').style.display='flex';
+}
 function goAuth(){
   document.getElementById('landing').style.display='none';
+  document.getElementById('aboutScreen').style.display='none';
   document.getElementById('authScreen').style.display='flex';
   document.getElementById('authStep1').style.display='';
   document.getElementById('authStep2').style.display='none';
@@ -1539,9 +1650,16 @@ function logout(){
   S.guestUsed = 0; guestLog = []; gRecent = []; gSeq = 0; S.claims = [];
   document.getElementById('guestChat').style.display='none';
   document.getElementById('authScreen').style.display='none';
+  document.getElementById('aboutScreen').style.display='none';
   document.getElementById('app').style.display='none';
   document.getElementById('demobar').style.display='none';
   document.getElementById('landing').style.display='flex';
+  document.querySelectorAll('#authStep1 .cs').forEach(c => c.classList.remove('on'));
+  syncAuth();
+}
+function doLogout(){
+  logout();
+  soon('로그아웃했습니다. 언제든 다시 만나요.');
 }
 function toggleData(k){
   if(k==='fin') S.fin = !S.fin; else S.med = !S.med;
@@ -2258,7 +2376,7 @@ VIEWS.mypage = () => `
         <div style="font-size:16px;font-weight:700">서아윤</div>
         <div style="font-size:13px;color:var(--dim);margin-top:2px">010-****-6377</div>
       </div>
-      <button class="btn btn-line btn-sm" onclick="alert('이름·연락처는 본인확인을 다시 거쳐야 바꿀 수 있습니다.')">정보 수정</button>
+      <button class="btn btn-line btn-sm" onclick="soon('이름·연락처는 본인확인을 다시 거쳐야 바꿀 수 있습니다.')">정보 수정</button>
     </div>
 
     <div class="sec-h"><h2>연결한 데이터</h2></div>
@@ -2322,8 +2440,39 @@ VIEWS.mypage = () => `
 
     <div class="sec-h"><h2>기타</h2></div>
     <div class="mp-row"><span style="flex:1"><span class="tt">알림 설정</span><div class="dd">청구할 것이 생기면 알려드립니다.</div></span><span class="ac"><button class="btn btn-line btn-sm" onclick="go('alerts')">변경</button></span></div>
-    <div class="mp-row"><span style="flex:1"><span class="tt">개인정보 처리방침 · 이용약관</span><div class="dd">어떤 정보를 어떻게 쓰는지 확인할 수 있습니다.</div></span><span class="ac"><button class="btn btn-line btn-sm" onclick="alert('약관·개인정보 처리방침 전문이 열립니다.')">보기</button></span></div>
+    <div class="mp-row"><span style="flex:1"><span class="tt">개인정보 처리방침 · 이용약관</span><div class="dd">어떤 정보를 어떻게 쓰는지 확인할 수 있습니다.</div></span><span class="ac"><button class="btn btn-line btn-sm" onclick="soon('약관·개인정보 처리방침 전문이 열립니다. (프로토타입)')">보기</button></span></div>
     <div class="mp-row"><span style="flex:1"><span class="tt">고객센터</span><div class="dd">AI가 판단하기 어려운 일은 사람이 직접 확인해 드립니다.</div></span><span class="ac"><button class="btn btn-line btn-sm" onclick="go('help')">문의하기</button></span></div>
+
+    <div class="sec-h"><h2>계정</h2></div>
+    <div class="mp-row"><span style="flex:1"><span class="tt">로그아웃</span><div class="dd">이 기기에서 로그아웃합니다. 연결한 데이터는 계정에 그대로 남습니다.</div></span><span class="ac"><button class="btn btn-line btn-sm" onclick="go('logoutConfirm')">로그아웃</button></span></div>
+  </div>`;
+
+VIEWS.logoutConfirm = () => `
+  <div class="wrap" style="max-width:560px">
+    <div class="pagehead">
+      <h1>로그아웃할까요?</h1>
+      <p>언제든 휴대폰 본인확인으로 다시 로그인할 수 있습니다.</p>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;gap:14px;margin-top:8px">
+      <div class="avatar" style="width:44px;height:44px;flex:0 0 44px;font-size:16px">서</div>
+      <div style="flex:1">
+        <div style="font-size:16px;font-weight:700">서아윤</div>
+        <div style="font-size:13px;color:var(--dim);margin-top:2px">010-****-6377 · 스탠다드 이용 중</div>
+      </div>
+    </div>
+
+    <div class="privacy" style="margin-top:16px">
+      <b>로그아웃해도 이렇게 유지됩니다.</b><br>
+      · 연결한 금융·의료 데이터와 대화 기록은 <b>계정에 그대로 보관</b>됩니다.<br>
+      · 다시 로그인하면 지금 상태 그대로 이어서 쓸 수 있습니다.<br>
+      · 데이터 연결 자체를 끊고 싶다면 <b>내 정보와 데이터 연결</b>에서 연결 끊기를 먼저 해주세요.
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:22px">
+      <button class="btn btn-primary" onclick="doLogout()">로그아웃</button>
+      <button class="btn btn-line" onclick="goBack()">취소</button>
+    </div>
   </div>`;
 
 const CLAIM_STATES = {
