@@ -1,0 +1,205 @@
+{
+  "meta": {
+    "name": "담보 마스터 (coverage master)",
+    "version": "0.1.0",
+    "note": "사내 시뮬레이션용 샘플 정의입니다. 실제 판매 상품의 약관/요율이 아닙니다."
+  },
+  "unit_types": {
+    "amount": "가입금액 1,000만원당 요율 (진단비·사망·후유장해형)",
+    "daily": "1일당 1만원당 요율 (입원일당형)",
+    "per_event": "1회당 10만원당 요율 (수술비형)"
+  },
+  "coverages": [
+    {
+      "code": "CAN001",
+      "name": "암진단비(유사암 제외)",
+      "aliases": ["암", "암진단", "암진단비", "일반암", "고액암"],
+      "category": "진단비",
+      "unit_type": "amount",
+      "summary": "보험기간 중 암(유사암 제외)으로 진단확정되었을 때 가입금액을 한 번 지급하는 담보입니다.",
+      "payout_trigger": "병리조직검사 등 의학적 근거로 '암' 진단확정 시 최초 1회 가입금액 100% 지급",
+      "waiting_days": 90,
+      "reduction_period_days": 365,
+      "reduction_rate": 0.5,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 15, "max": 70},
+      "limit_won": 100000000,
+      "notes": [
+        "계약일로부터 90일이 지난 날의 다음날부터 보장이 시작됩니다(면책기간).",
+        "보장개시일부터 1년 미만에 진단확정 시 가입금액의 50%만 지급됩니다(감액기간).",
+        "유사암(갑상선암·기타피부암·경계성종양·제자리암)은 CAN002에서 따로 보장합니다."
+      ]
+    },
+    {
+      "code": "CAN002",
+      "name": "유사암진단비",
+      "aliases": ["유사암", "갑상선암", "제자리암", "경계성종양", "기타피부암"],
+      "category": "진단비",
+      "unit_type": "amount",
+      "summary": "갑상선암·기타피부암·제자리암·경계성종양으로 진단확정 시 지급하는 담보입니다.",
+      "payout_trigger": "유사암 진단확정 시 최초 1회 가입금액 100% 지급",
+      "waiting_days": 90,
+      "reduction_period_days": 365,
+      "reduction_rate": 0.5,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 15, "max": 70},
+      "limit_won": 30000000,
+      "notes": [
+        "일반암 대비 발생률은 높지만 치료비 부담이 작아 가입한도가 낮게 설계되어 있습니다.",
+        "여성 30~50대 발생률이 높아 동일 연령대 여성 요율이 남성보다 높습니다."
+      ]
+    },
+    {
+      "code": "CVA001",
+      "name": "뇌혈관질환진단비",
+      "aliases": ["뇌혈관", "뇌졸중", "뇌출혈", "뇌경색", "뇌질환"],
+      "category": "진단비",
+      "unit_type": "amount",
+      "summary": "뇌출혈·뇌경색증을 포함한 뇌혈관질환(I60~I69)으로 진단확정 시 지급합니다.",
+      "payout_trigger": "뇌혈관질환 진단확정 시 최초 1회 가입금액 100% 지급",
+      "waiting_days": 0,
+      "reduction_period_days": 365,
+      "reduction_rate": 0.5,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 15, "max": 65},
+      "limit_won": 50000000,
+      "notes": [
+        "뇌출혈 < 뇌졸중 < 뇌혈관질환 순으로 보장범위가 넓어지고 요율도 높아집니다.",
+        "진단은 영상검사(CT·MRI) 등 객관적 자료를 근거로 합니다."
+      ]
+    },
+    {
+      "code": "ACS001",
+      "name": "허혈성심장질환진단비",
+      "aliases": ["허혈성", "심장", "심근경색", "협심증", "심장질환"],
+      "category": "진단비",
+      "unit_type": "amount",
+      "summary": "협심증·급성심근경색증을 포함한 허혈성심장질환(I20~I25)으로 진단확정 시 지급합니다.",
+      "payout_trigger": "허혈성심장질환 진단확정 시 최초 1회 가입금액 100% 지급",
+      "waiting_days": 0,
+      "reduction_period_days": 365,
+      "reduction_rate": 0.5,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 15, "max": 65},
+      "limit_won": 50000000,
+      "notes": [
+        "급성심근경색증만 보장하는 담보보다 보장범위가 넓어 요율이 높습니다.",
+        "남성 40대 이후 발생률 상승폭이 커 남성 요율이 여성보다 높습니다."
+      ]
+    },
+    {
+      "code": "DIS001",
+      "name": "질병후유장해(3~100%)",
+      "aliases": ["후유장해", "장해", "질병장해"],
+      "category": "장해",
+      "unit_type": "amount",
+      "summary": "질병으로 장해지급률 3% 이상의 후유장해가 남았을 때 장해지급률만큼 비례 지급합니다.",
+      "payout_trigger": "장해분류표상 지급률 3% 이상 판정 시 가입금액 × 장해지급률 지급(보험기간 중 합산 100% 한도)",
+      "waiting_days": 0,
+      "reduction_period_days": 0,
+      "reduction_rate": 0.0,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 15, "max": 65},
+      "limit_won": 100000000,
+      "notes": [
+        "정액 지급이 아니라 장해지급률에 비례해 지급되는 구조입니다.",
+        "동일 신체부위의 장해는 합산 후 최종 지급률로 정산합니다."
+      ]
+    },
+    {
+      "code": "LTC001",
+      "name": "장기요양(1~2등급)진단비",
+      "aliases": ["장기요양", "요양등급", "간병", "치매"],
+      "category": "간병",
+      "unit_type": "amount",
+      "summary": "노인장기요양보험법상 장기요양 1등급 또는 2등급 판정을 받았을 때 지급합니다.",
+      "payout_trigger": "장기요양 1~2등급 최초 판정 시 가입금액 100% 지급",
+      "waiting_days": 0,
+      "reduction_period_days": 730,
+      "reduction_rate": 0.5,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 30, "max": 70},
+      "limit_won": 30000000,
+      "notes": [
+        "판정 주체가 국민건강보험공단이라 지급 판단이 비교적 명확합니다.",
+        "70세 이후 발생률이 급증해 연령에 따른 요율 상승폭이 가장 큰 담보입니다."
+      ]
+    },
+    {
+      "code": "DTH001",
+      "name": "일반사망",
+      "aliases": ["사망", "사망보험금", "일반사망"],
+      "category": "사망",
+      "unit_type": "amount",
+      "summary": "보험기간 중 원인을 불문하고 사망했을 때 가입금액을 지급합니다.",
+      "payout_trigger": "사망 시 가입금액 100% 지급(계약 소멸)",
+      "waiting_days": 0,
+      "reduction_period_days": 730,
+      "reduction_rate": 0.5,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 15, "max": 70},
+      "limit_won": 300000000,
+      "notes": [
+        "가입 후 2년 이내 자살은 면책입니다(약관상 재해사망 제외 조항).",
+        "상속·유족생활자금 목적의 주계약성 담보로 가입금액 한도가 가장 큽니다."
+      ]
+    },
+    {
+      "code": "SUR001",
+      "name": "질병수술비",
+      "aliases": ["질병수술", "수술비", "질병수술비"],
+      "category": "수술",
+      "unit_type": "per_event",
+      "summary": "질병으로 수술을 받았을 때 수술 1회당 정액을 지급합니다.",
+      "payout_trigger": "질병 치료 목적의 수술 1회당 가입금액 지급(횟수 무제한, 동일 수술 60일 1회 한도)",
+      "waiting_days": 0,
+      "reduction_period_days": 0,
+      "reduction_rate": 0.0,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 0, "max": 70},
+      "limit_won": 3000000,
+      "notes": [
+        "흡인·천자 등 처치는 약관상 수술로 보지 않습니다.",
+        "요율 단위는 '수술 1회당 10만원'입니다."
+      ]
+    },
+    {
+      "code": "SUR002",
+      "name": "상해수술비",
+      "aliases": ["상해수술", "재해수술", "상해수술비"],
+      "category": "수술",
+      "unit_type": "per_event",
+      "summary": "상해(재해)로 수술을 받았을 때 수술 1회당 정액을 지급합니다.",
+      "payout_trigger": "상해 치료 목적의 수술 1회당 가입금액 지급",
+      "waiting_days": 0,
+      "reduction_period_days": 0,
+      "reduction_rate": 0.0,
+      "renewal_cycle_years": null,
+      "issue_age": {"min": 0, "max": 70},
+      "limit_won": 3000000,
+      "notes": [
+        "질병수술비와 달리 연령에 따른 요율 상승폭이 완만합니다(사고 위험은 연령 의존도가 낮음).",
+        "요율 단위는 '수술 1회당 10만원'입니다."
+      ]
+    },
+    {
+      "code": "HOS001",
+      "name": "질병입원일당(1일 이상)",
+      "aliases": ["입원일당", "입원비", "질병입원", "입원"],
+      "category": "입원",
+      "unit_type": "daily",
+      "summary": "질병으로 입원했을 때 입원 1일당 정액을 지급하는 갱신형 담보입니다.",
+      "payout_trigger": "질병 입원 1일차부터 1일당 가입금액 지급(1회 입원당 180일 한도)",
+      "waiting_days": 0,
+      "reduction_period_days": 0,
+      "reduction_rate": 0.0,
+      "renewal_cycle_years": 15,
+      "issue_age": {"min": 0, "max": 65},
+      "limit_won": 100000,
+      "notes": [
+        "15년 갱신형이라 갱신 시점의 나이 요율로 보험료가 다시 산출됩니다.",
+        "요율 단위는 '1일당 1만원'입니다."
+      ]
+    }
+  ]
+}
