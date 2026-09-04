@@ -1,0 +1,9 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+.venv/
+
+# 원본 [별표 15] PDF는 용량이 커서 저장소에 넣지 않는다.
+# 분할 결과(standard_terms/)와 split_manifest.json 은 커밋한다.
+input/*
+!input/README.md
