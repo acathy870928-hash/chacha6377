@@ -25,7 +25,7 @@ def style_header(ws, ncol, row=1):
         cell.fill = HEAD_FILL
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         cell.border = BORDER
-    ws.freeze_panes = ws.cell(row=row + 1, column=1)
+    ws.freeze_panes = f"A{row + 1}"  # ws.cell() 로 지정하면 빈 셀이 만들어져 행이 밀린다
 
 
 def autosize(ws, widths):
@@ -66,6 +66,7 @@ def build(out: Path):
     ws.cell(row=total, column=8, value=f"=SUM(H2:H{total - 1})").number_format = "#,##0"
     for c in (5, 7, 8):
         ws.cell(row=total, column=c).font = Font(name=FONT, size=10, bold=True)
+    ws.cell(row=total, column=10, value="합계는 파일을 열 때 계산됩니다(수식 유지).").font = Font(name=FONT, size=9, italic=True)
     autosize(ws, [6, 10, 20, 18, 46, 9, 9, 14, 9, 42])
     note = total + 2
     ws.cell(row=note, column=1, value="선정 기준")
