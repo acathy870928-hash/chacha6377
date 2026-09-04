@@ -127,6 +127,55 @@ def select(rows, total=23, per_insurer=2):
 
     return sorted(picked, key=lambda r: -r["score"])
 
+def select_spread(rows, total=23, per_insurer=1):
+    """보험사 1사 1상품을 지키면서 보종을 최대한 고르게 뽑는다.
+
+    점수 상위부터 그냥 내려가면 펫·암처럼 취급사가 적은 보종이 반드시 탈락한다.
+    (펫보험은 KB손보·삼성화재·DB손보 3사, 암보험은 메리츠·한화생명·흥국화재 3사에만
+    있는데, 이 회사들은 실적 상위라 다른 보종에 먼저 쓰이기 때문이다.)
+    그래서 취급 보험사가 적은 보종부터 자리를 잡고, 남는 자리를 점수순으로 채운다.
+    """
+    rows = sorted(rows, key=lambda r: -r["score"])
+    picked, used_ins = [], {}
+    per_bucket = {}
+
+    def take(r, why):
+        if used_ins.get(r["insurer"], 0) >= per_insurer:
+            return False
+        picked.append(dict(r, reason=why))
+        used_ins[r["insurer"]] = used_ins.get(r["insurer"], 0) + 1
+        per_bucket[r["bucket"]] = per_bucket.get(r["bucket"], 0) + 1
+        return True
+
+    buckets = {}
+    for r in rows:
+        buckets.setdefault(r["bucket"], []).append(r)
+
+    # 1단계: 취급 보험사가 적은 보종(희소 보종)부터 대표 1개씩 확보한다.
+    scarcity = sorted(buckets, key=lambda b: (len({r["insurer"] for r in buckets[b]}), -buckets[b][0]["score"]))
+    for b in scarcity:
+        if len(picked) >= total:
+            break
+        for r in buckets[b]:
+            if take(r, f"보종 대표: {b}"):
+                break
+
+    # 2단계: 남은 자리는 '지금까지 적게 뽑힌 보종'을 우선하되 그 안에서는 점수순으로 채운다.
+    while len(picked) < total:
+        cand = None
+        for r in rows:
+            if used_ins.get(r["insurer"], 0) >= per_insurer:
+                continue
+            key = (per_bucket.get(r["bucket"], 0), -r["score"])
+            if cand is None or key < cand[0]:
+                cand = (key, r)
+        if cand is None:
+            break                      # 남은 보험사가 없다
+        take(cand[1], "판매 상위 보강")
+
+    return sorted(picked, key=lambda r: -r["score"])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("source", type=Path)
@@ -134,6 +183,7 @@ def main():
     ap.add_argument("--per-insurer", type=int, default=2)
     ap.add_argument("--json", type=Path)
     ap.add_argument("--audit", action="store_true", help="보종 분류 결과 전체를 출력")
+    ap.add_argument("--spread", action="store_true", help="1사 1상품 + 보종 균등 분산")
     a = ap.parse_args()
 
     rows = score(load(a.source))
@@ -142,7 +192,8 @@ def main():
             print(f'{r["bucket"]:<12} {r["insurer"]:<12} {r["product"][:44]}')
         return
 
-    picked = select(rows, a.total, a.per_insurer)
+    picker = select_spread if a.spread else select
+    picked = picker(rows, a.total, a.per_insurer)
     print(f'{"#":>2}  {"보종":<12} {"보험사":<12} {"상품명":<46} {"건수":>4} {"월납":>10}')
     for i, r in enumerate(picked, 1):
         print(f'{i:>2}  {r["bucket"]:<12} {r["insurer"]:<12} {r["product"][:44]:<46} {r["count"]:>4} {r["amount"]:>10,}')
