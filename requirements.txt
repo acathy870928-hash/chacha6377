@@ -2,3 +2,5 @@ pypdf>=4.0
 # 테스트/합성 PDF 생성용
 reportlab>=4.0
 pytest>=7
+# 벨루가 상품 선정용
+openpyxl>=3.1
