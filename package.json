@@ -1,0 +1,16 @@
+{
+  "name": "pension-planning-ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "국민연금·퇴직연금·개인연금 3층 구조를 연도별 현금흐름으로 시뮬레이션하는 연금설계 도구",
+  "scripts": {
+    "test": "node --test tests/engine.test.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
